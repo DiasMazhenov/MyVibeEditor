@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.06 */
+<?php /* MyVibeHTML v0.07 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -523,7 +523,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '0.06';
+    const a = '0.07';
     private $config;
     private $request;
     private $response;
