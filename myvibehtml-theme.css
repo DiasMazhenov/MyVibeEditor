@@ -75,7 +75,7 @@
 #e>div>ul+div>div{position:fixed;top:68px;left:12px;box-sizing:border-box;width:min(460px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100vh - 80px);border:1px solid var(--mv-border);border-top:0;border-radius:0 0 12px 12px;background:rgba(20,28,36,.98);box-shadow:0 20px 40px rgba(0,0,0,.38);overflow:auto;overflow-x:hidden}
 #e>div>div+ul{display:flex;align-items:center;flex:0 0 auto;float:none;min-width:max-content;margin:0 0 0 auto;padding:3px;gap:4px}
 #e>div>div+ul>li{float:none;margin:0}
-#e>div>div+ul input[type="button"]{box-sizing:border-box;height:34px!important;margin:0!important;padding:0 14px!important;border-radius:9px!important;font-size:11px!important;font-weight:700!important;text-shadow:none!important;transition:filter .2s,transform .2s,background .2s}
+#e>div>div+ul input[type="button"]{box-sizing:border-box;width:max-content!important;height:34px!important;margin:0!important;padding:0 14px!important;border-radius:9px!important;font-size:11px!important;font-weight:700!important;text-shadow:none!important;transition:filter .2s,transform .2s,background .2s}
 #e>div>div+ul input[type="button"]:not([disabled]):hover{filter:brightness(1.08);transform:translateY(-1px)}
 #e>div>div+ul input[type="button"][disabled]{border:1px solid rgba(148,163,184,.16)!important;background:#29343e!important;color:#7d8b96!important;box-shadow:none!important}
 #e>div>div+ul>li:last-child input[type="button"]{border:1px solid rgba(94,234,212,.25)!important;background:#0f766e!important;color:#effffc!important;box-shadow:0 8px 18px rgba(20,184,166,.16)!important}
