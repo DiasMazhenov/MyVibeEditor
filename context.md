@@ -88,6 +88,7 @@
 - Live mobile-проверка 390x844 через реальный burger: `text` открывается через меню, source root `#c`, `auth=false`, horizontal overflow отсутствует, header и source card укладываются в viewport. Визуально просмотрен `v016-source-mobile.png`.
 - Статические проверки после правок: `php -l myvibehtml.php` — OK, `node --check myvibehtml.js` — OK; `git diff --check` и `security-smoke.sh` выполняются перед кодовым коммитом. Внешние библиотеки не добавлялись; пользовательский `test-page.html` остаётся вне коммита.
 - SHA-256 перед кодовым коммитом: `myvibehtml.php` `16f0572051f9e276acd6d1d4ba08ab4f06ab6d921f97ec271569fa540f985a78`, `myvibehtml.js` `bb8ca5a7194f08dfaad66a5103a302125388eba4a70c3e3288a7349f21b5022e`, `myvibehtml.css` `512fd8b6d51255cc1bd574eefcc64c523e2ffaa12a0d9c5b023d49f0bd5081ec`, `myvibehtml-theme.css` `6d5821075b9cd31c2af812e361b5cfda39be061120d8b3fa6af8578974ac4d1f`, `myvibehtml-fallback.css` `d55d1177e254e2e4d5967a04111d990dff1a73d2636539f0d8afbe5922456239`, `dev-router.php` `97993fd26733d22d1099b3a2f37704297c99180d2775a899d1aae66a140b6bd2`.
+- Кодовый коммит: `2d298cad8b3da7a84467d6f79fac5c49f84d4465` (`2026-08-18T22:29:34+05:00`, `Fix source mode and direct site preview`); отправка в `origin/main` выполняется после context-only коммита.
 - Следующий functional version после этого исправления — `0.17`.
 
 ## Переименование Textolite → MyVibeHTML
