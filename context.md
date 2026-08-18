@@ -4,13 +4,13 @@
 
 - Дата: 2026-08-18, Asia/Almaty.
 - Версия из исходников: MyVibeHTML `2.12e`.
-- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard и точечное HTML-экранирование динамических данных добавлены и проверены в изолированном document root. Следующий этап — конфигурационная изоляция, security headers и оставшиеся innerHTML-контексты.
+- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard, точечное HTML-экранирование, runtime-изоляция конфигурации/лога, security headers и безопасный вывод внешнего update-текста добавлены и проверены. Остались CSP/браузерная acceptance-проверка, общий аудит innerHTML и замена внешнего update/install/activate flow.
 - Git: локальный репозиторий и ветка `main` инициализированы, `origin` настроен на `https://github.com/DiasMazhenov/MyVibeEditor.git`; baseline commit — `1e4ec5049ec3951a2b7b99d7be4db28904c07a35` от 2026-08-18 16:15:09 +0500, контекст GitHub — `f1763f1`, текущий security commit — `92383241b9183a2a322e98b9494abbe238730e1c` от 2026-08-18 16:22:50 +0500. Секретный `conf.ini` исключён через `.gitignore`.
-- Проверки: `php -l myvibehtml.php` и `php -l textolite.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временный path/XSS harness — PASS; Graphify `diagnose multigraph` — 88 узлов/279 связей без dangling/self-loop/duplicate endpoint edges.
+- Проверки: `php -l myvibehtml.php` и `php -l textolite.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временные path/XSS и runtime-config harness — PASS; Graphify `diagnose multigraph` — 90 узлов/283 связей без dangling/self-loop/duplicate endpoint edges.
 - Оригиналы PHP/JS до переименования сохранены вне поставки: `/private/tmp/myvibe-originals-20260818/`; SHA-256 исходных файлов: PHP `e5df2da2b45fdc1e674cc9c8add728d970afb8fc3e9df20274307175fe8c4e9e`, JS `40b5d19941e7cb2c1bbe1fb7988dce45e8fdb85f500a4c7c2bbbfc74467444c3`.
 - PHP-классы переименованы в `MyVibeHTMLRequest`, `MyVibeHTMLResponse`, `MyVibeHTMLConfig`, `MyVibeHTMLController`; методы получили смысловые имена. В JS переименован верхнеуровневый helper-слой cookie/animation/crypto/AJAX. PHP-параметры, alias-константы и локальные JS-функции ещё требуют отдельных проходов.
-- Текущие SHA-256: `myvibehtml.php` `2c368c6a986ac2c9009279fecd36d8ed1794991144ecfd0cb3fe7e8e9b7d9ce9`, `myvibehtml.js` `ee9dfbcd4e4e982544c504aa963201e199012f74d4219a0c0d608292acc0757b`, `myvibehtml.css` `9e69cbd2a16c4eed93a506ae03deec1f4a9fa5bee3dcbc2652ba0362b0394667`.
-- Изменения безопасности этого этапа: единый path guard, symlink rejection, upload filename normalization и `escapeHtml()` для динамических filename/URL/metadata/default-file/language values. Общая модель `innerHTML`, cookie headers и update trust model ещё не менялись.
+- Текущие SHA-256: `myvibehtml.php` `451077e1f4a3cd629e2452c84bee47c8430ef722960290500f6623659f4dfbcc`, `myvibehtml.js` `88f42258702dd53f27d7679959871717638a65829d9c46482d220541bd9d0516`, `myvibehtml.css` `9e69cbd2a16c4eed93a506ae03deec1f4a9fa5bee3dcbc2652ba0362b0394667`, `.htaccess` `e7da7dc6c32fe0c37d76328f51425e7e982a797f845595542dcd2025cbb85351`.
+- Изменения безопасности этого этапа: единый path guard, symlink rejection, upload filename normalization, `escapeHtml()` для динамических filename/URL/metadata/default-file/language values, runtime `conf.ini`/`error.log` вне document root по умолчанию с миграцией старого файла, запрет backup/ini/log в `.htaccess`, базовые security headers, `Secure`/`HttpOnly`/`SameSite=Lax` на PHP 7.3+ и `textContent` для длинного внешнего update-ответа. CSP и полный отказ от context-blind `innerHTML` отложены до браузерной проверки и замены внешнего update flow.
 - Обратная проверка JS подтвердила: после восстановления старых идентификаторов код совпадает с сохранённым оригиналом; отличаются только разрешённые имена и CRLF/LF.
 - Постоянного test framework, `package.json`, `composer.json` и `vendor/` нет; для path guard выполнен временный PHP harness вне поставки.
 
@@ -27,7 +27,7 @@
 
 - Создан локальный AST-граф: `graphify-out/graph.json`.
 - Команда: `graphify extract . --code-only --no-cluster --force --out .` после безопасного полного пересканирования.
-- Результат после path guard и переименования продукта: 87 узлов, 267 связей; `diagnose multigraph` не нашёл dangling/self-loop/duplicate endpoint edges. Инкрементальный прогон Graphify однажды потерял PHP-узлы, поэтому после структурных рефакторингов использовать `--force`.
+- Результат после текущего security-этапа: 90 узлов, 283 связи; `diagnose multigraph` не нашёл dangling/self-loop/duplicate endpoint edges. Инкрементальный прогон Graphify однажды потерял PHP-узлы, поэтому после структурных рефакторингов использовать `--force`.
 - Индексированы 4 code-файла: `myvibehtml.php`, `myvibehtml.js` и два PHP/JS compatibility aliases; `.htaccess`, INI и CSS классификатор пропустил.
 - PHP разобран до классов и методов. JS-файл представлен в графе как file node без разложенных символов: обфусцированный IIFE не был распознан AST-экстрактором. Поэтому JS-каталог ниже подтверждён чтением исходника, а не только Graphify.
 - `graphify-out/` — локальный аналитический артефакт; в поставку/релиз его включать не следует.
@@ -41,7 +41,7 @@
 | `myvibehtml.css` | Весь UI/CSS в одной минифицированной строке; содержит встроенный WOFF через `data:` URI. |
 | `conf.ini` | Состояние и настройки; содержит хеш пароля и session secret, значения в этом документе не раскрываются. |
 | `lang.ini` | Локализации `ru`/`en` и текст интерфейса. Есть дублирующийся ключ `restore_settings` в обеих локализациях; значения совпадают. |
-| `.htaccess` | `DirectoryIndex`, rewrite на `myvibehtml.php`, запрет `ini/log`, отключение directory listing. Защита применима только Apache с совместимой конфигурацией. |
+| `.htaccess` | `DirectoryIndex`, rewrite на `myvibehtml.php`, запрет `backup`/`ini`/`log`, отключение directory listing и Apache 2.4/2.2 deny-правила. Runtime `conf.ini`/`error.log` по умолчанию находятся вне document root; `.htaccess` остаётся fallback-защитой. |
 | `textolite.php`, `textolite.js`, `textolite.css` | Совместимые aliases старых имён; канонические runtime-файлы — `myvibehtml.php`, `myvibehtml.js`, `myvibehtml.css`. |
 | `.gitignore` | Не допускает публикацию `conf.ini`, `error.log`, `backup/`, `.DS_Store` и локального `graphify-out/`. |
 
@@ -50,7 +50,7 @@
 1. `myvibehtml.php` принимает `GET`, `POST`, `SERVER`, `COOKIE`, `FILES` через `MyVibeHTMLRequest` и применяет только точечные фильтры для части полей.
 2. `MyVibeHTMLController` определяет корень/URL, проверяет session cookie или показывает auth flow, затем обслуживает обычную загрузку страницы либо AJAX-команды.
 3. Авторизованный клиент вызывает `open`, `save`, `upload`, `replace`, `remove`, `settings`, `recovery`, `scripts`, `logout`, `reload`.
-4. Состояние хранится в `conf.ini`; запись делается в деструкторе `MyVibeHTMLConfig` через `flock`, но чтение-модификация-запись не является атомарной транзакцией.
+4. Состояние хранится в runtime `conf.ini` вне document root по умолчанию; первый запуск мигрирует legacy-файл и ограничивает права до `0600`. Запись делается в деструкторе `MyVibeHTMLConfig` через `flock`, но чтение-модификация-запись не является атомарной транзакцией.
 5. Backup-файлы хранятся в каталоге `backup/`; retention ограничен `recovery_points`.
 6. Клиент вставляет серверные HTML-ответы через `innerHTML` и работает с iframe через `document.write`.
 
@@ -90,16 +90,16 @@ PHP-классы и публичные/внутренние методы уже 
 | `addHeader($header)` | Добавляет произвольный header в очередь. |
 | `setStatus($code, $text)` | Добавляет status line: protocol + code + reason phrase. |
 | `redirect($url)` | Добавляет `Location` header для redirects/errors. |
-| `setCookie($name, $value, $expires, $path, $domain, $secure, $httponly)` | Кеширует параметры cookie для последующей отправки. Вызовы текущего кода не задают `SameSite`, а session cookie обычно передаётся без `Secure`. |
+| `setCookie($name, $value, $expires, $path, $domain, $secure, $httponly)` | Кеширует параметры cookie для последующей отправки; `send()` добавляет HTTPS-dependent `Secure`, `HttpOnly` и `SameSite=Lax` на PHP 7.3+. |
 | `clearCookie($name, $path = false, $domain = false)` | Создаёт просроченный cookie через `setCookie()`. |
 | `setBody($body)` | Устанавливает response body. |
-| `send()` | Отправляет накопленные headers/cookies и печатает body. Вызывается в конце request. |
+| `send()` | Отправляет накопленные headers/cookies, базовые security headers и body. Вызывается в конце request. |
 
 ### PHP: `MyVibeHTMLConfig` — конфигурация, шаблоны и сохранение `conf.ini` (`myvibehtml.php:283-438`)
 
 | Функция | Что делает |
 |---|---|
-| `__construct($scriptDir, $documentRoot)` | Читает `lang.ini` и `conf.ini`, создаёт HTML-шаблоны, вычисляет физические и URL-базы: каталог редактора, document root, URL prefix и backup paths. |
+| `__construct($scriptDir, $documentRoot)` | Читает `lang.ini` и runtime `conf.ini`, при первом запуске мигрирует legacy-файл из script directory, создаёт HTML-шаблоны и вычисляет физические/URL-базы. |
 | `__destruct()` | Если состояние помечено dirty, вызывает `save()` и сохраняет `conf.ini`. Ошибка записи в destructor отдельно не сигнализируется. |
 | `getLanguage()` | Возвращает выбранный язык/locale. |
 | `getEditorDirectory()` | Возвращает физический каталог, где лежит `myvibehtml.php`. |
@@ -111,8 +111,8 @@ PHP-классы и публичные/внутренние методы уже 
 | `getParentDirectory($path)` | Для пути глубже двух слешей возвращает его parent directory, иначе `/`. Используется для получения base path. |
 | `getSetting($key, $section = false)` | Читает настройку из основного INI-сегмента или указанной секции. |
 | `setSetting($key, $value, $section = false)` | Меняет настройку и выставляет dirty flag. Значение не экранируется в этом месте. |
-| `save()` | Пересобирает текст `conf.ini`, берёт exclusive file lock и переписывает весь файл. Это read-modify-write без межпроцессной блокировки чтения. |
-| `isWritable()` | Проверяет, доступен ли `conf.ini` для записи. |
+| `save()` | Пересобирает текст runtime `conf.ini`, берёт exclusive file lock, переписывает файл и восстанавливает режим `0600`. Это read-modify-write без межпроцессной блокировки чтения. |
+| `isWritable()` | Проверяет, доступен ли выбранный runtime `conf.ini` для записи. |
 | `getTemplate($template)` | Возвращает HTML-фрагмент из набора шаблонов. |
 | `replacePlaceholders($html, $values)` | Прямой `str_ireplace` всех `{placeholder}` на значения. HTML/attribute escaping отсутствует. |
 | `localizeTemplate($html, $language)` | Находит оставшиеся `{key}` и подставляет соответствующие строки выбранного языкового сегмента. |
@@ -386,11 +386,11 @@ PHP-классы и публичные/внутренние методы уже 
 
 ### P1 — XSS через серверный HTML файлового менеджера — частично исправлено
 
-Динамические имена файлов, URL, metadata, `default_file`, language values и системные URL теперь проходят `escapeHtml()` перед HTML-шаблонами: `myvibehtml.php:529`, `myvibehtml.php:992-1170`. Временный harness подтвердил, что опасное имя файла и вредный `default_file` не попадают в output как markup. Общий `replacePlaceholders()` по-прежнему context-blind, а клиент использует `innerHTML` (`myvibehtml.js:66` и file-manager callbacks); остальные server-response contexts требуют отдельного аудита.
+Динамические имена файлов, URL, metadata, `default_file`, language values и системные URL проходят `escapeHtml()` перед HTML-шаблонами: `myvibehtml.php:529`, `myvibehtml.php:992-1170`. Для update flow версия ограничена безопасным шаблоном, а длинный внешний ответ выводится через `textContent` (`myvibehtml.js:2665-2707`). Временный harness подтвердил, что опасное имя файла и вредный `default_file` не попадают в output как markup. Общий `replacePlaceholders()` по-прежнему context-blind, а серверные HTML-ответы файлового менеджера вставляются через `innerHTML`; нужен отдельный браузерный аудит.
 
-### P1 — `conf.ini` содержит секреты и защищён только `.htaccess`
+### P1 — `conf.ini` содержит секреты и защищён только `.htaccess` — исправлено по умолчанию
 
-`conf.ini` доступен на чтение на уровне файловой системы (`-rw-rw-r--`) и содержит password/session hashes. Запрет в `.htaccess` не защищает Nginx, встроенный PHP-сервер, неверно настроенный Apache или backup-копию. Утечка session secret/конфигурации может привести к захвату редактора. `error.log` имеет ту же зависимость от серверной защиты.
+Runtime `conf.ini` и `error.log` теперь создаются в скрытом каталоге с хешем document root за его пределами, каталог получает `0700`, конфигурация — `0600`, а legacy `conf.ini` мигрируется и удаляется после успешного копирования. Если родительский каталог document root недоступен для записи, остаётся совместимый fallback к legacy-файлу; в этом режиме защита опирается на `.htaccess`, поэтому для Nginx нужно отдельно запретить `*.ini`, `*.log` и `/backup/`.
 
 ### P1 — заявлена поддержка PHP 5.2, но код использует short array syntax
 
@@ -400,9 +400,9 @@ PHP-классы и публичные/внутренние методы уже 
 
 `myvibehtml.js:2635-2759` отправляет запросы на `textolite.ru/update|install|activate`; ответ преобразуется и используется в update flow. В локальном коде нет подписи, pinned key или фиксированной checksum-проверки. Протокол/ответы внешнего сервера нужно получить и проверить отдельно.
 
-### P2 — cookie/security headers устарели
+### P2 — cookie/security headers — частично исправлено
 
-Session cookie создаётся через старый `setcookie` без `Secure` и `SameSite` (`myvibehtml.php:278`); отдельные JS cookies создаются через `document.cookie` (`myvibehtml.js:144-158`). В ответах не обнаружены CSP, `X-Frame-Options`/`frame-ancestors`, `Referrer-Policy` и другие базовые security headers. HttpOnly применяется только к серверному cookie-параметру, не к JS token cookie.
+Ответы теперь добавляют `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` и `Permissions-Policy` (`myvibehtml.php:251-256`). На PHP 7.3+ серверные cookies получают `Secure` при HTTPS, `HttpOnly` и `SameSite=Lax`; на старом PHP сохраняется legacy API без SameSite. JS cookies по-прежнему создаются через `document.cookie`, а CSP отложен до проверки inline/template/iframe/update-потоков.
 
 ### P2 — настройки и состояние пишутся в INI без полноценного escaping/валидации
 
@@ -422,15 +422,15 @@ Session cookie создаётся через старый `setcookie` без `Se
 
 ## Что проверено и что нет
 
-Проверено локально: структура файлов, PHP/JS/CSS/INI/Apache-конфигурация, роутинг запросов, авторизация, cookies, file operations, backup/recovery, upload/update paths, синтаксис PHP/JS, наличие внешних URL и package manifests.
+Проверено локально: структура файлов, PHP/JS/CSS/INI/Apache-конфигурация, роутинг запросов, авторизация, cookies, file operations, backup/recovery, upload/update paths, runtime migration harness, синтаксис PHP/JS, наличие внешних URL и package manifests.
 
 Не проверено: фактическое поведение в Apache/Nginx, HTTPS/cookie policy в браузере, реальные stored-XSS сценарии, содержимое и TLS/API-контракт `textolite.ru`, корректность обновления, TOCTOU-поведение при гонках и совместимость с заявленными старыми PHP/browser версиями.
 
 ## Приоритет следующей работы
 
-1. Завершено частично: изолированный harness подтвердил traversal, symlink, upload-защиту и два основных stored-XSS контекста; отдельно проверить остальные server-response/innerHTML paths.
-2. Закрыть `conf.ini`/`error.log` на уровне web server и вынести runtime secret из публичного дерева.
+1. Завершено частично: изолированный harness подтвердил traversal, symlink, upload-защиту, два основных stored-XSS контекста и вынос runtime config/log из document root; отдельно проверить остальные server-response/innerHTML paths.
+2. Завершено по умолчанию: `conf.ini`/`error.log` вынесены из публичного дерева, добавлены Apache fallback-правила; отдельно подготовить Nginx snippet для production.
 3. Завершено: добавлен единый canonical path guard для file operations, symlink escape запрещён, upload filenames нормализуются.
-4. Частично завершено: экранированы file-manager/default-file contexts; далее закрыть остальные HTML/attribute contexts или перейти на DOM construction без `innerHTML` для серверных данных.
+4. Частично завершено: экранированы file-manager/default-file contexts и внешний update text; далее закрыть остальные HTML/attribute contexts или перейти на DOM construction без `innerHTML` для серверных данных.
 5. После согласования замены удалить внешние update/install/activate endpoints и соответствующий client flow.
 6. Добавить постоянные regression tests для auth, XSS encoding, backup и update response validation; path/XSS сейчас подтверждены временным harness.

@@ -3,14 +3,23 @@ RewriteEngine on
 
 DirectoryIndex myvibehtml.php
 
+RewriteRule (^|/)(backup|[^/]+\.(ini|log))(/|$) - [F,L,NC]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 
 RewriteRule ^.*$ myvibehtml.php?q=$0 [L,NC,QSA]
 
-<Files ~ "\.(ini|log)$">
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(ini|log)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
 
-deny from all
-
-</Files>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(ini|log)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
 
 Options -Indexes

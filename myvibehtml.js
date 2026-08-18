@@ -2663,6 +2663,7 @@
                 },
                 handleUpdateResult = function(d) {
                     var e = parseInt(d);
+                    if (e > 0 && !/^[0-9A-Za-z._-]{1,30}$/.test(d)) e = 0;
                     if (e > 0) {
                         var f = readCookie($e);
                         if (!f || f != d) {
@@ -2701,7 +2702,7 @@
                         }, 10000)
                     } else if (d[f_] > 20) {
                         removeCookie($c, df[_i]($ + 'cl'));
-                        df[i_] = d;
+                        df[k_] = d;
                         df[b_] = 'r';
                         fadeIn(df);
                         _1[_b](function() {

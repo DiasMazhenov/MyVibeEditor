@@ -1,8 +1,26 @@
 <?php /* MyVibeHTML v2.12e */
+function myvibehtml_runtime_directory($a = false)
+{
+    if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
+    $a = str_replace('\\', '/', (string)$a);
+    $b = realpath($a);
+    if (!$b || $b === '/') return false;
+    $b = rtrim(str_replace('\\', '/', $b), '/');
+    $c = dirname($b) . '/.myvibehtml-' . substr(sha1($b), 0, 16) . '/';
+    if (is_link(rtrim($c, '/'))) return false;
+    if (!is_dir($c)) @mkdir($c, 0700, true);
+    if (is_dir($c) && is_writable($c)) {
+        @chmod($c, 0700);
+        return $c;
+    }
+    return false;
+}
+$myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', 'error.log');
+ini_set('error_log', $myvibehtmlRuntimeDirectory ? $myvibehtmlRuntimeDirectory . 'error.log' : dirname(__FILE__) . '/error.log');
+unset($myvibehtmlRuntimeDirectory);
 version_compare(PHP_VERSION, '5.2', '>=') || exit('PHP ' . PHP_VERSION . ' is not supported');
 define('a_', 'document_root');
 define('b_', 'query_string');
@@ -232,6 +250,10 @@ final class MyVibeHTMLResponse
     {
         $this->protocol = $a;
         $this->addHeader('Content-type:text/html;charset=utf-8');
+        $this->addHeader('X-Content-Type-Options:nosniff');
+        $this->addHeader('X-Frame-Options:SAMEORIGIN');
+        $this->addHeader('Referrer-Policy:no-referrer');
+        $this->addHeader('Permissions-Policy:camera=(), microphone=(), geolocation=()');
     }
 
     public function addHeader($a)
@@ -275,7 +297,12 @@ final class MyVibeHTMLResponse
     {
         //if (__LINE__ != 1) exit;
         if (isset($this->headers)) foreach ($this->headers as $a) header($a);
-        if (isset($this->cookies)) foreach ($this->cookies as $b) setcookie($b['a'], $b['b'], $b['d'], $b['e'], $b['f'], $b['g'], $b['c']);
+        if (isset($this->cookies)) foreach ($this->cookies as $b) {
+            $d = $b['g'] || (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' && $_SERVER['HTTPS'] !== '');
+            $e = $b['e'] ? $b['e'] : '/';
+            if (version_compare(PHP_VERSION, '7.3', '>=')) setcookie($b['a'], $b['b'], ['expires' => $b['d'], 'path' => $e, 'domain' => $b['f'] ? $b['f'] : '', 'secure' => (bool)$d, 'httponly' => (bool)$b['c'], 'samesite' => 'Lax']);
+            else setcookie($b['a'], $b['b'], $b['d'], $e, $b['f'], $d, $b['c']);
+        }
         if (isset($this->body)) print $this->body;
     }
 }
@@ -291,11 +318,13 @@ final class MyVibeHTMLConfig
     private $settings;
     private $templates;
     private $dirty;
+    private $configPath;
 
     public function __construct($a, $b)
     {
         $this->translations = parse_ini_file($a . self::b, true);
-        $this->settings = parse_ini_file($a . self::c, true);
+        $this->configPath = $this->getConfigPath($a, $b);
+        $this->settings = parse_ini_file($this->configPath, true);
         $this->templates = [
             'j' => '<ol><li title="{source_editor}">{type}</li><li title="{visual_editor}">text</li></ol>',
             'i' => '<ol><li>{type}</li></ol>',
@@ -320,6 +349,23 @@ final class MyVibeHTMLConfig
         $this->state['c'] = str_ireplace($this->state['b'], '', $this->state['a']);
         $this->state['d'] = $this->getParentDirectory($a);
         $this->state['e'] = $this->getParentDirectory($this->state['c']);
+    }
+
+    private function getConfigPath($a, $b)
+    {
+        $c = $a . self::c;
+        $d = myvibehtml_runtime_directory($b);
+        if (!$d) return $c;
+        $e = $d . self::c;
+        if (!file_exists($e) && file_exists($c) && @copy($c, $e)) {
+            @chmod($e, 0600);
+            @unlink($c);
+        }
+        if (file_exists($e)) {
+            @chmod($e, 0600);
+            return $e;
+        }
+        return $c;
     }
 
     public function __destruct()
@@ -397,17 +443,18 @@ final class MyVibeHTMLConfig
                 $c[] = self::a;
             }
         }
-        if ($f = fopen($this->state['a'] . self::c, 'w')) {
+        if ($f = fopen($this->configPath, 'w')) {
             flock($f, LOCK_EX);
             fwrite($f, implode('', $c));
             flock($f, LOCK_UN);
             fclose($f);
+            @chmod($this->configPath, 0600);
         }
     }
 
     public function isWritable()
     {
-        return is_writable($this->state['a'] . self::c);
+        return is_writable($this->configPath);
     }
 
     public function getTemplate($a)
