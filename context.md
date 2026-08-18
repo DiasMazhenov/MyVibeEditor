@@ -27,6 +27,7 @@
 
 - Устранён остаточный responsive-cascade defect: при ширине до `700px` старый grid-блок мог возвращать шапке `150px`, потому что новый breakpoint сбрасывал только padding/height. Правило `max-width:900px` теперь явно восстанавливает flex-геометрию, абсолютную правую action-группу и высоту шапки `68px`.
 - Проверки после этой корректировки: PHP lint для `myvibehtml.php`, `textolite.php`, `dev-router.php` — OK; `node --check myvibehtml.js` — OK; `git diff --check` — OK; `security-smoke.sh` — PASS. Следующий functional version — `0.07`.
+- Кодовый коммит: `74ca1bb` (`2026-08-18 19:38:32 +0500`, `Complete mobile panel responsive reset`).
 
 ## Переименование Textolite → MyVibeHTML
 
