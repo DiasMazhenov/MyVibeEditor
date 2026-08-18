@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.07 */
+<?php /* MyVibeHTML v0.12 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -345,12 +345,12 @@ final class MyVibeHTMLConfig
         ];
         $this->templates['h'] = str_replace(
             '<div><h1><a href="{site_preview_url}">MyVibeHTML</a> v{version}</h1><p>{extended}</p></div>',
-            '<div class="myvibehtml-panel-brand"><h1><a href="{site_preview_url}">MyVibeHTML</a> <span>v{version}</span></h1><p>{extended}</p><a id="myvibehtml-site-preview" href="{site_preview_url}" target="_blank" rel="noopener" title="{view_site}" aria-label="{view_site}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12s3.4-6 9.6-6 9.6 6 9.6 6-3.4 6-9.6 6-9.6-6-9.6-6Z"></path><circle cx="12" cy="12" r="2.6"></circle></svg></a></div>',
+            '<div class="myvibehtml-panel-brand"><h1><a href="{site_preview_url}">MyVibeHTML</a> <span>v{version}</span></h1><p>{extended}</p><a id="myvibehtml-site-preview" href="{site_preview_url}" target="_blank" rel="noopener" title="{view_site}" aria-label="{view_site}"><span class="myvibehtml-local-icon myvibehtml-icon-eye" aria-hidden="true"></span></a></div>',
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
-            '</svg></a></div>',
-            '</svg></a><button id="myvibehtml-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="myvibehtml-mobile-menu" title="{mobile_menu}" aria-label="{mobile_menu}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button><div id="myvibehtml-mobile-menu" role="menu" aria-hidden="true"><button type="button" role="menuitem" data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li:first-child>a">{files}</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li+li>a">{settings}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:first-child input">{save}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:last-child input">{logout}</button></div></div>',
+            '</span></a></div>',
+            '</span></a><button id="myvibehtml-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="myvibehtml-mobile-menu" title="{mobile_menu}" aria-label="{mobile_menu}"><span class="myvibehtml-local-icon myvibehtml-icon-menu" aria-hidden="true"></span></button><div id="myvibehtml-mobile-menu" role="menu" aria-hidden="true"><button type="button" role="menuitem" data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li:first-child>a">{files}</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li+li>a">{settings}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:first-child input">{save}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:last-child input">{logout}</button></div></div>',
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
@@ -360,7 +360,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['a'] = str_replace(
             '<body><fieldset><legend>{auth}</legend>',
-            '<body><div class="myvibehtml-auth-brand"><div class="myvibehtml-auth-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3.5a12.5 12.5 0 1 0 12.5 12.5A12.5 12.5 0 0 0 16 3.5Zm0 6.2a6.3 6.3 0 1 1-6.3 6.3A6.3 6.3 0 0 1 16 9.7Z"></path><circle cx="16" cy="16" r="2.7"></circle></svg></div><div><strong>MyVibeHTML</strong><span>{auth_intro}</span></div></div><fieldset class="myvibehtml-auth-card"><legend id="myvibehtml-auth-title">{auth}</legend>',
+            '<body><div class="myvibehtml-auth-brand"><div class="myvibehtml-auth-mark" aria-hidden="true"><span class="myvibehtml-local-icon myvibehtml-icon-code"></span></div><div><strong>MyVibeHTML</strong><span>{auth_intro}</span></div></div><fieldset class="myvibehtml-auth-card"><legend id="myvibehtml-auth-title">{auth}</legend>',
             $this->templates['a']
         );
         $this->templates['a'] = str_replace(
@@ -378,7 +378,8 @@ final class MyVibeHTMLConfig
             '<p class="myvibehtml-login-row"><input type="button" value="{login}" aria-label="{login}" disabled></p><p class="myvibehtml-auth-hint">{auth_hint}</p>',
             $this->templates['a']
         );
-        foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"></head>', $this->templates[$templateName]);
+        foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"><link rel="stylesheet" href="{system_url}myvibehtml-fallback.css?v={version}"></head>', $this->templates[$templateName]);
+        $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i title="{attributes}"></i></p>', $this->templates['h']);
         $this->state['a'] = $a;
         $this->state['b'] = $this->getSetting(a_);
         //if (__LINE__ != 1) exit;
@@ -523,7 +524,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '0.07';
+    const a = '0.12';
     private $config;
     private $request;
     private $response;
