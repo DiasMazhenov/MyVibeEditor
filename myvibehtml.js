@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.04 */
+/* MyVibeHTML v0.05 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -997,6 +997,18 @@
                             d[i_] = b[_P]($H)[_Q]('_extarea');
                             return d[h_][_P]('_extarea')[_Q]($H)
                         },
+                        syncToolbarSpace = function(a) {
+                            var b = _2[_m]('#d');
+                            if (b) {
+                                if (a) {
+                                    b[_j]('data-myvibehtml-toolbar', 'open');
+                                    b[g_].setProperty('--myvibehtml-toolbar-space', Math.max(116, Math.ceil(ga.getBoundingClientRect().bottom + 8)) + 'px')
+                                } else {
+                                    b[_k]('data-myvibehtml-toolbar');
+                                    b[g_].removeProperty('--myvibehtml-toolbar-space')
+                                }
+                            }
+                        },
                         gx = function(a) {
                             var b = gD(a);
                             if (b[f_]) {
@@ -1022,6 +1034,7 @@
                                     } else fadeIn(df)
                                 }
                                 ga[g_][r_] = F_;
+                                syncToolbarSpace(true);
                                 gy(b[0]);
                                 gB(a)
                             }
@@ -1079,6 +1092,7 @@
                                 gg[_h](J_, gH);
                                 gh[_h](J_, gI);
                                 ga[g_][r_] = '';
+                                syncToolbarSpace(false);
                                 gA();
                                 if (hs[_B]) hs[_B][L_]();
                                 if (df[g_][r_] == F_ && (df[_u] || df[i_] == df[_i]($ + 'br'))) fadeOut(df)
