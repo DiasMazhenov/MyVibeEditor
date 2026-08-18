@@ -55,6 +55,7 @@
 - Исправлен mobile root cause: burger раньше вызывал `click()` у скрытого anchor, а панель не открывалась. Для anchor используется существующий `mousedown`-обработчик редактора, а hidden nav-shell сохраняет нулевую геометрию и позволяет раскрытому fixed-панелю быть видимым; устаревшее mobile `height:93%` переопределено на `height:auto`.
 - Live-проверка через headless Chromium выполнена после правок, с `Accept-Language: ru-RU`: files на 1440/1024 и 463px; все вложенные строки измерены, overlap не найден. Все 5 секций settings кликнуты на desktop 1392px и mobile 463px: старый фон `rgb(79,79,81)` не используется, horizontal overflow `0`. Toolbar/icon smoke: 14/14 PASS на 816px и 463px, fallback без theme — 14/14 PASS. Визуально просмотрены desktop/mobile screenshots раскрытых files/settings.
 - Статические проверки: `php -l myvibehtml.php`, `php -l textolite.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `git diff --check`, `sh security-smoke.sh` — PASS/OK. Пользовательский `test-page.html` не индексируется в коммит.
+- Регрессионное правило для следующих UI-правок: открывать каждое доступное меню и секцию, проверять внутренние строки/поля/кнопки и делать live-замеры минимум на desktop и mobile; одной проверки верхней панели недостаточно.
 - Кодовый коммит: `8af6033899d2970e4ff613577b52f8889ac72884` (`2026-08-18T21:19:35+05:00`, `Fix live panel dropdown layouts`); следующий functional version — `0.14`.
 
 ## Переименование Textolite → MyVibeHTML
