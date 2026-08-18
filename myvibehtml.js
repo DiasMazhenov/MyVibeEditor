@@ -1,4 +1,4 @@
-/* MyVibeHTML v2.12e */
+/* MyVibeHTML v0.02 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -2750,7 +2750,7 @@
                     else saveEditorContent.f = true
                 },
                 handleUpdateResult = function(d) {
-                    var e = parseInt(d);
+                    var e = parseFloat(d);
                     if (e > 0 && !/^[0-9A-Za-z._-]{1,30}$/.test(d)) e = 0;
                     if (e > 0) {
                         var f = readCookie($e);
@@ -3614,5 +3614,43 @@
             }
             dc[_g](N_, initializeSettings)
         }
+    })
+    _2[_g](I_, function() {
+        var panel = _2[_m]('#e'),
+            toggle = _2[_m]('#myvibehtml-mobile-menu-toggle'),
+            menu = _2[_m]('#myvibehtml-mobile-menu');
+        if (!panel || !toggle || !menu) return;
+        var items = menu[_l]('[data-mobile-target]'),
+            setMenuState = function(open) {
+                toggle[_j]('aria-expanded', open ? 'true' : 'false');
+                menu[_j]('aria-hidden', open ? 'false' : 'true')
+            };
+        for (var a = 0, b = items[f_]; a < b; a++) {
+            var item = items[a],
+                target = panel[_m](item[_i]('data-mobile-target'));
+            if (!target) {
+                item.hidden = true;
+                continue
+            }
+            item[_g](J_, function(event) {
+                event.preventDefault();
+                var target = panel[_m](this[_i]('data-mobile-target'));
+                if (target && !target.disabled && target.click) target.click();
+                setMenuState(false)
+            })
+        }
+        toggle[_g](J_, function(event) {
+            event.preventDefault();
+            setMenuState(menu[_i]('aria-hidden') == 'true')
+        });
+        _2[_g](J_, function(event) {
+            if (event.target != toggle && !toggle.contains(event.target) && event.target != menu && !menu.contains(event.target)) setMenuState(false)
+        });
+        _2[_g]('keydown', function(event) {
+            if (event.key == 'Escape') {
+                setMenuState(false);
+                toggle.focus()
+            }
+        })
     })
 }());

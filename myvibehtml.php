@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v2.12e */
+<?php /* MyVibeHTML v0.02 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -348,6 +348,11 @@ final class MyVibeHTMLConfig
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
+            '</svg></a></div>',
+            '</svg></a><button id="myvibehtml-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="myvibehtml-mobile-menu" title="{mobile_menu}" aria-label="{mobile_menu}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button><div id="myvibehtml-mobile-menu" role="menu" aria-hidden="true"><button type="button" role="menuitem" data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li:first-child>a">{files}</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li+li>a">{settings}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:first-child input">{save}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:last-child input">{logout}</button></div></div>',
+            $this->templates['h']
+        );
+        $this->templates['h'] = str_replace(
             'data-co="{update_beta}"',
             'data-co="{update_beta}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}"',
             $this->templates['h']
@@ -517,7 +522,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '2.12e';
+    const a = '0.02';
     private $config;
     private $request;
     private $response;
