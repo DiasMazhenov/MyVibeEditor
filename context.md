@@ -4,9 +4,9 @@
 
 - Дата: 2026-08-18, Asia/Almaty.
 - Версия из исходников: MyVibeHTML `2.12e`.
-- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard, точечное HTML-экранирование, runtime-изоляция конфигурации/лога, security headers и безопасный вывод внешнего update-текста добавлены и проверены. Добавлена локальная `test-page.html` для ручной проверки редактора. Остались CSP/браузерная acceptance-проверка, общий аудит innerHTML и замена внешнего update/install/activate flow.
+- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard, точечное HTML-экранирование, runtime-изоляция конфигурации/лога, security headers и безопасный вывод внешнего update-текста добавлены и проверены. Добавлены `test-page.html` и `dev-router.php` для воспроизводимого локального теста через PHP built-in server. Остались CSP/браузерная acceptance-проверка, общий аудит innerHTML и замена внешнего update/install/activate flow.
 - Git: локальный репозиторий и ветка `main` инициализированы, `origin` настроен на `https://github.com/DiasMazhenov/MyVibeEditor.git`; baseline commit — `1e4ec5049ec3951a2b7b99d7be4db28904c07a35` от 2026-08-18 16:15:09 +0500, контекст GitHub — `f1763f1`, предыдущий security commit — `92383241b9183a2a322e98b9494abbe238730e1c` от 2026-08-18 16:22:50 +0500, текущий runtime/security commit — `4a46ab72377828f9cba06caeed59063f15b8f242` от 2026-08-18 16:38:46 +0500. Секретный `conf.ini` исключён через `.gitignore`.
-- Проверки: `php -l myvibehtml.php` и `php -l textolite.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временные path/XSS и runtime-config harness — PASS; `test-page.html` разобран стандартным Python `HTMLParser`, внешних URL нет; Graphify `diagnose multigraph` — 90 узлов/283 связей без dangling/self-loop/duplicate endpoint edges.
+- Проверки: `php -l myvibehtml.php`, `php -l textolite.php` и `php -l dev-router.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временные path/XSS и runtime-config harness — PASS; `test-page.html` разобран стандартным Python `HTMLParser`, внешних URL нет; dev-router HTTP smoke — login route `200`, static page `200`, `conf.ini` `403`; Graphify `diagnose multigraph` — 90 узлов/283 связей без dangling/self-loop/duplicate endpoint edges.
 - Оригиналы PHP/JS до переименования сохранены вне поставки: `/private/tmp/myvibe-originals-20260818/`; SHA-256 исходных файлов: PHP `e5df2da2b45fdc1e674cc9c8add728d970afb8fc3e9df20274307175fe8c4e9e`, JS `40b5d19941e7cb2c1bbe1fb7988dce45e8fdb85f500a4c7c2bbbfc74467444c3`.
 - PHP-классы переименованы в `MyVibeHTMLRequest`, `MyVibeHTMLResponse`, `MyVibeHTMLConfig`, `MyVibeHTMLController`; методы получили смысловые имена. В JS переименован верхнеуровневый helper-слой cookie/animation/crypto/AJAX. PHP-параметры, alias-константы и локальные JS-функции ещё требуют отдельных проходов.
 - Текущие SHA-256: `myvibehtml.php` `451077e1f4a3cd629e2452c84bee47c8430ef722960290500f6623659f4dfbcc`, `myvibehtml.js` `88f42258702dd53f27d7679959871717638a65829d9c46482d220541bd9d0516`, `myvibehtml.css` `9e69cbd2a16c4eed93a506ae03deec1f4a9fa5bee3dcbc2652ba0362b0394667`, `.htaccess` `e7da7dc6c32fe0c37d76328f51425e7e982a797f845595542dcd2025cbb85351`.
@@ -40,11 +40,22 @@
 | `myvibehtml.js` | Клиентский UI, SHA-1, AJAX, файловый менеджер, визуальный/source-редакторы, upload/replace/remove/settings/update flows. |
 | `myvibehtml.css` | Весь UI/CSS в одной минифицированной строке; содержит встроенный WOFF через `data:` URI. |
 | `test-page.html` | Локальная страница для ручной проверки visual/source editor, responsive layout, inline CSS/JS, SVG, формы, таблицы и файловых операций. Внешних библиотек и URL нет. |
+| `dev-router.php` | Router для PHP built-in server: передаёт существующие статические/PHP-файлы напрямую, остальные запросы направляет в `myvibehtml.php`, а `backup`/`ini`/`log` блокирует. |
 | `conf.ini` | Состояние и настройки; содержит хеш пароля и session secret, значения в этом документе не раскрываются. |
 | `lang.ini` | Локализации `ru`/`en` и текст интерфейса. Есть дублирующийся ключ `restore_settings` в обеих локализациях; значения совпадают. |
 | `.htaccess` | `DirectoryIndex`, rewrite на `myvibehtml.php`, запрет `backup`/`ini`/`log`, отключение directory listing и Apache 2.4/2.2 deny-правила. Runtime `conf.ini`/`error.log` по умолчанию находятся вне document root; `.htaccess` остаётся fallback-защитой. |
 | `textolite.php`, `textolite.js`, `textolite.css` | Совместимые aliases старых имён; канонические runtime-файлы — `myvibehtml.php`, `myvibehtml.js`, `myvibehtml.css`. |
 | `.gitignore` | Не допускает публикацию `conf.ini`, `error.log`, `backup/`, `.DS_Store` и локального `graphify-out/`. |
+
+## Локальный запуск
+
+Для корректной обработки редиректов вида `/?q=index.html` встроенный PHP-сервер нужно запускать с router-файлом:
+
+```sh
+php -S 127.0.0.1:8080 -t /Users/diasmazhenov/vibecode/myvibe /Users/diasmazhenov/vibecode/myvibe/dev-router.php
+```
+
+После запуска редактор доступен по `http://127.0.0.1:8080/myvibehtml.php`, тестовая страница — по `http://127.0.0.1:8080/test-page.html`. Без router `.htaccess` не выполняется и редирект после авторизации заканчивается `Not Found`.
 
 ## Архитектура и поток данных
 
