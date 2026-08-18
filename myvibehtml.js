@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.03 */
+/* MyVibeHTML v0.04 */
 (function() {
     var _1 = window,
         _2 = document,

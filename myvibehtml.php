@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.03 */
+<?php /* MyVibeHTML v0.04 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -254,6 +254,7 @@ final class MyVibeHTMLResponse
         $this->addHeader('X-Frame-Options:SAMEORIGIN');
         $this->addHeader('Referrer-Policy:no-referrer');
         $this->addHeader('Permissions-Policy:camera=(), microphone=(), geolocation=()');
+        $this->addHeader("Content-Security-Policy-Report-Only:default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self'");
     }
 
     public function addHeader($a)
@@ -522,7 +523,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '0.03';
+    const a = '0.04';
     private $config;
     private $request;
     private $response;
