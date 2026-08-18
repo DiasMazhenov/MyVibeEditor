@@ -21,6 +21,7 @@
 - Responsive breakpoint панели унифицирован на `900px`: планшетные ширины используют бургер, eye и burger остаются в правой action-группе. Внешние библиотеки не добавлялись.
 - Проблема, которую больше не повторяем: при изменении фиксированного header/toolbar нельзя менять только `iframe`-offset — нужно синхронно учитывать все фиксированные ряды и сбрасывать у toolbar старые `bottom`-правила из базовой минифицированной темы.
 - Проверено: `php -l` для PHP-файлов, `node --check myvibehtml.js`, `git diff --check`, `sh security-smoke.sh`; локально через HTTP: тестовая страница `200`, theme asset `200`, JS asset `200`, оба с версией `0.05`. Полноценный screenshot/browser click-through в этой среде не автоматизирован: headless browser отсутствует.
+- Кодовый коммит: `2ce127a` (`2026-08-18 19:35:52 +0500`, `Fix responsive editor toolbar layout`). Следующий functional version — `0.06`.
 
 ## Переименование Textolite → MyVibeHTML
 
