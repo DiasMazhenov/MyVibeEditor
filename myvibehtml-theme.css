@@ -27,6 +27,10 @@
 #a .myvibehtml-login-row input:not([disabled]):active{transform:translateY(0);box-shadow:0 8px 16px rgba(99,102,241,.25)!important}
 #a .myvibehtml-login-row input[disabled]{border:1px solid rgba(255,255,255,.08)!important;background:#2a2e4a!important;box-shadow:none!important;color:#737b94!important}
 #a .myvibehtml-auth-hint{margin:18px 0 0!important;padding:0!important;text-align:center;font-size:11px;line-height:17px;color:#7f88a5}
+#d{height:100vh;box-sizing:border-box;padding-top:0!important;background:var(--mv-bg)}
+#d body{position:relative;display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden!important;background:transparent}
+#d iframe{position:relative;order:2;flex:1 1 auto;width:100%;height:auto!important;min-height:0;display:block;background:#fff}
+#d #e{position:relative;order:1;top:auto;left:auto;right:auto;width:100%;height:auto;min-height:0;flex:none;box-shadow:0 12px 28px rgba(2,6,23,.38);z-index:99999}
 #e{min-height:100vh;background:radial-gradient(circle at 8% 0,rgba(124,58,237,.12),transparent 28%),var(--mv-bg);color:var(--mv-text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-shadow:none}
 #e>div{box-sizing:border-box;width:min(1440px,calc(100% - 40px));max-width:none;min-width:0;padding:18px 0 30px}
 #e>div>div:first-child{display:flex;align-items:center;gap:18px;float:none;margin:0;line-height:normal;cursor:default}
