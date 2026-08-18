@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.16 */
+/* MyVibeHTML v0.17 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -2834,6 +2834,33 @@
                         openDirectory.call(d)
                     }
                 },
+                replaceFileListFragment = function(a, b) {
+                    var c = new DOMParser().parseFromString(a, 'text/html'),
+                        d = _2.createDocumentFragment(),
+                        e = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1},
+                        f = {CLASS: 1, 'DATA-CY': 1, 'DATA-CZ': 1, TITLE: 1, TYPE: 1, NAME: 1, VALUE: 1, CHECKED: 1},
+                        g = function(a) {
+                            if (a.nodeType != 1) return true;
+                            if (!e[a.nodeName]) {
+                                if (a.parentNode) a.parentNode.removeChild(a);
+                                return false
+                            }
+                            for (var b = a.attributes.length - 1; b >= 0; b--) if (!f[a.attributes[b].name.toUpperCase()]) a.removeAttribute(a.attributes[b].name);
+                            for (var c = a.firstChild; c;) {
+                                var d = c.nextSibling;
+                                g(c);
+                                c = d
+                            }
+                            return true
+                        };
+                    for (var h = c.body.firstChild; h;) {
+                        var i = h.nextSibling;
+                        if (g(h)) d.appendChild(h);
+                        h = i
+                    }
+                    b.textContent = '';
+                    b.appendChild(d)
+                },
                 openDirectory = function() {
                     var h = this,
                         i = h[_z],
@@ -2842,7 +2869,7 @@
                     i[b_] = 'b';
                     ajaxRequest('open=' + _1[_e](k), function(a) {
                         var b = j[_w];
-                        b[i_] = a;
+                        replaceFileListFragment(a, b);
                         var c = b[_l]('li>ol');
                         for (var d = 0, e = c[f_]; d < e; d++) initializeFileEntry(c[d]);
                         i[b_] = '';

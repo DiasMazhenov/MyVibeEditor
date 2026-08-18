@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.16 */
+<?php /* MyVibeHTML v0.17 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -15,6 +15,43 @@ function myvibehtml_runtime_directory($a = false)
     }
     return false;
 }
+
+function myvibehtml_atomic_write($a, $b, $c, $d)
+{
+    $e = dirname($a);
+    if (!is_dir($e) || !is_writable($e) || is_link($a)) return false;
+    $f = @fopen($e . '/' . $d, 'c');
+    if (!$f || !flock($f, LOCK_EX)) {
+        if ($f) fclose($f);
+        return false;
+    }
+    $g = tempnam($e, '.myvibehtml-write-');
+    $h = $g ? @fopen($g, 'wb') : false;
+    $i = false;
+    if ($h) {
+        $j = 0;
+        $k = strlen($b);
+        while ($j < $k && ($l = fwrite($h, substr($b, $j))) !== false && $l > 0) $j += $l;
+        $i = $j === $k && fflush($h);
+        fclose($h);
+    }
+    if ($i) {
+        @chmod($g, $c);
+        $i = @rename($g, $a);
+        if ($i) @chmod($a, $c);
+    }
+    if ($g && file_exists($g)) @unlink($g);
+    flock($f, LOCK_UN);
+    fclose($f);
+    return $i;
+}
+
+function myvibehtml_unserialize_array($a)
+{
+    if (version_compare(PHP_VERSION, '7.0', '>=')) return @unserialize($a, ['allowed_classes' => false]);
+    return @unserialize($a);
+}
+
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 0);
@@ -254,6 +291,8 @@ final class MyVibeHTMLResponse
         $this->addHeader('X-Frame-Options:SAMEORIGIN');
         $this->addHeader('Referrer-Policy:no-referrer');
         $this->addHeader('Permissions-Policy:camera=(), microphone=(), geolocation=()');
+        $this->addHeader('X-Permitted-Cross-Domain-Policies:none');
+        $this->addHeader('Cache-Control:no-store, max-age=0');
         $this->addHeader("Content-Security-Policy-Report-Only:default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self'");
     }
 
@@ -395,7 +434,7 @@ final class MyVibeHTMLConfig
         $d = myvibehtml_runtime_directory($b);
         if (!$d) return $c;
         $e = $d . self::c;
-        if (!file_exists($e) && file_exists($c) && @copy($c, $e)) {
+        if (!file_exists($e) && !is_link($c) && file_exists($c) && @copy($c, $e)) {
             @chmod($e, 0600);
             @unlink($c);
         }
@@ -473,6 +512,7 @@ final class MyVibeHTMLConfig
 
     private function save()
     {
+        $c = [];
         foreach ($this->settings as $a => $b) if (!is_array($b)) $c[] = $a . ' = ' . $b . self::a . self::a;
         foreach ($this->settings as $a => $b) {
             if (is_array($b)) {
@@ -481,13 +521,12 @@ final class MyVibeHTMLConfig
                 $c[] = self::a;
             }
         }
-        if ($f = fopen($this->configPath, 'w')) {
-            flock($f, LOCK_EX);
-            fwrite($f, implode('', $c));
-            flock($f, LOCK_UN);
-            fclose($f);
-            @chmod($this->configPath, 0600);
-        }
+        $this->writeFileAtomically($this->configPath, implode('', $c), 0600);
+    }
+
+    private function writeFileAtomically($a, $b, $c = 0600)
+    {
+        return myvibehtml_atomic_write($a, $b, $c, '.myvibehtml-config.lock');
     }
 
     public function isWritable()
@@ -524,7 +563,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '0.16';
+    const a = '0.17';
     private $config;
     private $request;
     private $response;
@@ -644,7 +683,7 @@ final class MyVibeHTMLController
         $a = $this->request->getCookie(__ . o_, _p);
         if ($a && $a == $this->config->getSetting(o_)) $this->dispatch(); else {
             $b = time();
-            $c = unserialize(urldecode($this->config->getSetting(t_)));
+            $c = myvibehtml_unserialize_array(urldecode($this->config->getSetting(t_)));
             $d = $this->config->getSetting(u_);
             $e = $this->request->getServer(g_);
             if ($c && isset($c[$e])) $f = $c[$e]; else$f = 0;
@@ -714,11 +753,7 @@ final class MyVibeHTMLController
                 $ae = str_replace(_J, _I, $ae);
                 if ($ab && $this->isAllowedExtension(strtolower(substr($ab, strripos($ab, '.') + 1)))) {
                     if ($this->createBackup($aa)) {
-                        if (is_writable($ab) && $ag = fopen($ab, 'w')) {
-                            flock($ag, LOCK_EX);
-                            fwrite($ag, $ae);
-                            flock($ag, LOCK_UN);
-                            fclose($ag);
+                        if ($this->writeFileAtomically($ab, $ae)) {
                             $this->config->setSetting(O_, '');
                         } else {
                             $this->response->addHeader('X-a:1');
@@ -981,8 +1016,8 @@ final class MyVibeHTMLController
         if (stripos($a, ',')) {
             $b = $this->request->getCookie(__ . m_);
             if ($b && stripos($a, $b) !== false) return $b; else {
-                $c = substr($this->request->getServer(e_), 0, 2);
-                if (stripos($a, $c) !== false) return $c;
+                $c = substr((string)$this->request->getServer(e_), 0, 2);
+                if ($c !== '' && stripos($a, $c) !== false) return $c;
             }
         }
         return substr($a, 0, 2);
@@ -1044,12 +1079,42 @@ final class MyVibeHTMLController
 
     private function writeHtaccess($a)
     {
-        if ($b = fopen($this->config->getEditorDirectory() . '.htaccess', 'w')) {
-            flock($b, LOCK_EX);
-            fwrite($b, $a);
-            flock($b, LOCK_UN);
-            fclose($b);
+        $this->writeFileAtomically($this->config->getEditorDirectory() . '.htaccess', $a, 0644);
+    }
+
+    private function writeFileAtomically($a, $b, $c = 0644)
+    {
+        return myvibehtml_atomic_write($a, $b, $c, '.' . basename($a) . '.myvibehtml.lock');
+    }
+
+    private function copyFileAtomically($a, $b)
+    {
+        if (is_link($a) || !is_file($a)) return false;
+        $c = @fopen($a, 'rb');
+        if (!$c) return false;
+        $d = dirname($b);
+        if (!is_dir($d) || !is_writable($d)) {
+            fclose($c);
+            return false;
         }
+        $e = tempnam($d, '.myvibehtml-backup-');
+        $f = $e ? @fopen($e, 'wb') : false;
+        $g = false;
+        if ($f) {
+            $h = true;
+            while (!feof($c) && ($h = fread($c, 8192)) !== false) {
+                if ($h !== '' && fwrite($f, $h) !== strlen($h)) {
+                    $h = false;
+                    break;
+                }
+            }
+            $g = $h !== false && feof($c) && fflush($f);
+            fclose($f);
+        }
+        fclose($c);
+        if ($g) $g = @rename($e, $b);
+        if ($e && file_exists($e)) @unlink($e);
+        return $g;
     }
 
     private function createSession()
@@ -1302,7 +1367,7 @@ final class MyVibeHTMLController
             if (!$b) {
                 $b = $this->calculateDirectorySizes($this->config->getSiteUrl());
                 $this->config->setSetting(O_, urlencode(serialize($b)));
-            } else$b = unserialize(urldecode($b));
+            } else$b = myvibehtml_unserialize_array(urldecode($b));
             return $b[$a];
         } else return '';
     }
@@ -1346,14 +1411,14 @@ final class MyVibeHTMLController
                         $h = $e . 'ꜜ' . str_ireplace('/', '⁄', $a);
                         while (($i = readdir($f)) !== false) {
                             $j = $e . $i;
-                            if ($i != '.' && $i != '..' && is_file($j) && file_exists($j) && ($j == $g || $j == $h)) return true;
+                            if ($i != '.' && $i != '..' && !is_link($j) && is_file($j) && file_exists($j) && ($j == $g || $j == $h)) return true;
                         }
                         closedir($f);
                     }
                     $k = $this->getSafeSitePath($a, $allowMissing);
-                    if ($k && file_exists($k)) {
-                        if (copy($k, $e . str_ireplace('/', '⁄', $a))) return true;
-                    } else if (fopen($e . 'ꜜ' . str_ireplace('/', '⁄', $a), 'w')) return true;
+                    if ($k && !is_link($k) && file_exists($k)) {
+                        if ($this->copyFileAtomically($k, $e . str_ireplace('/', '⁄', $a))) return true;
+                    } else if ($this->writeFileAtomically($e . 'ꜜ' . str_ireplace('/', '⁄', $a), '', 0600)) return true;
                 }
             }
         } else return true;

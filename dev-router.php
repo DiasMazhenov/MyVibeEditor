@@ -3,7 +3,7 @@
 $path = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
 $path = is_string($path) ? $path : '/';
 
-if (preg_match('~(?:^|/)(?:backup(?:/|$)|[^/]+\.(?:ini|log)$)~i', $path) || preg_match('~(?:^|/)\.[^/]*$~', $path)) {
+if (preg_match('~(?:^|/)(?:backup(?:/|$)|[^/]+\.(?:ini|log)(?:\..*)?$)~i', $path) || preg_match('~(?:^|/)\.[^/]+(?:/|$)~', $path)) {
     http_response_code(403);
     print 'Forbidden';
     return true;

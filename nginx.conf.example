@@ -1,0 +1,41 @@
+# MyVibeHTML production example.
+# Put this inside the site's `server {}` block, after setting `root`.
+# Replace the PHP-FPM socket with the socket used by the host.
+
+index myvibehtml.php;
+
+# Keep this aligned with PHP's post_max_size/upload_max_filesize.
+client_max_body_size 32m;
+
+# Never serve editor runtime files, backups, lock files, or dotfiles.
+location ~* ^/backup(?:/|$) {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+location ~* /\.(?!well-known/) {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+location ~* \.(?:ini|log)(?:\..*)?$ {
+    deny all;
+    access_log off;
+    log_not_found off;
+}
+
+# Existing public files, including the direct preview opened by the eye,
+# stay static. Missing paths are routed to the plugin with q=<request path>.
+location / {
+    try_files $uri $uri/ /myvibehtml.php?q=$uri&$args;
+}
+
+location ~ \.php$ {
+    try_files $uri =404;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_param DOCUMENT_ROOT $document_root;
+    fastcgi_pass unix:/run/php/php-fpm.sock;
+}

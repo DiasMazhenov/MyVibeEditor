@@ -5,18 +5,20 @@ DirectoryIndex myvibehtml.php
 
 RewriteRule (^|/)(backup|[^/]+\.(ini|log))(/|$) - [F,L,NC]
 
+RewriteRule (^|/)\.[^/]+ - [F,L,NC]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 
 RewriteRule ^.*$ myvibehtml.php?q=$0 [L,NC,QSA]
 
 <IfModule mod_authz_core.c>
-    <FilesMatch "\.(ini|log)$">
+    <FilesMatch "^(?:\.|.*\.(?:ini|log)(?:\..*)?)$">
         Require all denied
     </FilesMatch>
 </IfModule>
 
 <IfModule !mod_authz_core.c>
-    <FilesMatch "\.(ini|log)$">
+    <FilesMatch "^(?:\.|.*\.(?:ini|log)(?:\..*)?)$">
         Order allow,deny
         Deny from all
     </FilesMatch>
