@@ -76,6 +76,7 @@
 #e>div>p{display:flex;align-items:center;float:none;clear:none;min-width:0;max-width:280px;margin:0 0 0 4px;padding:0}
 #e>div>p samp{max-width:100%;overflow:hidden;font-size:11px;text-overflow:ellipsis;text-shadow:none;white-space:nowrap}
 #e>div>p samp a{color:#8ff5e5}
+#e #g dd[data-myvibehtml-local-only="1"]{display:none!important}
 #myvibehtml-context-menu{position:fixed;z-index:2147483000;min-width:210px;padding:6px;border:1px solid rgba(94,234,212,.3);border-radius:11px;background:rgba(20,28,36,.98);box-shadow:0 20px 44px rgba(0,0,0,.5);font:500 12px/18px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backdrop-filter:blur(16px)}
 #myvibehtml-context-menu button{display:block;width:100%;padding:10px 12px;border:0;border-radius:7px;background:transparent;color:#dfe8ed;text-align:left;font:inherit;cursor:pointer}
 #myvibehtml-context-menu button:hover,#myvibehtml-context-menu button:focus-visible{background:rgba(20,184,166,.2);color:#fff;outline:none}

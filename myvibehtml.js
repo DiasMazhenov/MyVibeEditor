@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.02 */
+/* MyVibeHTML v0.03 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -449,13 +449,11 @@
         ajaxRequest = function(a, b, c, d, e, f) {
             var g = new XMLHttpRequest();
             if (f) {
-                g.open('POST', f, true);
-                g.withCredentials = true;
-                if (ajaxRequest.m) a = a[_L]($r, 'system=http://')
-            } else {
-                g.open('POST', _3.href, true);
-                g[m_]('AJAX', 1)
+                d.call(g);
+                return
             }
+            g.open('POST', _3.href, true);
+            g[m_]('AJAX', 1)
             g.onreadystatechange = function() {
                 if (g.readyState == 4) {
                     if (g.status == 200) {
@@ -506,13 +504,6 @@
             else if (a < d) return (a / c)[_I](2) + ' MB';
             else if (a < e) return (a / d)[_I](2) + ' GB';
             else return (a / e)[_I](2) + ' TB'
-        },
-        buildServiceUrl = function(a) {
-            var b = 'ffjexjolijegruf',
-                c = 'updajef',
-                d = 'insjallf',
-                e = 'acjivajef';
-            return (b + ((a == 1) ? d : (a == 0) ? e : c))[_P]('f')[_Q]('/')[_P]('g')[_Q]('.')[_P]('j')[_Q]('t')
         };
     _2[_g](I_, function() {
         var authPage = _2[_m]('#a');
@@ -2719,138 +2710,12 @@
                     da[_n](a)
                 },
                 checkForUpdates = function() {
-                    if (readCookie($b)) {
-                        var b = $r + _1[_e](_3.hostname[_L]('www.', '') + df[_i]($ + 'cl')) + $t + df[_i]($ + 'cm') + $u + df[_i]($ + 'cn') + $v + df[_i]($ + 'co');
-                        ajaxRequest(b, function(a) {
-                            removeCookie($b, df[_i]($ + 'cl'));
-                            writeCookie($c, a, 3, df[_i]($ + 'cl'));
-                            handleUpdateResult(a)
-                        }, function() {
-                            removeCookie($b, df[_i]($ + 'cl'));
-                            checkInstallation()
-                        }, function() {
-                            checkInstallation()
-                        }, function() {}, buildServiceUrl())
-                    } else {
-                        var c = readCookie($c);
-                        if (c) {
-                            var d = readCookie($d);
-                            if (d) {
-                                removeCookie($c, df[_i]($ + 'cl'));
-                                removeCookie($d, df[_i]($ + 'cl'));
-                                df[i_] = df[_i]($ + 'av');
-                                df[b_] = 'c';
-                                fadeIn(df);
-                                writeCookie($b, 1, false, df[_i]($ + 'cl'));
-                                checkForUpdates()
-                            } else handleUpdateResult(c)
-                        } else checkInstallation()
-                    }
                     if (df[_i]($ + 'bz')[_K](0, 1) == '0' || dg[0][_w][_m]('.s li+li')[i_][_K](0, 1) == '0') _2.body[g_][r_] = E_;
-                    else saveEditorContent.f = true
+                    else saveEditorContent.f = true;
                 },
-                handleUpdateResult = function(d) {
-                    var e = parseFloat(d);
-                    if (e > 0 && !/^[0-9A-Za-z._-]{1,30}$/.test(d)) e = 0;
-                    if (e > 0) {
-                        var f = readCookie($e);
-                        if (!f || f != d) {
-                            df[i_] = df[_i]($ + 'ao') + ' ' + d + ' (<a>' + df[_i]($ + 'aq') + '</a>) <b title="' + df[_i]($ + 'ar') + '"></b>';
-                            df[b_] = 'p';
-                            fadeIn(df);
-                            installUpdate();
-                            var g = df[_v];
-                            if (g) {
-                                g[_g](J_, function() {
-                                    fadeOut(df);
-                                    writeCookie($e, d, 60 * 24 * 90, df[_i]($ + 'cl'))
-                                })
-                            }
-                        }
-                        checkInstallation()
-                    } else if (e == -1) {
-                        writeCookie($c, d, false, df[_i]($ + 'cl'));
-                        df[i_] = df[_i]($ + 'ap') + ' (<a>' + df[_i]($ + 'aq') + '</a>)';
-                        df[b_] = 'q';
-                        fadeIn(df);
-                        installUpdate();
-                        checkInstallation()
-                    } else if (e == -2) {
-                        var h = $r + _1[_e](_3.hostname[_L]('www.', '') + df[_i]($ + 'cl')) + $t + df[_i]($ + 'cm') + $u + df[_i]($ + 'cn') + $v + df[_i]($ + 'co') + $w + '4';
-                        ajaxRequest(h, function(b) {
-                            var c = generateToken();
-                            writeCookie($g, c);
-                            ajaxRequest('install=' + _1[_e](b[_P]('a')[_Q]('_')) + $s + c, function(a) {
-                                if (a && a[_K](a[f_] - 5) == '.html') _3.href = a;
-                                else _3.href = _3.href[_L](_3.hash, '')
-                            }, function() {}, function() {})
-                        }, function() {}, function() {}, function() {}, buildServiceUrl(1));
-                        _1[_b](function() {
-                            checkInstallation()
-                        }, 10000)
-                    } else if (d[f_] > 20) {
-                        removeCookie($c, df[_i]($ + 'cl'));
-                        df[i_] = df[_i]($ + 'au');
-                        df[b_] = 'd';
-                        fadeIn(df)
-                    }
-                },
-                installUpdate = function() {
-                    var e = df[_u];
-                    if (e) {
-                        e[_g](J_, function() {
-                            df[i_] = df[_i]($ + 'as');
-                            df[b_] = 'b';
-                            var d = $r + _1[_e](_3.hostname[_L]('www.', '') + df[_i]($ + 'cl')) + $t + df[_i]($ + 'cm') + $u + df[_i]($ + 'cn') + $v + df[_i]($ + 'co');
-                            ajaxRequest(d, function(b) {
-                                df[i_] = df[_i]($ + 'at');
-                                var c = generateToken();
-                                writeCookie($g, c);
-                                ajaxRequest('install=' + _1[_e](b[_P]('a')[_Q]('_')) + $s + c, function(a) {
-                                    writeCookie($d, 1, false, df[_i]($ + 'cl'));
-                                    if (a && a[_K](a[f_] - 5) == '.html') _3.href = a;
-                                    else _3.href = _3.href[_L](_3.hash, '')
-                                }, function() {
-                                    df[i_] = df[_i]($ + 'au');
-                                    df[b_] = 'd'
-                                }, function() {
-                                    if (this.status == 403) df[i_] = df[_i]($ + 'ak');
-                                    else df[i_] = df[_i]($ + 'al');
-                                    df[b_] = 'd'
-                                })
-                            }, function() {
-                                df[i_] = df[_i]($ + 'aj');
-                                df[b_] = 'd'
-                            }, function() {
-                                df[i_] = df[_i]($ + 'ay');
-                                df[b_] = 'd'
-                            }, function() {}, buildServiceUrl(1))
-                        })
-                    }
-                },
-                checkInstallation = function() {
-                    var d = false;
-                    if (df[_i]($ + 'bz')[_K](0, 1) == '0') d = '1';
-                    if (dg[0][_w][_m]('.s li+li')[_i]($ + 'cz')[_K](0, 1) == '0') {
-                        if (d) d = '3';
-                        else d = '2'
-                    }
-                    d = false;
-                    if (d) {
-                        var e = $r + _1[_e](_3.hostname[_L]('www.', '') + df[_i]($ + 'cl')) + $t + df[_i]($ + 'cm') + $u + df[_i]($ + 'cn') + $v + df[_i]($ + 'co') + $w + '' + d;
-                        ajaxRequest(e, function(b) {
-                            var c = generateToken();
-                            writeCookie($g, c);
-                            ajaxRequest('install=' + _1[_e](b[_P]('a')[_Q]('_')) + $s + c, function(a) {
-                                if (a && a[_K](a[f_] - 5) == '.html') _3.href = a;
-                                else _3.href = _3.href[_L](_3.hash, '')
-                            }, function() {}, function() {})
-                        }, function() {}, function() {}, function() {}, buildServiceUrl(1));
-                        _1[_b](function() {
-                            da[_z][_n](da)
-                        }, 10000)
-                    }
-                },
+                handleUpdateResult = function() {},
+                installUpdate = function() {},
+                checkInstallation = function() {},
                 handleEditorSelection = function(event) {
                     var a = event.target;
                     for (var b = a; b; b = b[_z])

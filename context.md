@@ -3,13 +3,13 @@
 ## Состояние ревью
 
 - Дата: 2026-08-18, Asia/Almaty.
-- Версия из исходников: MyVibeHTML `0.02`.
-- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard, точечное HTML-экранирование, runtime-изоляция конфигурации/лога, security headers и безопасный вывод внешнего update-текста добавлены и проверены. Добавлены `test-page.html` и `dev-router.php` для воспроизводимого локального теста через PHP built-in server. Исправлен redirect loop для корневого `siteUrlBase = "/"` в `MyVibeHTMLController::dispatch()`: пустой префикс больше не совпадает с каждым `q`. Добавлена компактная графитово-бирюзовая UI-тема с янтарным акцентом для auth/panel, локальная кнопка просмотра сайта, context menu visual editor и выделение element/section/block. Исправлено перекрытие редактора: панель занимает фиксированные 68px, а iframe — оставшуюся область без лишнего зазора. Сырой HTML-ответ внешней проверки обновлений больше не показывается на панели; вместо него выводится локализованная ошибка обновления. Панель адаптирована сеткой, затем для ширин до 700px переведена на бургер-меню с keyboard/Escape/ARIA-поведением; действия меню вызывают существующие обработчики, без дублирования бизнес-логики. Последняя мобильная правка выровняла глаз и бургер в единую правую action-группу: на мобильном заголовке контейнер растягивается по ширине, а обе кнопки закреплены абсолютным позиционированием от правого края. Версия runtime поднята до `0.02`, чтобы обновлённые CSS/JS гарантированно вышли из cache. Исправлена обработка версий вида `0.01` через `parseFloat`. Правило версий: каждый следующий функциональный набор повышает номер на `0.01`; после этого релиза следующий номер — `0.03`; context-only коммиты номер не меняют. Пользовательские изменения `test-page.html` оставлены вне этого этапа. Остались CSP/общий аудит innerHTML и замена внешнего update/install/activate flow.
-- Git: локальный репозиторий и ветка `main` инициализированы, `origin` настроен на `https://github.com/DiasMazhenov/MyVibeEditor.git`; baseline commit — `1e4ec5049ec3951a2b7b99d7be4db28904c07a35` от 2026-08-18 16:15:09 +0500, контекст GitHub — `f1763f1`, предыдущий security commit — `92383241b9183a2a322e98b9494abbe238730e1c` от 2026-08-18 16:22:50 +0500, текущий runtime/security commit — `4a46ab72377828f9cba06caeed59063f15b8f242` от 2026-08-18 16:38:46 +0500, исправление redirect loop — `1d11c0c` от 2026-08-18 17:09:03 +0500, redesign auth/editor UI + context menu — `b43a58f` от 2026-08-18 17:28:12 +0500, исправление перекрытия iframe — `c1f55b1` от 2026-08-18 17:33:56 +0500, компактная graphite/teal/amber-панель и скрытие сырого update-response — `507219e` от 2026-08-18 17:49:14 +0500, responsive action alignment + version `0.02` — `4946379` от 2026-08-18 18:18:33 +0500. Секретный `conf.ini` исключён через `.gitignore`.
-- Проверки: `php -l myvibehtml.php`, `php -l textolite.php` и `php -l dev-router.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; `git diff --check` — OK; временные path/XSS и runtime-config harness — PASS; `test-page.html` разобран стандартным Python `HTMLParser`, внешних URL нет; dev-router HTTP smoke — login route `200`, static page `200`, `conf.ini` `403`; авторизованный `/?q=myvibe/test-page.html` — `200` без redirect, iframe и theme marker присутствуют; headless browser screenshot подтвердил компактную панель, отсутствие сырого update-текста, отсутствие лишнего зазора, бургер и открытое меню, а также правое выравнивание action-группы в статическом UI-fixture на 375/640 CSS px; theme asset — `200`; Graphify `diagnose multigraph` — 91 узел/284 связи без dangling/self-loop/duplicate endpoint edges.
+- Версия из исходников: MyVibeHTML `0.03`.
+- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard, точечное HTML-экранирование, runtime-изоляция конфигурации/лога, security headers и безопасный вывод внешнего update-текста добавлены и проверены. Добавлены `test-page.html` и `dev-router.php` для воспроизводимого локального теста через PHP built-in server. Исправлен redirect loop для корневого `siteUrlBase = "/"` в `MyVibeHTMLController::dispatch()`: пустой префикс больше не совпадает с каждым `q`. Добавлена компактная графитово-бирюзовая UI-тема с янтарным акцентом для auth/panel, локальная кнопка просмотра сайта, context menu visual editor и выделение element/section/block. Исправлено перекрытие редактора: панель занимает фиксированные 68px, а iframe — оставшуюся область без лишнего зазора. Сырой HTML-ответ внешней проверки обновлений больше не показывается на панели; вместо него выводится локализованная ошибка обновления. Панель адаптирована сеткой, затем для ширин до 700px переведена на бургер-меню с keyboard/Escape/ARIA-поведением; действия меню вызывают существующие обработчики, без дублирования бизнес-логики. Последняя мобильная правка выровняла глаз и бургер в единую правую action-группу: на мобильном заголовке контейнер растягивается по ширине, а обе кнопки закреплены абсолютным позиционированием от правого края. Внешний update/install/activate flow отключён: `ajaxRequest()` отвергает external URL, локальная логика сохранения сохранена, бренд ведёт на локальный сайт, а настройки внешних обновлений скрыты. Версия runtime поднята до `0.03`, чтобы изменения гарантированно вышли из cache. Исправлена обработка версий вида `0.01` через `parseFloat`. Правило версий: каждый следующий функциональный набор повышает номер на `0.01`; после этого релиза следующий номер — `0.04`; context-only коммиты номер не меняют. Пользовательские изменения `test-page.html` оставлены вне этого этапа. Остались CSP/общий аудит innerHTML и постоянные regression tests.
+- Git: локальный репозиторий и ветка `main` инициализированы, `origin` настроен на `https://github.com/DiasMazhenov/MyVibeEditor.git`; baseline commit — `1e4ec5049ec3951a2b7b99d7be4db28904c07a35` от 2026-08-18 16:15:09 +0500, контекст GitHub — `f1763f1`, предыдущий security commit — `92383241b9183a2a322e98b9494abbe238730e1c` от 2026-08-18 16:22:50 +0500, текущий runtime/security commit — `4a46ab72377828f9cba06caeed59063f15b8f242` от 2026-08-18 16:38:46 +0500, исправление redirect loop — `1d11c0c` от 2026-08-18 17:09:03 +0500, redesign auth/editor UI + context menu — `b43a58f` от 2026-08-18 17:28:12 +0500, исправление перекрытия iframe — `c1f55b1` от 2026-08-18 17:33:56 +0500, компактная graphite/teal/amber-панель и скрытие сырого update-response — `507219e` от 2026-08-18 17:49:14 +0500, responsive action alignment + version `0.02` — `4946379` от 2026-08-18 18:18:33 +0500. Внешний update/install/activate flow отключён, мёртвый legacy-код удалён и подготовлен к фиксации; секретный `conf.ini` исключён через `.gitignore`.
+- Проверки: `php -l myvibehtml.php`, `php -l textolite.php` и `php -l dev-router.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; `git diff --check` — OK; временные path/XSS и runtime-config harness — PASS; статическая проверка external flow — PASS: в runtime PHP/JS нет `textolite.ru`, `withCredentials`, внешнего `POST`, `buildServiceUrl`, update/install payload или мёртвых update-веток; `test-page.html` разобран стандартным Python `HTMLParser`, внешних URL нет; dev-router HTTP smoke — login route `200`, static page `200`, `conf.ini` `403`; авторизованный `/?q=myvibe/test-page.html` — `200` без redirect, iframe и theme marker присутствуют; headless browser screenshot подтвердил компактную панель, отсутствие сырого update-текста, отсутствие лишнего зазора, бургер и открытое меню, а также правое выравнивание action-группы в статическом UI-fixture на 375/640 CSS px; theme asset — `200`; Graphify `diagnose multigraph` — 91 узел/284 связи без dangling/self-loop/duplicate endpoint edges.
 - Оригиналы PHP/JS до переименования сохранены вне поставки: `/private/tmp/myvibe-originals-20260818/`; SHA-256 исходных файлов: PHP `e5df2da2b45fdc1e674cc9c8add728d970afb8fc3e9df20274307175fe8c4e9e`, JS `40b5d19941e7cb2c1bbe1fb7988dce45e8fdb85f500a4c7c2bbbfc74467444c3`.
 - PHP-классы переименованы в `MyVibeHTMLRequest`, `MyVibeHTMLResponse`, `MyVibeHTMLConfig`, `MyVibeHTMLController`; методы получили смысловые имена. В JS переименован верхнеуровневый helper-слой cookie/animation/crypto/AJAX. PHP-параметры, alias-константы и локальные JS-функции ещё требуют отдельных проходов.
-- Текущие SHA-256: `myvibehtml.php` `bccade9701578d78a6cd2966439819a18f5a5c72dc0866967976bb1a13d760e4`, `myvibehtml.js` `fec75b1fdd0c7e467a0cd783df3f3eab607b46c50e72503b63da86aa255ec8e0`, `myvibehtml.css` `ef0e84a82b5e2b70a4c1bb55355d06daa803323304353983244a662507517d24`, `myvibehtml-theme.css` `ab8ace79d3d9e4962abfccf6f2d90752c2d9ee8859a7e0a78aa81d6db04bee5d`, `lang.ini` `a7198a95d07bc42d4fef5897fa88702680e1d3a71ca733e6449bf354ab8e9c4c`, `.htaccess` `e7da7dc6c32fe0c37d76328f51425e7e982a797f845595542dcd2025cbb85351`.
+- Текущие SHA-256: `myvibehtml.php` `f5fb677040e04b33a1d775a75fad50ba986316de5f0063cd53028bdf7f4cc188`, `myvibehtml.js` `1c1a814da818e92d5b99bd51b4f33fa21adc447b802d77136d47cb138808ab62`, `myvibehtml.css` `dcbe4347ec066ce7890c736a280e651d695798308c917ab59fc129b9640c428a`, `myvibehtml-theme.css` `8f9f1edabda6726aeef78861f8a5afec2c25eeb0f454c3bb56e14fae6d35c0c7`, `lang.ini` `a7198a95d07bc42d4fef5897fa88702680e1d3a71ca733e6449bf354ab8e9c4c`, `.htaccess` `e7da7dc6c32fe0c37d76328f51425e7e982a797f845595542dcd2025cbb85351`.
 - Изменения безопасности этого этапа: единый path guard, symlink rejection, upload filename normalization, `escapeHtml()` для динамических filename/URL/metadata/default-file/language values, runtime `conf.ini`/`error.log` вне document root по умолчанию с миграцией старого файла, запрет backup/ini/log в `.htaccess`, базовые security headers, `Secure`/`HttpOnly`/`SameSite=Lax` на PHP 7.3+ и подавление небезопасного длинного внешнего update-ответа вместо вывода его как markup/text. CSP и полный отказ от context-blind `innerHTML` отложены до отдельного браузерного аудита и замены внешнего update flow.
 - Обратная проверка JS подтвердила: после восстановления старых идентификаторов код совпадает с сохранённым оригиналом; отличаются только разрешённые имена и CRLF/LF.
 - Постоянного test framework, `package.json`, `composer.json` и `vendor/` нет; для path guard выполнен временный PHP harness вне поставки.
@@ -21,7 +21,7 @@
 - `textolite.php`, `textolite.js`, `textolite.css` оставлены минимальными compatibility aliases для старых прямых URL и asset-ссылок; это единственные оставшиеся локальные имена со старым префиксом.
 - Внутренние PHP-классы, runtime prefix, DOM data-атрибуты, CSS selectors/font name и JS product marker переведены на `MyVibeHTML`/`myvibehtml`.
 - При переезде исправлена связанная длина prefix-check: `textolite` имел 9 символов, `myvibehtml` — 10; проверка теперь использует `strlen('myvibehtml')`.
-- Внешний домен `textolite.ru` пока не удалён: это действующий endpoint update/install/activate. Его удаление запланировано после отключения или замены update/install/activate flow, чтобы не оставить сломанную кнопку обновления.
+- Исторические ссылки на `textolite.ru` сохраняются только в документации/аннотациях ревью; рабочий runtime больше не формирует и не вызывает эти endpoints.
 
 ## Graphify
 
@@ -201,10 +201,9 @@ PHP-классы и публичные/внутренние методы уже 
 | `utf8Encode(text)` | Вручную кодирует Unicode text в UTF-8 bytes для собственного SHA-1. |
 | `sha1(text)` | Полностью встроенная реализация SHA-1; используется для password proof и token generation. |
 | `base64Encode(text)` | Кодирует URL-encoded UTF-8 строку в base64-представление для POST source. |
-| `ajaxRequest(body, ok, notFound, timeout, progress, externalUrl)` | Общий XMLHttpRequest POST. Поддерживает string/FormData, upload progress, 20-секундный client timeout и ветки status 200/404. При `externalUrl` включает `withCredentials` и может заменить `system=` на HTTP для local IP режима. |
+| `ajaxRequest(body, ok, notFound, timeout, progress, externalUrl)` | Общий XMLHttpRequest POST только на текущий редактор. Если передан `externalUrl`, запрос отклоняется через timeout/error callback и не создаёт внешний network request. |
 | `generateToken()` | Генерирует client token из timestamp + random и прогоняет через SHA-1. |
 | `formatBytes(bytes)` | Форматирует размер в KB/MB/GB/TB. |
-| `buildServiceUrl(mode)` | Декодирует obfuscated `textolite.ru/update|install|activate` URL. Это transport helper, не библиотека. |
 
 ### JavaScript: auth page `#a` (`myvibehtml.js:517-630`)
 
@@ -314,10 +313,10 @@ PHP-классы и публичные/внутренние методы уже 
 
 | Функция | Что делает |
 |---|---|
-| `checkForUpdates()` | Проверяет локальные cookies и отправляет `system/version/final/beta` на внешний service endpoint. |
-| `handleUpdateResult(value)` | Разбирает номер/статус версии, выбирает уведомление/установку и скрывает невалидный длинный ответ внешнего сервиса, показывая локальную ошибку. |
-| `installUpdate()` | По подтверждению получает install payload, отправляет его с token и переводит страницу на результат. |
-| `checkInstallation()` | Проверяет служебные лимиты и запускает дополнительную установку, если условия выполнены. |
+| `checkForUpdates()` | Сохраняет локальное состояние редактора и сразу завершает работу; внешняя проверка обновлений отключена. |
+| `handleUpdateResult(value)` | Legacy-compatible no-op; внешний ответ больше не разбирается и не отображается. |
+| `installUpdate()` | Legacy-compatible no-op; install payload не запрашивается и не отправляется. |
+| `checkInstallation()` | Legacy-compatible no-op; внешний activation/install flow не запускается. |
 
 ### JavaScript: file manager (`myvibehtml.js:2837-3230`)
 
@@ -383,14 +382,14 @@ PHP-классы и публичные/внутренние методы уже 
 
 ### Внешние сервисы MyVibeHTML
 
-Это не библиотеки, а удалённый update/activation flow, который вызывается из `myvibehtml.js` через helper `buildServiceUrl()`:
+Внешний update/install/activate flow удалён из рабочего runtime в версии `0.03`. `ajaxRequest()` отклоняет любой внешний URL, legacy-функции обновления заменены на no-op, а локальная проверка сохраняет состояние редактора. Логотип и просмотр сайта используют локальный `{site_preview_url}`.
+
+Исторические endpoints, которые были обнаружены при ревью и больше не вызываются:
 
 - https://textolite.ru/
 - https://textolite.ru/update/
 - https://textolite.ru/install/
 - https://textolite.ru/activate/
-
-На текущем этапе доверять содержимому ответов этих endpoints нельзя: локальная реализация обновления зависит от них, а подпись/проверка целостности ответа в поставленном коде не обнаружена. Нужны фактические ответы/файлы для отдельного supply-chain-аудита.
 
 ## Findings
 
@@ -412,9 +411,9 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 
 В начале `myvibehtml.php` разрешается PHP `>=5.2`, однако `[]` используется начиная с `myvibehtml.php:463` и далее. PHP 5.2/5.3 такой файл не распарсят. Нужно либо поднять минимальную версию, либо переписать синтаксис; фактическую поддерживаемую версию следует зафиксировать.
 
-### P2 — отсутствует локальная криптографическая проверка update/install ответа
+### P2 — update/install supply-chain flow отключён
 
-`myvibehtml.js:2635-2759` отправляет запросы на `textolite.ru/update|install|activate`; ответ преобразуется и используется в update flow. В локальном коде нет подписи, pinned key или фиксированной checksum-проверки. Протокол/ответы внешнего сервера нужно получить и проверить отдельно.
+Внешний update/install/activate flow отключён в runtime: нет outbound URL, `withCredentials` или разбора внешнего ответа. Криптографическая проверка удалённого payload больше не требуется для локальной сборки; если обновления будут возвращены, нужен отдельный подписанный manifest/protocol до включения network flow.
 
 ### P2 — cookie/security headers — частично исправлено
 
@@ -440,7 +439,7 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 
 Проверено локально: структура файлов, PHP/JS/CSS/INI/Apache-конфигурация, роутинг запросов, авторизация, cookies, file operations, backup/recovery, upload/update paths, runtime migration harness, синтаксис PHP/JS, наличие внешних URL и package manifests.
 
-Не проверено: фактическое поведение в Apache/Nginx, HTTPS/cookie policy в браузере, реальные stored-XSS сценарии, содержимое и TLS/API-контракт `textolite.ru`, корректность обновления, TOCTOU-поведение при гонках и совместимость с заявленными старыми PHP/browser версиями.
+Не проверено: фактическое поведение в Apache/Nginx, HTTPS/cookie policy в браузере, реальные stored-XSS сценарии, TOCTOU-поведение при гонках и совместимость с заявленными старыми PHP/browser версиями. Удалённый update/install/activate flow намеренно не проверяется: он отключён.
 
 ## Приоритет следующей работы
 
@@ -448,5 +447,5 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 2. Завершено по умолчанию: `conf.ini`/`error.log` вынесены из публичного дерева, добавлены Apache fallback-правила; отдельно подготовить Nginx snippet для production.
 3. Завершено: добавлен единый canonical path guard для file operations, symlink escape запрещён, upload filenames нормализуются.
 4. Частично завершено: экранированы file-manager/default-file contexts и внешний update text; далее закрыть остальные HTML/attribute contexts или перейти на DOM construction без `innerHTML` для серверных данных.
-5. После согласования замены удалить внешние update/install/activate endpoints и соответствующий client flow.
-6. Добавить постоянные regression tests для auth, XSS encoding, backup и update response validation; path/XSS сейчас подтверждены временным harness.
+5. Завершено в версии `0.03`: внешние update/install/activate endpoints и рабочий client flow отключены; до появления подписанного протокола network update не возвращать.
+6. Добавить постоянные regression tests для auth, XSS encoding, backup и подтверждения отключённого update flow; path/XSS сейчас подтверждены временным harness.
