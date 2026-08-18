@@ -73,7 +73,7 @@
 #e>div>ul+div>p i{display:grid;place-items:center;box-sizing:border-box;height:34px;width:34px;margin:0;color:#a4b3bd;line-height:1;text-align:center}
 #e>div>ul+div>p i:first-child:hover{color:#a9ffab}
 #e>div>ul+div>div{position:fixed;top:68px;left:12px;box-sizing:border-box;width:min(460px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100vh - 80px);border:1px solid var(--mv-border);border-top:0;border-radius:0 0 12px 12px;background:rgba(20,28,36,.98);box-shadow:0 20px 40px rgba(0,0,0,.38);overflow:auto;overflow-x:hidden}
-#e>div>div+ul{display:flex;align-items:center;flex:0 0 auto;float:none;margin:0 0 0 auto;padding:0;gap:8px}
+#e>div>div+ul{display:flex;align-items:center;flex:0 0 auto;float:none;min-width:max-content;margin:0 0 0 auto;padding:3px;gap:4px}
 #e>div>div+ul>li{float:none;margin:0}
 #e>div>div+ul input[type="button"]{box-sizing:border-box;height:34px!important;margin:0!important;padding:0 14px!important;border-radius:9px!important;font-size:11px!important;font-weight:700!important;text-shadow:none!important;transition:filter .2s,transform .2s,background .2s}
 #e>div>div+ul input[type="button"]:not([disabled]):hover{filter:brightness(1.08);transform:translateY(-1px)}
