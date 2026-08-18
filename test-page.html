@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>MyVibeHTML — тестовая страница</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #172033;
+            --muted: #667085;
+            --line: #dce3ee;
+            --paper: #ffffff;
+            --soft: #f4f7fb;
+            --accent: #5b5ce2;
+            --accent-dark: #4142b8;
+            --mint: #dff8ec;
+            --shadow: 0 18px 50px rgba(32, 45, 80, .12);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: linear-gradient(135deg, #eef2ff, #f9fbff 45%, #e9f8f2);
+            font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--accent-dark); }
+        .shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; }
+        .logo { color: var(--ink); font-weight: 800; text-decoration: none; letter-spacing: -.03em; }
+        nav { display: flex; flex-wrap: wrap; gap: 16px; font-size: .92rem; }
+        nav a { text-decoration: none; }
+        .hero, .panel { background: rgba(255, 255, 255, .88); border: 1px solid rgba(220, 227, 238, .9); border-radius: 28px; box-shadow: var(--shadow); }
+        .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 32px; align-items: center; padding: clamp(28px, 6vw, 72px); }
+        .eyebrow { color: var(--accent-dark); font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+        h1, h2, h3 { line-height: 1.15; letter-spacing: -.04em; }
+        h1 { max-width: 640px; margin: 12px 0 18px; font-size: clamp(2.5rem, 7vw, 5.5rem); }
+        h2 { margin: 0 0 18px; font-size: clamp(1.8rem, 4vw, 3rem); }
+        h3 { margin: 0 0 8px; }
+        .lead { max-width: 620px; color: var(--muted); font-size: 1.12rem; }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+        button, .button { border: 0; border-radius: 999px; padding: 12px 18px; color: #fff; background: var(--accent); cursor: pointer; font: inherit; text-decoration: none; }
+        button:hover, .button:hover { background: var(--accent-dark); }
+        .button.secondary { color: var(--ink); background: var(--soft); }
+        .orb { display: grid; min-height: 300px; place-items: center; border-radius: 24px; background: radial-gradient(circle at 30% 25%, #fff 0 8%, transparent 9%), linear-gradient(145deg, #7778f2, #4fd39a); }
+        .orb svg { width: min(62%, 260px); filter: drop-shadow(0 18px 20px rgba(24, 35, 75, .24)); }
+        section { padding: 72px 0 0; }
+        .section-intro { max-width: 640px; margin-bottom: 24px; color: var(--muted); }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .panel { padding: 24px; }
+        .card-icon { display: grid; width: 44px; height: 44px; margin-bottom: 18px; place-items: center; border-radius: 14px; background: var(--mint); font-size: 1.4rem; }
+        .card p, .muted { color: var(--muted); }
+        .checklist { padding: 0; list-style: none; }
+        .checklist li { margin: 10px 0; }
+        .checklist li::before { content: "✓"; display: inline-grid; width: 24px; height: 24px; margin-right: 8px; place-items: center; border-radius: 50%; color: #176b4d; background: var(--mint); font-weight: 800; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 620px; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; }
+        th { background: var(--soft); }
+        form { display: grid; gap: 14px; }
+        label { display: grid; gap: 6px; font-weight: 700; }
+        input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink); background: #fff; font: inherit; }
+        textarea { min-height: 120px; resize: vertical; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        pre { overflow-x: auto; margin: 0; border-radius: 16px; padding: 20px; color: #e7ecff; background: #172033; }
+        code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .status { min-height: 28px; color: var(--accent-dark); font-weight: 700; }
+        footer { padding: 54px 0 32px; color: var(--muted); text-align: center; }
+
+        @media (max-width: 760px) {
+            .topbar, .hero { grid-template-columns: 1fr; }
+            .topbar { align-items: flex-start; flex-direction: column; }
+            .hero { display: block; padding: 30px 22px; }
+            .orb { min-height: 220px; margin-top: 28px; }
+            .grid, .form-grid { grid-template-columns: 1fr; }
+            section { padding-top: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="shell topbar">
+        <a class="logo" href="#top">MyVibeHTML / test page</a>
+        <nav aria-label="Основная навигация">
+            <a href="#features">Блоки</a>
+            <a href="#table">Таблица</a>
+            <a href="#form">Форма</a>
+            <a href="#source">Source</a>
+        </nav>
+    </header>
+
+    <main id="top" class="shell">
+        <section class="hero" aria-labelledby="hero-title">
+            <div>
+                <div class="eyebrow">Локальный тест без библиотек</div>
+                <h1 id="hero-title">Проверь редактор на настоящей странице.</h1>
+                <p class="lead">Эта страница специально содержит разные типы контента: текст, кнопки, SVG, списки, таблицу, форму, код и адаптивные стили.</p>
+                <div class="actions">
+                    <button id="demo-button" type="button">Проверить JavaScript</button>
+                    <a class="button secondary" href="#features">Посмотреть блоки</a>
+                </div>
+                <p id="demo-status" class="status" aria-live="polite"></p>
+            </div>
+            <div class="orb" aria-label="Декоративная иллюстрация">
+                <svg viewBox="0 0 240 240" role="img" aria-labelledby="svg-title">
+                    <title id="svg-title">Абстрактная тестовая иллюстрация</title>
+                    <circle cx="120" cy="120" r="84" fill="#fff" opacity=".9"/>
+                    <path d="M72 145c18-34 38-51 60-51 18 0 31 10 42 29" fill="none" stroke="#5b5ce2" stroke-width="14" stroke-linecap="round"/>
+                    <circle cx="91" cy="99" r="12" fill="#4fd39a"/>
+                    <circle cx="157" cy="86" r="9" fill="#7778f2"/>
+                </svg>
+            </div>
+        </section>
+
+        <section id="features" aria-labelledby="features-title">
+            <h2 id="features-title">Контентные блоки</h2>
+            <p class="section-intro">Попробуй изменить заголовки, цвета, отступы и порядок карточек в визуальном редакторе.</p>
+            <div class="grid">
+                <article class="panel card">
+                    <div class="card-icon">✦</div>
+                    <h3>Визуальный режим</h3>
+                    <p>Выдели этот блок, измени текст и проверь, что форматирование сохраняется корректно.</p>
+                    <ul class="checklist">
+                        <li>Заголовки и абзацы</li>
+                        <li>Ссылки и кнопки</li>
+                        <li>Адаптивная сетка</li>
+                    </ul>
+                </article>
+                <article class="panel card">
+                    <div class="card-icon">⌘</div>
+                    <h3>Source-режим</h3>
+                    <p>Открой исходник и найди семантические элементы, CSS-переменные и media query.</p>
+                    <p><strong>Важно:</strong> кавычки, тире, амперсанд &amp; и символы &lt; &gt; тоже должны отображаться правильно.</p>
+                </article>
+                <article class="panel card">
+                    <div class="card-icon">↗</div>
+                    <h3>Файловые операции</h3>
+                    <p>Проверь открытие, сохранение, переименование и создание копии страницы.</p>
+                    <a href="#form">Перейти к форме →</a>
+                </article>
+            </div>
+        </section>
+
+        <section id="table" aria-labelledby="table-title">
+            <div class="panel">
+                <h2 id="table-title">Таблица данных</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Компонент</th><th>Состояние</th><th>Что проверить</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Visual editor</td><td>Готов</td><td>Перемещение и форматирование</td></tr>
+                            <tr><td>Source editor</td><td>Готов</td><td>Отступы и отмена изменений</td></tr>
+                            <tr><td>File manager</td><td>Тест</td><td>Open / Save / Upload / Recovery</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="form" aria-labelledby="form-title">
+            <div class="grid">
+                <div class="panel">
+                    <h2 id="form-title">Тестовая форма</h2>
+                    <form id="demo-form">
+                        <div class="form-grid">
+                            <label>Имя<input name="name" type="text" value="Алия" autocomplete="off"></label>
+                            <label>Тип теста<select name="type"><option>Визуальный редактор</option><option>Source editor</option><option>File manager</option></select></label>
+                        </div>
+                        <label>Комментарий<textarea name="comment">Страница хорошо открывается на desktop и mobile.</textarea></label>
+                        <button type="submit">Сохранить локально</button>
+                    </form>
+                    <p id="form-status" class="status" aria-live="polite"></p>
+                </div>
+                <div id="source" class="panel">
+                    <h2>HTML-фрагмент</h2>
+                    <p class="muted">Кодовый блок проверяет моноширинный текст и перенос на узком экране.</p>
+                    <pre><code>&lt;section class="panel"&gt;
+  &lt;h2&gt;MyVibeHTML&lt;/h2&gt;
+  &lt;p&gt;Редактируемый контент&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="shell">Тестовая страница MyVibeHTML · локальный контент без внешних зависимостей</footer>
+
+    <script>
+        (function () {
+            var button = document.getElementById('demo-button');
+            var status = document.getElementById('demo-status');
+            var form = document.getElementById('demo-form');
+            var formStatus = document.getElementById('form-status');
+
+            button.addEventListener('click', function () {
+                status.textContent = 'JavaScript работает: ' + new Date().toLocaleTimeString('ru-RU');
+            });
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                formStatus.textContent = 'Форма обработана локально, без отправки на сервер.';
+            });
+        }());
+    </script>
+</body>
+</html>
