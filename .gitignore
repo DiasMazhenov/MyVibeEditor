@@ -1,0 +1,5 @@
+conf.ini
+error.log
+backup/
+graphify-out/
+.DS_Store
