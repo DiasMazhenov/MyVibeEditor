@@ -644,7 +644,8 @@ final class MyVibeHTMLController
             $ac = $this->getSafeSitePath($this->config->getSetting(D_));
             if (!file_exists($ac) && ($ad = $this->findDefaultFile())) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $ad, 307); else throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(D_), 307);
         }
-        if (stripos($aa, substr($this->config->getSiteUrlBase(), strripos(substr($this->config->getSiteUrlBase(), 0, -1), '/') + 1)) === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(D_), 307);
+        $sitePrefix = trim($this->config->getSiteUrlBase(), '/');
+        if ($sitePrefix !== '' && stripos($aa, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(D_), 307);
         if ($this->request->getServer(_m)) {
             if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($ae = $this->request->getPost('save')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
                 $this->response->clearCookie(__ . _o);
