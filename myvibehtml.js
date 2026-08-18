@@ -2074,7 +2074,7 @@
                                 g = hs[_l](gn),
                                 h = _2[_m]('#i')[i_],
                                 i = _2[_s]('style');
-                            i[i_] = h + '[data-myvibehtml-selection="section"]{outline:3px solid #7c3aed !important;outline-offset:5px;}' + '[data-myvibehtml-selection="block"]{outline:3px solid #0891b2 !important;outline-offset:3px;}' + '[data-myvibehtml-selection="element"]{outline:3px solid #a78bfa !important;outline-offset:2px;}';
+                            i[i_] = h + '[data-myvibehtml-selection="section"]{outline:3px solid #f59e0b !important;outline-offset:5px;}' + '[data-myvibehtml-selection="block"]{outline:3px solid #2dd4bf !important;outline-offset:3px;}' + '[data-myvibehtml-selection="element"]{outline:3px solid #14b8a6 !important;outline-offset:2px;}';
                             hs.head[_o](i);
                             hs[_g](N_, handleEditorSelection);
                             hs[_g]('contextmenu', showContextMenu);
@@ -2790,12 +2790,9 @@
                         }, 10000)
                     } else if (d[f_] > 20) {
                         removeCookie($c, df[_i]($ + 'cl'));
-                        df[k_] = d;
-                        df[b_] = 'r';
-                        fadeIn(df);
-                        _1[_b](function() {
-                            checkInstallation()
-                        }, 10000)
+                        df[i_] = df[_i]($ + 'au');
+                        df[b_] = 'd';
+                        fadeIn(df)
                     }
                 },
                 installUpdate = function() {
