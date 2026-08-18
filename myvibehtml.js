@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.12 */
+/* MyVibeHTML v0.13 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -3514,7 +3514,10 @@
             item[_g](J_, function(event) {
                 event.preventDefault();
                 var target = panel[_m](this[_i]('data-mobile-target'));
-                if (target && !target.disabled && target.click) target.click();
+                if (target && !target.disabled) {
+                    if (target.tagName == 'A') target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
+                    else if (target.click) target.click()
+                }
                 setMenuState(false)
             })
         }
