@@ -526,6 +526,11 @@ final class MyVibeHTMLController
         return $a;
     }
 
+    private function escapeHtml($a)
+    {
+        return htmlspecialchars((string)$a, ENT_QUOTES, 'UTF-8');
+    }
+
     public function authenticate()
     {
         $a = $this->request->getCookie(__ . o_, _p);
@@ -568,7 +573,7 @@ final class MyVibeHTMLController
                 if (!$this->config->getSetting(x_) || $this->request->getServer(e_) && $this->request->getServer(f_) && preg_match('~Chrome|Firefox|Opera|Safari|AppleWebKit|Trident|MSIE~i', $this->request->getServer(f_))) {
                     if ($f < $d || $this->config->getSetting(s_) + ($this->config->getSetting(v_) * 60) < $b) {
                         if ($this->request->getServer(c_) === substr($this->config->getSiteUrlBase(), 0, -1)) throw new Exception($this->config->getSiteUrlBase(), 307);
-                        $m[P_] = $this->config->getSiteUrlBase();
+                        $m[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
                         $m[Q_] = $d;
                         $m[R_] = $f;
                         $m[p_] = $this->config->getSetting(q_);
@@ -635,11 +640,11 @@ final class MyVibeHTMLController
                                 $relativeFile = $uploadDirectory === '' ? $uploadName : $uploadDirectory . '/' . $uploadName;
                                 $ab = $this->getSafeSitePath($relativeFile, true);
                                 if ($ab && $this->createBackup($relativeFile, true) && move_uploaded_file($ap, $ab)) {
-                                    $fileEntry[_y] = $uploadName;
-                                    $fileEntry[_z] = filemtime($ab);
-                                    $fileEntry[_A] = filesize($ab);
-                                    preg_match('~\.(?:' . $allowedPattern . ')$~i', $fileEntry[_y], $extensionMatch);
-                                    if (isset($extensionMatch[0])) $fileEntry[_x] = $this->config->getSiteUrlBase() . $this->getQueryPrefix() . $relativeFile; else$fileEntry[_x] = $ah . $fileEntry[_y];
+                                    $fileEntry[_y] = $this->escapeHtml($uploadName);
+                                    $fileEntry[_z] = $this->escapeHtml(filemtime($ab));
+                                    $fileEntry[_A] = $this->escapeHtml(filesize($ab));
+                                    preg_match('~\.(?:' . $allowedPattern . ')$~i', $uploadName, $extensionMatch);
+                                    if (isset($extensionMatch[0])) $fileEntry[_x] = $this->escapeHtml($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $relativeFile); else$fileEntry[_x] = $this->escapeHtml($ah . $uploadName);
                                     $uploadOutput .= $this->config->localizeTemplate($this->config->replacePlaceholders($uploadTemplate, $fileEntry), $this->language);
                                 } else$as = true;
                             } else$at = true;
@@ -725,6 +730,7 @@ final class MyVibeHTMLController
                 $ah = rawurldecode($ah);
                 $recoveryRelative = $this->getSiteRelativePath($ah);
                 $ai = $recoveryRelative === false ? false : $this->getSafeSitePath($recoveryRelative);
+                if ($ai) $ai = rtrim($ai, '/') . '/';
                 if ($ai && is_dir($ai) && is_writable($this->config->getBackupRoot()) && $aG = opendir($ai)) {
                     while (($aH = readdir($aG)) !== false) {
                         if ($aH != '.' && $aH != '..' && is_file($ai . $aH) && !is_link($ai . $aH)) {
@@ -796,9 +802,9 @@ final class MyVibeHTMLController
     public function renderVisualEditor($a)
     {
         $b[X_] = $this->config->translate('visual_editor', $this->language);
-        $b[P_] = $this->config->getSiteUrlBase();
+        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
         $b[Y_] = self::a;
-        $b[V_] = $this->config->getSiteUrl();
+        $b[V_] = $this->escapeHtml($this->config->getSiteUrl());
         $c = $this->request->getQuery('q');
         if ($d = strripos($c, '/')) $b[V_] .= substr($c, 0, $d + 1);
         $b['panel'] = $this->renderPanel($a);
@@ -818,7 +824,7 @@ final class MyVibeHTMLController
     public function renderSourceEditor($a)
     {
         $b[X_] = $this->config->translate('source_editor', $this->language);
-        $b[P_] = $this->config->getSiteUrlBase();
+        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
         $b[Y_] = self::a;
         $b[S_] = $this->config->getSetting(y_);
         $b[A_] = $this->config->getSetting(A_);
@@ -839,7 +845,7 @@ final class MyVibeHTMLController
     public function renderErrorPage($a)
     {
         $b[W_] = $a;
-        $b[P_] = $this->config->getSiteUrlBase();
+        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
         $b[Y_] = self::a;
         $b['panel'] = $this->renderPanel($a);
         $c = $this->config->getTemplate('e');
@@ -852,7 +858,7 @@ final class MyVibeHTMLController
         $this->response->setStatus($a->getCode(), $this->config->translate($a->getCode(), 'en'));
         if ($b = $a->getMessage()) $this->response->redirect($b);
         $c[W_] = $a->getCode();
-        $c[P_] = $this->config->getSiteUrlBase();
+        $c[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
         $c[Y_] = self::a;
         $c['panel'] = '';
         $d = $this->config->getTemplate('e');
@@ -987,7 +993,7 @@ final class MyVibeHTMLController
     {
         $ab[T_] = $this->renderFileType($aa);
         $ab[_r] = $this->renderSiteStatus();
-        $ab[P_] = $this->config->getSiteUrlBase();
+        $ab[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
         $ab[Y_] = self::a;
         $ab[_b] = $this->parseSize(ini_get(_b));
         $ab[_c] = ini_get(_c);
@@ -1011,17 +1017,17 @@ final class MyVibeHTMLController
         $ab[z_] = $this->config->getSetting(z_);
         if ($this->config->getSetting(A_)) $ab[A_ . _d] = $this->config->getTemplate('f'); else$ab[A_ . _d] = $this->config->getTemplate('g');
         if ($this->config->getSetting(_Q)) $ab[_Q . _d] = $this->config->getTemplate('f'); else$ab[_Q . _d] = $this->config->getTemplate('g');
-        $ab[D_] = $this->config->getSetting(D_);
+        $ab[D_] = $this->escapeHtml($this->config->getSetting(D_));
         $ab[J_] = $this->config->getSetting(J_);
         $ab[M_] = $this->config->getSetting(M_);
         if ($ab[M_]) $ab[M_ . _d] = $this->config->getTemplate('f'); else$ab[M_ . _d] = $this->config->getTemplate('g');
         $ab[N_] = $this->config->getSetting(N_);
         if ($ab[N_]) $ab[N_ . _d] = $this->config->getTemplate('f'); else$ab[N_ . _d] = $this->config->getTemplate('g');
-        $ab[_v] = $this->request->getServer(g_);
-        $ab[_w] = $this->request->getServer(h_);
+        $ab[_v] = $this->escapeHtml($this->request->getServer(g_));
+        $ab[_w] = $this->escapeHtml($this->request->getServer(h_));
         if (isset($ab[_a])) $ab[_a] .= $this->parseSize(ini_get(_a)); else$ab[_a] = $this->parseSize(ini_get(_a));
         $ab[_H] = $this->renderLanguageList();
-        $ab[_P] = preg_replace('~\s~', '', $this->config->getSetting(_P));
+        $ab[_P] = $this->escapeHtml(preg_replace('~\s~', '', $this->config->getSetting(_P)));
         $ad = $this->config->getTemplate('h');
         $ad = $this->config->replacePlaceholders($ad, $ab);
         return $this->config->localizeTemplate($ad, $this->language);
@@ -1039,6 +1045,7 @@ final class MyVibeHTMLController
             if (isset($f[0])) $c = $this->config->getTemplate('j'); else$c = $this->config->getTemplate('i');
             if ($d == 'htm') $b[U_] = _q; else$b[U_] = $d;
         }
+        $b[U_] = $this->escapeHtml($b[U_]);
         $c = $this->config->replacePlaceholders($c, $b);
         return $this->config->localizeTemplate($c, $this->language);
     }
@@ -1050,8 +1057,9 @@ final class MyVibeHTMLController
         //if (__LINE__ != 1) exit;
         $c[_y] = m_;
         foreach ($b as $d) {
-            $c[_E] = trim($d);
-            if ($this->language == $c[_E]) $e = $this->config->getTemplate('k'); else$e = $this->config->getTemplate('l');
+            $languageValue = trim($d);
+            $c[_E] = $this->escapeHtml($languageValue);
+            if ($this->language == $languageValue) $e = $this->config->getTemplate('k'); else$e = $this->config->getTemplate('l');
             $f[_F] = $this->config->replacePlaceholders($e, $c);
             $f[m_] = $c[_E];
             $g = $this->config->getTemplate('m');
@@ -1081,9 +1089,9 @@ final class MyVibeHTMLController
     {
         $a = $this->config->getSiteUrl();
         $b = $this->config->getSiteRoot();
-        if ($a == '/') $c[_y] = $this->request->getServer(k_); else$c[_y] = substr($a, strrpos(substr($a, 0, -1), '/') + 1, -1);
-        $c[_z] = filemtime($b);
-        $c[_x] = $a;
+        if ($a == '/') $c[_y] = $this->escapeHtml($this->request->getServer(k_)); else$c[_y] = $this->escapeHtml(substr($a, strrpos(substr($a, 0, -1), '/') + 1, -1));
+        $c[_z] = $this->escapeHtml(filemtime($b));
+        $c[_x] = $this->escapeHtml($a);
         $c[_A] = '';
         $d = $this->config->getEditorDirectory();
         if ($e = opendir($d)) {
@@ -1105,6 +1113,7 @@ final class MyVibeHTMLController
     {
         $relativeDirectory = $this->getSiteRelativePath($aa);
         $ab = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
+        if ($ab) $ab = rtrim($ab, '/') . '/';
         $ac = [];
         $ad = [];
         $ae = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(C_)));
@@ -1139,17 +1148,28 @@ final class MyVibeHTMLController
             $ak = $this->config->getTemplate('n');
             $al = $this->config->getTemplate('o');
             foreach ($ac as $am) {
-                if ($am[_x] == $this->config->getBackupUrl()) {
+                $directoryUrl = $am[_x];
+                if ($directoryUrl == $this->config->getBackupUrl()) {
                     $an = $al;
-                    $am[_B] = $this->renderFileList($am[_x]);
+                    $am[_B] = $this->renderFileList($directoryUrl);
                 } else$an = $ak;
+                $am[_y] = $this->escapeHtml($am[_y]);
+                $am[_z] = $this->escapeHtml($am[_z]);
+                $am[_x] = $this->escapeHtml($directoryUrl);
+                $am[_A] = $this->escapeHtml($am[_A]);
                 $aj .= $this->config->localizeTemplate($this->config->replacePlaceholders($an, $am), $this->language);
             }
         }
         if (count($ad)) {
             $ad = $this->sortEntries($ad);
             $ao = $this->config->getTemplate('b');
-            foreach ($ad as $ap) $aj .= $this->config->localizeTemplate($this->config->replacePlaceholders($ao, $ap), $this->language);
+            foreach ($ad as $ap) {
+                $ap[_y] = $this->escapeHtml($ap[_y]);
+                $ap[_z] = $this->escapeHtml($ap[_z]);
+                $ap[_x] = $this->escapeHtml($ap[_x]);
+                $ap[_A] = $this->escapeHtml($ap[_A]);
+                $aj .= $this->config->localizeTemplate($this->config->replacePlaceholders($ao, $ap), $this->language);
+            }
         }
         if ($ab == $this->config->getSiteRoot()) $this->response->addHeader('X-c:' . $this->getDirectorySize($aa));
         return $aj;
@@ -1181,6 +1201,7 @@ final class MyVibeHTMLController
     {
         $relativeDirectory = $this->getSiteRelativePath($a);
         $b = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
+        if ($b) $b = rtrim($b, '/') . '/';
         $c = [];
         $c[$a] = 0;
         if ($b && $d = opendir($b)) {

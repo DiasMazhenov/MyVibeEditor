@@ -4,13 +4,13 @@
 
 - Дата: 2026-08-18, Asia/Almaty.
 - Версия из исходников: MyVibeHTML `2.12e`.
-- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; canonical path guard для файловых операций добавлен и проверен в изолированном document root. Следующий этап — XSS/HTML encoding и конфигурационная изоляция.
+- Статус: локальный аудит исходников завершён; PHP и критические JS-потоки прошли первый этап деобфускации без изменения логики. Каноническое имя продукта и файлов переведено на `myvibehtml`; path guard и точечное HTML-экранирование динамических данных добавлены и проверены в изолированном document root. Следующий этап — конфигурационная изоляция, security headers и оставшиеся innerHTML-контексты.
 - Git: локальный репозиторий и ветка `main` инициализированы, `origin` настроен на `https://github.com/DiasMazhenov/MyVibeEditor.git`; первый опубликованный baseline commit — `1e4ec5049ec3951a2b7b99d7be4db28904c07a35` от 2026-08-18 16:15:09 +0500. Секретный `conf.ini` исключён через `.gitignore`.
-- Проверки: `php -l myvibehtml.php` и `php -l textolite.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временный path-guard harness — PASS; Graphify `diagnose multigraph` — 87 узлов/267 связей без dangling/self-loop/duplicate endpoint edges.
+- Проверки: `php -l myvibehtml.php` и `php -l textolite.php` — OK на PHP 8.5.8; `node --check myvibehtml.js` — OK на Node.js v24.15.0; временный path/XSS harness — PASS; Graphify `diagnose multigraph` — 88 узлов/279 связей без dangling/self-loop/duplicate endpoint edges.
 - Оригиналы PHP/JS до переименования сохранены вне поставки: `/private/tmp/myvibe-originals-20260818/`; SHA-256 исходных файлов: PHP `e5df2da2b45fdc1e674cc9c8add728d970afb8fc3e9df20274307175fe8c4e9e`, JS `40b5d19941e7cb2c1bbe1fb7988dce45e8fdb85f500a4c7c2bbbfc74467444c3`.
 - PHP-классы переименованы в `MyVibeHTMLRequest`, `MyVibeHTMLResponse`, `MyVibeHTMLConfig`, `MyVibeHTMLController`; методы получили смысловые имена. В JS переименован верхнеуровневый helper-слой cookie/animation/crypto/AJAX. PHP-параметры, alias-константы и локальные JS-функции ещё требуют отдельных проходов.
-- Текущие SHA-256: `myvibehtml.php` `8f0c446f1170f065d23e5d45721e31011e3f5db455ced90a4684eaa95be40df1`, `myvibehtml.js` `ee9dfbcd4e4e982544c504aa963201e199012f74d4219a0c0d608292acc0757b`, `myvibehtml.css` `9e69cbd2a16c4eed93a506ae03deec1f4a9fa5bee3dcbc2652ba0362b0394667`.
-- Изменения безопасности этого этапа ограничены единым path guard, symlink rejection и upload filename normalization; XSS encoding, cookie headers и update trust model ещё не менялись.
+- Текущие SHA-256: `myvibehtml.php` `2c368c6a986ac2c9009279fecd36d8ed1794991144ecfd0cb3fe7e8e9b7d9ce9`, `myvibehtml.js` `ee9dfbcd4e4e982544c504aa963201e199012f74d4219a0c0d608292acc0757b`, `myvibehtml.css` `9e69cbd2a16c4eed93a506ae03deec1f4a9fa5bee3dcbc2652ba0362b0394667`.
+- Изменения безопасности этого этапа: единый path guard, symlink rejection, upload filename normalization и `escapeHtml()` для динамических filename/URL/metadata/default-file/language values. Общая модель `innerHTML`, cookie headers и update trust model ещё не менялись.
 - Обратная проверка JS подтвердила: после восстановления старых идентификаторов код совпадает с сохранённым оригиналом; отличаются только разрешённые имена и CRLF/LF.
 - Постоянного test framework, `package.json`, `composer.json` и `vendor/` нет; для path guard выполнен временный PHP harness вне поставки.
 
@@ -384,9 +384,9 @@ PHP-классы и публичные/внутренние методы уже 
 
 Изолированный harness подтвердил блокировку `../`, encoded traversal, foreign host, symlink escape и безопасное создание нового in-root upload path. TOCTOU-защита на уровне файловой системы и production Apache/Nginx acceptance ещё не проверены.
 
-### P1 — XSS через серверный HTML файлового менеджера
+### P1 — XSS через серверный HTML файлового менеджера — частично исправлено
 
-Имена файлов, URL и другие значения попадают в шаблоны без `htmlspecialchars`: `myvibehtml.php:307-309`, замена плейсхолдеров — `myvibehtml.php:418-432`. Клиент вставляет ответы в DOM через `innerHTML`, например `myvibehtml.js:2893-2898` и `myvibehtml.js:3045-3052`. Файл с HTML-спецсимволами в имени или неподходящий путь может ломать markup/selector и привести к stored/reflected XSS в админском интерфейсе.
+Динамические имена файлов, URL, metadata, `default_file`, language values и системные URL теперь проходят `escapeHtml()` перед HTML-шаблонами: `myvibehtml.php:529`, `myvibehtml.php:992-1170`. Временный harness подтвердил, что опасное имя файла и вредный `default_file` не попадают в output как markup. Общий `replacePlaceholders()` по-прежнему context-blind, а клиент использует `innerHTML` (`myvibehtml.js:66` и file-manager callbacks); остальные server-response contexts требуют отдельного аудита.
 
 ### P1 — `conf.ini` содержит секреты и защищён только `.htaccess`
 
@@ -428,9 +428,9 @@ Session cookie создаётся через старый `setcookie` без `Se
 
 ## Приоритет следующей работы
 
-1. Завершено частично: изолированный path-guard тест подтвердил traversal, symlink и upload-защиту; отдельно проверить stored-XSS.
+1. Завершено частично: изолированный harness подтвердил traversal, symlink, upload-защиту и два основных stored-XSS контекста; отдельно проверить остальные server-response/innerHTML paths.
 2. Закрыть `conf.ini`/`error.log` на уровне web server и вынести runtime secret из публичного дерева.
 3. Завершено: добавлен единый canonical path guard для file operations, symlink escape запрещён, upload filenames нормализуются.
-4. Экранировать все HTML/attribute contexts или перейти на DOM construction без `innerHTML` для серверных данных.
+4. Частично завершено: экранированы file-manager/default-file contexts; далее закрыть остальные HTML/attribute contexts или перейти на DOM construction без `innerHTML` для серверных данных.
 5. После согласования замены удалить внешние update/install/activate endpoints и соответствующий client flow.
-6. Добавить постоянные regression tests для auth, XSS encoding, backup и update response validation; path guard пока подтверждён временным harness.
+6. Добавить постоянные regression tests для auth, XSS encoding, backup и update response validation; path/XSS сейчас подтверждены временным harness.
