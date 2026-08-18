@@ -46,6 +46,7 @@
 - Для сверки применены `design-taste-frontend` и `impeccable`: сохранена graphite/teal-палитра, убраны ручные glyph/clip-path-иконки, проверены единый stroke/viewBox, keyboard-safe hit-area и responsive overflow. Создан минимальный `PRODUCT.md` как обязательный контекст impeccable; `DESIGN.md` пока не генерировался.
 - Реальная headless Chromium-проверка с русской локализацией: верхние кнопки — 1440x240 и 1024x240 без overflow; toolbar/action/icon assets — 816x240 и 463x240, по 14/14 PASS; fallback при заблокированном `myvibehtml-theme.css` — 14/14 PASS. Проверены локальные mask URL, равные размеры, 3px/6px интервалы и mobile eye/menu.
 - Проверки исходников: `php -l myvibehtml.php`, `php -l textolite.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `git diff --check`, `sh security-smoke.sh` — PASS/OK. Следующий functional version — `0.13`.
+- Кодовый коммит: `8af5b68e5297ea570cb2fedfe4b7a2e3371753f7` (`2026-08-18 20:55:40 +0500`, `Use local Iconify icons and align panel controls`).
 
 ## Переименование Textolite → MyVibeHTML
 
