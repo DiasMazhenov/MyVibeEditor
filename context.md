@@ -58,6 +58,16 @@
 - Регрессионное правило для следующих UI-правок: открывать каждое доступное меню и секцию, проверять внутренние строки/поля/кнопки и делать live-замеры минимум на desktop и mobile; одной проверки верхней панели недостаточно.
 - Кодовый коммит: `8af6033899d2970e4ff613577b52f8889ac72884` (`2026-08-18T21:19:35+05:00`, `Fix live panel dropdown layouts`); следующий functional version — `0.14`.
 
+## Текущее исправление v0.14
+
+- Исправлен root cause жалобы на кривые отступы у верхней кнопки `Сохранить`: action-группа `Сохранить / Выход` наследовала `gap: 8px`, тогда как внутренний контейнер давал 4px визуального поля. Поэтому между кнопками был двойной шаг относительно краёв группы. В `myvibehtml-theme.css` и fallback-слое задан единый `gap: 4px`, `padding: 3px`, `min-width: max-content`; кнопки не сжимаются и не обрезаются.
+- После исправления live-геометрия на 1392px: группа `x=1178..1360`, `Сохранить x=1182..1267`, `Выход x=1271..1356`; промежутки слева/между/справа равны 4px, горизонтальный overflow равен 0. На 1024px action-группа также заканчивается на `x=992` при viewport `1024px`.
+- Версия runtime поднята с `0.13` до `0.14` во всех version-bearing файлах: `myvibehtml.php`, `myvibehtml.js`, `myvibehtml.css`, `myvibehtml-fallback.css`. Пользовательский `test-page.html` оставлен вне коммита.
+- Live-проверка с русской локализацией: action-группа на 1392/1024px; mobile burger Files/Settings на 463px; все 5 секций Settings на desktop 1392px и mobile 463px. Везде `overflow=0`, строки и вложенные поля доступны, старый фон не возвращается. Статические проверки `php -l` для PHP-файлов, `node --check`, `git diff --check`, `security-smoke.sh` — PASS.
+- SHA-256 перед кодовым коммитом: `myvibehtml.php` `681d6fc2ceb90f928d20d1ab790fcb9b33bce43885a846e7e4d7c23ff0920328`, `myvibehtml.js` `b8642a6ad1d2bf1931733465d9b08b3605b8686bd5bcd2943ce620ee7bffb4ea`, `myvibehtml.css` `881602d31b403a1e21e98527cecd640f7b662a4e847625ee21e42d6f155ed430`, `myvibehtml-theme.css` `c939763fa5ed2611302d537049424e2e5d5f8aae9eb7cd87fd4ec1579224c347`, `myvibehtml-fallback.css` `37fb7a821ee24f0f1ba675f40203d908fe774d48f409afe086b219e42ad48b08`.
+- Кодовый коммит: `0a2d9aa882426e6eb0b9e1d6d6b659f65fe1b923` (`2026-08-18T21:37:40+05:00`, `Align save action spacing`); отправка в `origin/main` выполняется после context-only коммита.
+- Следующий functional version после этого исправления — `0.15`.
+
 ## Переименование Textolite → MyVibeHTML
 
 - Канонические файлы поставки: `myvibehtml.php`, `myvibehtml.js`, `myvibehtml.css`.
