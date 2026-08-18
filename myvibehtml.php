@@ -342,6 +342,37 @@ final class MyVibeHTMLConfig
             'g' => '<input type="checkbox">',
             'f' => '<input type="checkbox" checked>'
         ];
+        $this->templates['h'] = str_replace(
+            '<div><h1><a href="//textolite.ru/">MyVibeHTML</a> v{version}</h1><p>{extended}</p></div>',
+            '<div class="myvibehtml-panel-brand"><h1><a href="//textolite.ru/">MyVibeHTML</a> <span>v{version}</span></h1><p>{extended}</p><a id="myvibehtml-site-preview" href="{site_preview_url}" target="_blank" rel="noopener" title="{view_site}" aria-label="{view_site}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12s3.4-6 9.6-6 9.6 6 9.6 6-3.4 6-9.6 6-9.6-6-9.6-6Z"></path><circle cx="12" cy="12" r="2.6"></circle></svg></a></div>',
+            $this->templates['h']
+        );
+        $this->templates['h'] = str_replace(
+            'data-co="{update_beta}"',
+            'data-co="{update_beta}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}"',
+            $this->templates['h']
+        );
+        $this->templates['a'] = str_replace(
+            '<body><fieldset><legend>{auth}</legend>',
+            '<body><div class="myvibehtml-auth-brand"><div class="myvibehtml-auth-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3.5a12.5 12.5 0 1 0 12.5 12.5A12.5 12.5 0 0 0 16 3.5Zm0 6.2a6.3 6.3 0 1 1-6.3 6.3A6.3 6.3 0 0 1 16 9.7Z"></path><circle cx="16" cy="16" r="2.7"></circle></svg></div><div><strong>MyVibeHTML</strong><span>{auth_intro}</span></div></div><fieldset class="myvibehtml-auth-card"><legend id="myvibehtml-auth-title">{auth}</legend>',
+            $this->templates['a']
+        );
+        $this->templates['a'] = str_replace(
+            '<p><samp data-az=',
+            '<p class="myvibehtml-auth-status"><samp id="myvibehtml-auth-status" aria-live="polite" data-az=',
+            $this->templates['a']
+        );
+        $this->templates['a'] = str_replace(
+            '<p><span>{password}:</span><input type="password" data-bb=',
+            '<p class="myvibehtml-password-row"><label for="myvibehtml-password">{password}</label><input id="myvibehtml-password" type="password" autocomplete="current-password" aria-describedby="myvibehtml-auth-status" data-bb=',
+            $this->templates['a']
+        );
+        $this->templates['a'] = str_replace(
+            '<p><input type="button" value="{login}" disabled></p>',
+            '<p class="myvibehtml-login-row"><input type="button" value="{login}" aria-label="{login}" disabled></p><p class="myvibehtml-auth-hint">{auth_hint}</p>',
+            $this->templates['a']
+        );
+        foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"></head>', $this->templates[$templateName]);
         $this->state['a'] = $a;
         $this->state['b'] = $this->getSetting(a_);
         //if (__LINE__ != 1) exit;
@@ -1042,6 +1073,7 @@ final class MyVibeHTMLController
         $ab[T_] = $this->renderFileType($aa);
         $ab[_r] = $this->renderSiteStatus();
         $ab[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $ab['site_preview_url'] = $this->escapeHtml($this->config->getSiteUrl());
         $ab[Y_] = self::a;
         $ab[_b] = $this->parseSize(ini_get(_b));
         $ab[_c] = ini_get(_c);

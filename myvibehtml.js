@@ -654,6 +654,90 @@
                         gl = gk[_u][i_],
                         gm = df[_i]($ + 'cd')[_P](','),
                         gn = 'input,button,textarea,select,iframe,svg,canvas,object,video,audio',
+                        contextMenu = null,
+                        contextTarget = null,
+                        getContextNode = function(a) {
+                            for (var b = a; b && b != hs.body; b = b[_z]) {
+                                if (b.realNode) b = b.realNode;
+                                if (b[_Z] && b[_Z][_G]() != $F && b[_Z][_G]() != 'style') return b
+                            }
+                        },
+                        getSectionNode = function(a) {
+                            for (var b = a; b && b != hs.body; b = b[_z]) {
+                                var c = b[_Z] && b[_Z][_G]();
+                                if (c && '|main|section|header|footer|nav|aside|article|'.indexOf('|' + c + '|') !== -1) return b
+                            }
+                            return a
+                        },
+                        getBlockNode = function(a) {
+                            var b = a;
+                            while (b && b[_z] && b[_z] != hs.body) {
+                                if (b[_z][_Z] && '|main|section|header|footer|nav|aside|article|'.indexOf('|' + b[_z][_Z][_G]() + '|') !== -1) return b;
+                                b = b[_z]
+                            }
+                            return b || a
+                        },
+                        clearContextSelection = function() {
+                            var a = hs[_l]('[data-myvibehtml-selection]');
+                            for (var b = 0, c = a[f_]; b < c; b++) a[b][_k]('data-myvibehtml-selection')
+                        },
+                        selectContextNode = function(a, b) {
+                            if (!a) return;
+                            clearContextSelection();
+                            a[_j]('data-myvibehtml-selection', b);
+                            gW.call(a)
+                        },
+                        hideContextMenu = function() {
+                            if (contextMenu) {
+                                contextMenu[g_][r_] = E_;
+                                contextMenu[_j]('aria-hidden', 'true')
+                            }
+                        },
+                        createContextMenu = function() {
+                            if (contextMenu) return contextMenu;
+                            contextMenu = _2[_s]('div');
+                            contextMenu.id = 'myvibehtml-context-menu';
+                            contextMenu[_j]('role', 'menu');
+                            contextMenu[_j]('aria-label', df[_i]('data-context-menu') || 'Element actions');
+                            var a = [['element', df[_i]('data-select-element') || 'Select element'], ['section', df[_i]('data-select-section') || 'Select section'], ['block', df[_i]('data-select-block') || 'Select block']];
+                            for (var b = 0, c = a[f_]; b < c; b++) {
+                                var d = _2[_s]('button');
+                                d.type = 'button';
+                                d[_j]('role', 'menuitem');
+                                d.action = a[b][0];
+                                d[k_] = a[b][1];
+                                d[_g](J_, function() {
+                                    var a = this.action == 'section' ? getSectionNode(contextTarget) : this.action == 'block' ? getBlockNode(contextTarget) : contextTarget;
+                                    selectContextNode(a, this.action);
+                                    hideContextMenu()
+                                });
+                                contextMenu[_o](d)
+                            }
+                            contextMenu[g_][r_] = E_;
+                            _2.body[_o](contextMenu);
+                            _2[_g](J_, function(event) {
+                                if (event.target != contextMenu && !contextMenu.contains(event.target)) hideContextMenu()
+                            });
+                            return contextMenu
+                        },
+                        showContextMenu = function(event) {
+                            var a = getContextNode(event.target);
+                            if (!a) return;
+                            event[n_]();
+                            event[o_]();
+                            contextTarget = a;
+                            var b = createContextMenu(),
+                                c = hr.getBoundingClientRect(),
+                                d = c.left + event.clientX,
+                                e = c.top + event.clientY;
+                            b[g_][r_] = F_;
+                            b[_j]('aria-hidden', 'false');
+                            d = Math.max(8, Math.min(d, _1.innerWidth - b.offsetWidth - 8));
+                            e = Math.max(8, Math.min(e, _1.innerHeight - b.offsetHeight - 8));
+                            b[g_].left = d + 'px';
+                            b[g_].top = e + 'px';
+                            b[_u].focus()
+                        },
                         go = function(a) {
                             var b = [],
                                 c = a[_D];
@@ -1990,9 +2074,13 @@
                                 g = hs[_l](gn),
                                 h = _2[_m]('#i')[i_],
                                 i = _2[_s]('style');
-                            i[i_] = h;
+                            i[i_] = h + '[data-myvibehtml-selection="section"]{outline:3px solid #7c3aed !important;outline-offset:5px;}' + '[data-myvibehtml-selection="block"]{outline:3px solid #0891b2 !important;outline-offset:3px;}' + '[data-myvibehtml-selection="element"]{outline:3px solid #a78bfa !important;outline-offset:2px;}';
                             hs.head[_o](i);
                             hs[_g](N_, handleEditorSelection);
+                            hs[_g]('contextmenu', showContextMenu);
+                            hs[_g](P_, function(event) {
+                                if (event[q_] == 27) hideContextMenu()
+                            });
                             var j = gw(serializedSource);
                             for (var k = 0, l = d[f_]; k < l; k++) {
                                 var m = hs[_s]('edit');
