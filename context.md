@@ -102,7 +102,7 @@
 - SHA-256 v0.17 перед коммитом: `myvibehtml.php` `5ccef2c7af84d817b45e490975ff448590604874ca816b1d1eccff3dea062d72`, `myvibehtml.js` `79f9caa0c44c581163e3035034e7fb50cb55269b2e2ca7ef1ece6d2e3c8dcc3b`, `myvibehtml.css` `73a93a0d04f45b0af7a04ba9265c6180c462d2233eab16a0216946afa997b8a9`, `myvibehtml-theme.css` `6d5821075b9cd31c2af812e361b5cfda39be061120d8b3fa6af8578974ac4d1f`, `myvibehtml-fallback.css` `8cadca3b03638cacc1cc88f13ce423bc8c8f8450177c19c35e9d354ba1e451c8`, `dev-router.php` `33c34e8590a873b561e44c11ae7c1edf722d8b2404e96e75dcf53d235a84258b`.
 - Static checks: `php -l myvibehtml.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `git diff --check`, `sh security-smoke.sh` — PASS. `apachectl -t`/`httpd -t` — `Syntax OK` с обычным локальным warning FQDN; Nginx бинарник на macOS не установлен, поэтому `nginx.conf.example` проверен статическими invariants.
 - Изолированный PHP 8.5 server/browser acceptance на `127.0.0.1:8094`: `html → text → html`, auth=false, eye открывает `/test-page.html` без `#d`, desktop/mobile burger flow — PASS; click-through files/settings geometry — `34/34 PASS`; визуально просмотрены desktop/mobile editor, source, files, settings и direct preview screenshots.
-- Перед кодовым коммитом остаётся обновить этот раздел точными SHA/временем коммита, затем выполнить context-only commit. Следующий functional version — `0.18`.
+- Кодовый коммит: `52c99bae81dd996f35b8b8f31988e3aa4c9dbcb4` (`2026-08-18 23:20:31 +0500`, `Complete v0.17 security reliability and docs`), отправлен в `origin/main`. После него этот context-only update фиксирует точное состояние; следующий functional version — `0.18`.
 
 ## Переименование Textolite → MyVibeHTML
 
