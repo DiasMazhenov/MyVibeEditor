@@ -36,7 +36,7 @@
 - Версия runtime/cache-busting поднята до `0.07` во всех канонических PHP/JS/CSS поверхностях. Внешние библиотеки не добавлялись.
 - Реальная headless Chromium-проверка авторизованного интерфейса: 55/55 PASS на 1440x900, 1024x768, 768x1024, 375x812 и 812x375; проверены iframe/content, toolbar без overlap, dropdown files/settings, eye/burger, burger menu, центрирование labels, context menu и отсутствие horizontal overflow. Контрольный screenshot 816x324 после открытия toolbar показывает рабочую страницу сразу под toolbar.
 - Проверки: `php -l myvibehtml.php`, `php -l textolite.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `git diff --check`, `sh security-smoke.sh` — PASS/OK. Следующий functional version — `0.08`.
-- Кодовый коммит будет создан после этой записи; затем `context.md` будет дополнен фактическим hash/time context-only коммитом.
+- Кодовый коммит: `c8732a9` (`2026-08-18 19:55:40 +0500`, `Fix responsive iframe offset and release v0.07`), отправлен в `origin/main`. После этого изменения `context.md` обновляется отдельным context-only коммитом.
 
 ## Переименование Textolite → MyVibeHTML
 
