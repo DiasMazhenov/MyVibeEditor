@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.15 */
+/* MyVibeHTML v0.16 */
 (function() {
     var _1 = window,
         _2 = document,
@@ -2337,7 +2337,7 @@
                         ht = serializedSource;
                     serializedSource = ho(ht);
                     dh[i_] = serializedSource;
-                    db[_g](J_, function() {
+                    dc[_g](J_, function() {
                         var a = false,
                             b = hs[_m]('[' + $m + ']');
                         if (b) {
@@ -2614,7 +2614,7 @@
                         W = function() {}
                     }
                     if (dc) {
-                        dc[_g](J_, function() {
+                        db[_g](J_, function() {
                             if (dd[d_]) switchEditorMode();
                             else switchEditorMode(X())
                         });

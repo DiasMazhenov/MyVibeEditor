@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.15 */
+<?php /* MyVibeHTML v0.16 */
 function myvibehtml_runtime_directory($a = false)
 {
     if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
@@ -524,7 +524,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const a = '0.15';
+    const a = '0.16';
     private $config;
     private $request;
     private $response;
@@ -554,6 +554,29 @@ final class MyVibeHTMLController
             } else if (strpos($c, '?') === false && strpos($c, '#') === false) $b[] = $c; else return false;
         }
         return implode('/', $b);
+    }
+
+    private function getPublicFileUrl($a)
+    {
+        $b = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+        $c = realpath($a);
+        if (!$b || !$c) {
+            $b = realpath($this->config->getSiteRoot());
+            $c = realpath($a);
+        }
+        if (!$b || !$c) return $this->config->getSiteUrl();
+        $b = str_replace('\\', '/', $b);
+        $c = str_replace('\\', '/', $c);
+        $d = rtrim($b, '/') . '/';
+        if (strpos($c, $d) !== 0) {
+            $b = str_replace('\\', '/', realpath($this->config->getSiteRoot()));
+            $d = rtrim($b, '/') . '/';
+            if (strpos($c, $d) !== 0) return $this->config->getSiteUrl();
+        }
+        $e = $this->normalizeRelativePath(substr($c, strlen($d)));
+        if ($e === false || $e === '') return $this->config->getSiteUrl();
+        $f = array_map('rawurlencode', explode('/', $e));
+        return rtrim($this->config->getSiteUrl(), '/') . '/' . implode('/', $f);
     }
 
     private function getSiteRelativePath($a, $allowEditorBase = false)
@@ -1080,7 +1103,7 @@ final class MyVibeHTMLController
         $ab[T_] = $this->renderFileType($aa);
         $ab[_r] = $this->renderSiteStatus();
         $ab[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $ab['site_preview_url'] = $this->escapeHtml($this->config->getSiteUrl());
+        $ab['site_preview_url'] = $this->escapeHtml($this->getPublicFileUrl($aa));
         $ab[Y_] = self::a;
         $ab[_b] = $this->parseSize(ini_get(_b));
         $ab[_c] = ini_get(_c);

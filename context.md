@@ -79,6 +79,17 @@
 - Кодовый коммит: `096aea445c077da8967231978c1eff5947a2d9f2` (`2026-08-18T21:56:18+05:00`, `Use content sized action buttons`); отправка в `origin/main` выполняется после context-only коммита.
 - Следующий functional version после этого исправления — `0.16`.
 
+## Текущее исправление v0.16
+
+- Исправлен root cause вкладок: обработчик переключения был навешан на активную вкладку. В visual editor обработчик теперь находится на `text`, а в source editor — на `html`; переходы `html → text → html` сохраняют текущий source и авторизованную сессию, без возврата на auth.
+- Вкладка `text` получила полноценный graphite/teal visual layer: старый серый фон заменён на локальные surface/border tokens, header `#c` получил ту же 68px responsive-геометрию, а source-код переведён на grid `gutter + code`, чтобы переносы строк не заходили на номера.
+- Исправлен прямой preview: `renderPanel()` строит URL текущего физического файла относительно фактического `DOCUMENT_ROOT` и кодирует сегменты пути. `dev-router.php` теперь также ищет статические файлы относительно `DOCUMENT_ROOT`; в локальном сервере глаз открывает `/test-page.html`, а не `/?q=myvibe/test-page.html`.
+- Live Chromium-проверка после правок: desktop 1392x933 — `html → text → html`, обе вкладки с правильным active-class, `auth=false`, POST `switch=1/0`; глаз фактически открыл `http://127.0.0.1:8080/test-page.html`, `#d` отсутствует. Визуально просмотрены `v016-source-desktop.png` и `v016-public-preview.png`.
+- Live mobile-проверка 390x844 через реальный burger: `text` открывается через меню, source root `#c`, `auth=false`, horizontal overflow отсутствует, header и source card укладываются в viewport. Визуально просмотрен `v016-source-mobile.png`.
+- Статические проверки после правок: `php -l myvibehtml.php` — OK, `node --check myvibehtml.js` — OK; `git diff --check` и `security-smoke.sh` выполняются перед кодовым коммитом. Внешние библиотеки не добавлялись; пользовательский `test-page.html` остаётся вне коммита.
+- SHA-256 перед кодовым коммитом: `myvibehtml.php` `16f0572051f9e276acd6d1d4ba08ab4f06ab6d921f97ec271569fa540f985a78`, `myvibehtml.js` `bb8ca5a7194f08dfaad66a5103a302125388eba4a70c3e3288a7349f21b5022e`, `myvibehtml.css` `512fd8b6d51255cc1bd574eefcc64c523e2ffaa12a0d9c5b023d49f0bd5081ec`, `myvibehtml-theme.css` `6d5821075b9cd31c2af812e361b5cfda39be061120d8b3fa6af8578974ac4d1f`, `myvibehtml-fallback.css` `d55d1177e254e2e4d5967a04111d990dff1a73d2636539f0d8afbe5922456239`, `dev-router.php` `97993fd26733d22d1099b3a2f37704297c99180d2775a899d1aae66a140b6bd2`.
+- Следующий functional version после этого исправления — `0.17`.
+
 ## Переименование Textolite → MyVibeHTML
 
 - Канонические файлы поставки: `myvibehtml.php`, `myvibehtml.js`, `myvibehtml.css`.

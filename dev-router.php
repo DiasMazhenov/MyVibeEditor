@@ -9,8 +9,8 @@ if (preg_match('~(?:^|/)(?:backup(?:/|$)|[^/]+\.(?:ini|log)$)~i', $path) || preg
     return true;
 }
 
-$root = realpath(__DIR__);
-$file = realpath(__DIR__ . $path);
+$root = realpath(isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : __DIR__);
+$file = $root ? realpath($root . $path) : false;
 if ($root && $file && is_file($file) && strpos($file, $root . DIRECTORY_SEPARATOR) === 0) return false;
 
 require __DIR__ . '/myvibehtml.php';
