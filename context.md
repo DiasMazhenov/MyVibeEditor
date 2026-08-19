@@ -114,6 +114,7 @@
 - Graphify пересобран после структурного изменения: `graphify-out/graph.json` — 99 узлов/303 связи; `diagnose multigraph` — 0 dangling/self-loop/duplicate endpoint edges. `graphify-out/` остаётся локальным артефактом.
 - SHA-256 v0.18: `myvibehtml.php` `f9ab02df62e65f3f17a3517cd448f786ec8b0d1ed761d276ade55bd4dd2b44f5`, `myvibehtml.js` `f5a5586ba915d28e947dd47d9dd6cf1b626fd8cb42d671155fed29a797a11542`, `myvibehtml.css` `f7257ce249876359276c56c845100bf6a274dd1b5ee891c3409f6359ad087f5e`, `myvibehtml-theme.css` `6d5821075b9cd31c2af812e361b5cfda39be061120d8b3fa6af8578974ac4d1f`, `myvibehtml-fallback.css` `1e095fc7df4367e7be849ad0d2ad685d8cf7a0f20fed296625dcc3bdc3b7676f`, `security-smoke.sh` `c91f212252f785dbfcb940cb0ed473e562061c5bd777d6a776cdaf7c05d9a738`, `README.md` `d522bcbc227f347caf242995c51b89af40581ed295a9e79ddc1293692d63bfda`.
 - Перед кодовым коммитом создан резервный слепок исходных PHP/JS вне репозитория: `/private/tmp/myvibe-pre-deobfuscation-v017/`. Следующий функциональный номер — `0.19`.
+- Кодовый коммит: `2daef08ea42afbd65d729c5c477700d9b02dd398` (`2026-08-19 19:37:44 +0500`, `Complete PHP and JavaScript deobfuscation`), отправлен в `origin/main`.
 
 ## Переименование Textolite → MyVibeHTML
 
