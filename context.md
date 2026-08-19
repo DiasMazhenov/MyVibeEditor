@@ -124,6 +124,7 @@
 - Chromium click-through UI-fixture без авторизации: desktop/mobile — `HTTP 200`, `overflow=0`, 5/5 секций Settings открываются, mobile burger открывается и показывает 6 пунктов, JS errors — `0`. Финальные desktop/mobile screenshots просмотрены. Встроенный browser tab открыт на `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.19`.
 - SHA-256 v0.19: `myvibehtml.php` `3399207a32515d9f5e06b2aa01764d4ba839454450eb0d5118502af52f375818`, `myvibehtml.js` `b5650e58edab971935c215c03906512e5efc0dc507b924a7a8639886572ce775`, `myvibehtml.css` `ca4284c34c3859ad366bca181e82cc3d1c5b82604a983545621587954bfc6014`, `myvibehtml-theme.css` `6d5821075b9cd31c2af812e361b5cfda39be061120d8b3fa6af8578974ac4d1f`, `myvibehtml-fallback.css` `8fd03008e74a9a13b2a0df42efc7205ff6fd925fdfd3c5a9003e4e831cb240a9`, `README.md` `a4435c47b454824222d6b243844b65241df2707990ee7f60ed7fa4b1909bb98e`.
 - Graphify после v0.18 остаётся валидным для текущей структуры: `99` узлов / `303` связи, диагностика без dangling/self-loop/duplicate endpoint edges; v0.19 изменяет только тело существующего метода.
+- Кодовый коммит: `29a8dcc86b18f62c5f711c2d740a03005d03aec9` (`2026-08-19T19:49:50+05:00`, `Fix deobfuscated request filter dispatch`), отправляется в `origin/main` вместе со следующим context-only коммитом.
 - Следующий функциональный номер — `0.20`.
 
 ## Переименование Textolite → MyVibeHTML
