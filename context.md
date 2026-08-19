@@ -576,7 +576,7 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Desktop CSS-инспектор переведён в fixed bottom bar: `left:0; right:0; bottom:0`, горизонтальная форма с внутренним overflow-x; mobile сохраняет bottom sheet с безопасными inset и вертикальными полями. Оба theme-слоя синхронизированы.
 - Версия runtime/cache-busting повышена до `0.22`; обновлены README, deployment/function catalog и regression assertions. Пользовательский `test-page.html` оставлен вне коммита.
 - Проверки v0.22: `node --check myvibehtml.js`, `php -l myvibehtml.php`, `git diff --check`, `security-smoke.sh`, HTTP `tests/regression.sh` против `127.0.0.1:8080` — PASS. Headless Chromium smoke в статическом fixture: CSS-поля совпали с computed style; desktop/mobile geometry, SVG sanitizer/replacement, Save enablement, IMG file picker, context menu и отсутствие page errors — PASS. Финальные desktop/mobile screenshots просмотрены визуально.
-- Перед функциональным коммитом context обновлён; следующий функциональный номер — `0.23`. После коммита сюда будет добавлен его hash/time отдельным context-only коммитом.
+- Functional commit: `206b4ffff9c91f41b5aac31237bd1bdcade9b98d` (`2026-08-19T21:53:46+05:00`, `Add CSS values and media replacement inspector`). Graphify после стабилизации обновлён локально: `210` узлов, `412` связей; multigraph diagnostics — без missing/dangling/self-loop/duplicate edges. Следующий функциональный номер — `0.23`.
 
 ## Архив предыдущего исправления v0.20
 
