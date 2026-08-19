@@ -21,7 +21,7 @@ rg -q "MyVibeHTML v0\.21" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml
 rg -q "const VERSION = '0\.21'" myvibehtml.php
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource" myvibehtml.js
-rg -q "documentObject.body\[appendChildMethod\](styleInspector)" myvibehtml.js
+rg -q "documentObject\.body\[appendChildMethod\]\(styleInspector\)" myvibehtml.js
 rg -q "initializeVisualEditorValue45 - 1" myvibehtml.js
 rg -q "REQUEST_DOCUMENT_ROOT => 'filterDocumentRoot'" myvibehtml.php
 if rg -n 'callbackValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
