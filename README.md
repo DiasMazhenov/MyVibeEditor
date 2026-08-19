@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.19**.
+Текущая версия: **0.20**.
 
 ## Возможности
 
@@ -20,7 +20,7 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 
 ## Скриншоты
 
-Скриншоты ниже сняты в браузерной проверке v0.18; v0.19 меняет только runtime-диспетчеризацию фильтров и номер cache-busting, поэтому UI-геометрия не изменилась.
+Скриншоты ниже сняты в браузерной проверке v0.18; v0.20 добавляет регрессионные проверки, расширенное контекстное меню, безопасный вывод статусов и подробную документацию. Базовая UI-геометрия сохранена.
 
 ![Визуальный редактор на desktop](docs/screenshots/v017-editor-desktop.png)
 
@@ -44,6 +44,8 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 В проекте нет `composer.json`, `package.json` и runtime-загрузки npm/Composer-библиотек. Иконки заранее сохранены локально. Их источники и лицензия указаны в [`myvibehtml-icons/README.md`](myvibehtml-icons/README.md).
 
 ## Установка на Apache
+
+Подробный production-чеклист для Apache, Nginx/PHP-FPM, локального запуска, прав и диагностики находится в [`docs/deployment.md`](docs/deployment.md).
 
 1. Скопируйте каталог `myvibe` внутрь document root сайта. Например:
 
@@ -123,6 +125,8 @@ php -S 127.0.0.1:8080 -t /path/to/site /path/to/site/myvibe/dev-router.php
 
 ## Основные функции
 
+Полный каталог PHP-классов, методов и JavaScript runtime-ролей находится в [`docs/function-catalog.md`](docs/function-catalog.md). Ниже — краткая карта основных потоков.
+
 ### PHP
 
 | Функция | Назначение |
@@ -161,11 +165,14 @@ php -S 127.0.0.1:8080 -t /path/to/site /path/to/site/myvibe/dev-router.php
 - конфигурация и HTML сохраняются атомарно, что снижает риск пустого/частично записанного файла;
 - задаются `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cache-Control` и `X-Permitted-Cross-Domain-Policies`;
 - CSP работает в режиме Report-Only, потому что редактируемая страница может содержать собственные inline-скрипты и стили. Сначала соберите отчёты, затем отдельно принимайте решение о переходе к enforcing-политике.
+- статусные сообщения панели и файлового менеджера выводятся через `textContent`; `innerHTML` оставлен только в штатном source/visual HTML-потоке редактора;
+- ответ списка файлов разбирается через `DOMParser` и allowlist тегов/атрибутов до вставки в DOM.
 
 Проверка проекта:
 
 ```bash
 sh security-smoke.sh
+MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh
 php -l myvibehtml.php
 php -l dev-router.php
 node --check myvibehtml.js

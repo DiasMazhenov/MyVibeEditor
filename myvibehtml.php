@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.19 */
+<?php /* MyVibeHTML v0.20 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -404,7 +404,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['h'] = str_replace(
             'data-co="{update_beta}"',
-            'data-co="{update_beta}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}"',
+            'data-co="{update_beta}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}" data-context-copy="{context_copy}" data-context-up="{context_up}" data-context-down="{context_down}" data-context-delete="{context_delete}"',
             $this->templates['h']
         );
         $this->templates['a'] = str_replace(
@@ -573,7 +573,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.19';
+    const VERSION = '0.20';
     private $config;
     private $request;
     private $response;

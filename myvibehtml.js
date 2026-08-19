@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.19 */
+/* MyVibeHTML v0.20 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -704,6 +704,25 @@
                                 });
                                 contextMenu[appendChildMethod](initializeVisualEditorValue11)
                             }
+                            var initializeVisualEditorValue12 = documentObject[createElementMethod]('div');
+                            initializeVisualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
+                            contextMenu[appendChildMethod](initializeVisualEditorValue12);
+                            var initializeVisualEditorValue13 = [['clone', callbackValue9[getAttributeMethod]('data-context-copy') || 'Clone', callbackValue89], ['up', callbackValue9[getAttributeMethod]('data-context-up') || 'Move up', callbackValue90], ['down', callbackValue9[getAttributeMethod]('data-context-down') || 'Move down', callbackValue91], ['delete', callbackValue9[getAttributeMethod]('data-context-delete') || 'Delete', callbackValue92]];
+                            for (var initializeVisualEditorValue14 = 0, initializeVisualEditorValue15 = initializeVisualEditorValue13[lengthProperty]; initializeVisualEditorValue14 < initializeVisualEditorValue15; initializeVisualEditorValue14++) {
+                                var initializeVisualEditorValue16 = documentObject[createElementMethod]('button');
+                                initializeVisualEditorValue16.type = 'button';
+                                initializeVisualEditorValue16[setAttributeMethod]('role', 'menuitem');
+                                initializeVisualEditorValue16[classNameProperty] = 'myvibehtml-context-action';
+                                initializeVisualEditorValue16.action = initializeVisualEditorValue13[initializeVisualEditorValue14][0];
+                                initializeVisualEditorValue16.handler = initializeVisualEditorValue13[initializeVisualEditorValue14][2];
+                                initializeVisualEditorValue16[textContentProperty] = initializeVisualEditorValue13[initializeVisualEditorValue14][1];
+                                initializeVisualEditorValue16[addEventListenerMethod](clickEvent, function() {
+                                    selectContextNode(contextTarget, 'element');
+                                    if (this.handler) this.handler.call(this);
+                                    hideContextMenu()
+                                });
+                                contextMenu[appendChildMethod](initializeVisualEditorValue16)
+                            }
                             contextMenu[styleProperty][displayProperty] = noneValue;
                             documentObject.body[appendChildMethod](contextMenu);
                             documentObject[addEventListenerMethod](clickEvent, function(event) {
@@ -885,7 +904,7 @@
                                 }
                             }
                             if (initializeVisualEditorValue37) {
-                                if (callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae')) fadeOut(callbackValue9);
+                                if (callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae')) fadeOut(callbackValue9);
                                 callbackValue4[disabledProperty] = false
                             } else if (!callbackValue11[getAttributeMethod](dataAttributePrefix + 'cu')) callbackValue4[disabledProperty] = true
                         },
@@ -1065,7 +1084,7 @@
                                         break
                                     }
                                 }
-                                if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[firstElementChildProperty] || callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'br'))) fadeOut(callbackValue9)
+                                if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[firstElementChildProperty] || callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'br'))) fadeOut(callbackValue9)
                             } else {
                                 initializeVisualEditorArgument18[setAttributeMethod](disabledAttribute, true);
                                 callbackValue9[classNameProperty] = 'o';
@@ -1095,7 +1114,7 @@
                                 syncToolbarSpace(false);
                                 callbackValue84();
                                 if (callbackValue127[activeElementProperty]) callbackValue127[activeElementProperty][blurEvent]();
-                                if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[firstElementChildProperty] || callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'br'))) fadeOut(callbackValue9)
+                                if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[firstElementChildProperty] || callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'br'))) fadeOut(callbackValue9)
                             }
                         },
                         callbackValue84 = function() {
@@ -1687,11 +1706,11 @@
                                         initializeVisualEditorValue252.append('replace', initializeVisualEditorValue248.src[replaceMethod](new RegExp('\\?[\\s\\S]*$', 'gi'), ''));
                                         initializeVisualEditorValue248[removeAttributeMethod](dragOverAttribute);
                                         initializeVisualEditorValue248[setAttributeMethod](dropAttribute, true);
-                                        callbackValue9[innerHTMLProperty] = initializeVisualEditorValue254 + ' (0%)';
+                                        callbackValue9[textContentProperty] = initializeVisualEditorValue254 + ' (0%)';
                                         callbackValue9[classNameProperty] = 'b';
                                         fadeIn(callbackValue9);
                                         ajaxRequest(initializeVisualEditorValue252, function(hfArgument4) {
-                                            callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bp');
+                                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bp');
                                             var hfValue5 = initializeVisualEditorValue248[getAttributeMethod](sourceAttribute),
                                                 hfValue6 = initializeVisualEditorValue248[getAttributeMethod]('srcset'),
                                                 hfValue7 = callbackValue118(imageTagName, sourceAttribute, hfValue5),
@@ -1769,7 +1788,7 @@
                                                 serializedSource = hfValue17;
                                                 initializeVisualEditorValue248[setAttributeMethod](sourceAttribute, hfArgument4);
                                                 initializeVisualEditorValue248[addEventListenerMethod]('load', function() {
-                                                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bd');
+                                                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bd');
                                                     callbackValue9[classNameProperty] = 'c';
                                                     callbackValue106.call(this)
                                                 });
@@ -1782,20 +1801,20 @@
                                         }, function() {
                                             initializeVisualEditorValue248[removeAttributeMethod](dropAttribute);
                                             callbackValue9[classNameProperty] = 'd';
-                                            if (this[getResponseHeaderMethod]('X-d')) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bf');
-                                            else if (this[getResponseHeaderMethod]('X-b')) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bo');
-                                            else callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'be')
+                                            if (this[getResponseHeaderMethod]('X-d')) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bf');
+                                            else if (this[getResponseHeaderMethod]('X-b')) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bo');
+                                            else callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'be')
                                         }, function() {
                                             initializeVisualEditorValue248[removeAttributeMethod](dropAttribute);
-                                            callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
+                                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
                                             callbackValue9[classNameProperty] = 'd'
                                         }, function(hfArgument5, hfArgument6) {
-                                            if (callbackValue9[innerHTMLProperty][indexOfMethod]('(') != -1) callbackValue9[innerHTMLProperty] = initializeVisualEditorValue254 + ' (' + (hfArgument5 / hfArgument6 * 100)[toFixedMethod](1) + '%)'
+                                            if (callbackValue9[textContentProperty][indexOfMethod]('(') != -1) callbackValue9[textContentProperty] = initializeVisualEditorValue254 + ' (' + (hfArgument5 / hfArgument6 * 100)[toFixedMethod](1) + '%)'
                                         })
                                     } else {
                                         initializeVisualEditorValue248[removeAttributeMethod](dragOverAttribute);
-                                        if (initializeVisualEditorValue250 > initializeVisualEditorValue251) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(initializeVisualEditorValue251) + ')';
-                                        else callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(initializeVisualEditorValue250) + ')';
+                                        if (initializeVisualEditorValue250 > initializeVisualEditorValue251) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(initializeVisualEditorValue251) + ')';
+                                        else callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(initializeVisualEditorValue250) + ')';
                                         callbackValue9[classNameProperty] = 'o';
                                         fadeIn(callbackValue9)
                                     }
@@ -2016,7 +2035,7 @@
                                                 fadeIn(callbackValue9)
                                             }
                                         } else {
-                                            callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bq');
+                                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bq');
                                             callbackValue9[classNameProperty] = 'o';
                                             fadeIn(callbackValue9)
                                         }
@@ -2056,7 +2075,7 @@
                                                         fadeIn(callbackValue9)
                                                     }
                                                 } else {
-                                                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bq');
+                                                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bq');
                                                     callbackValue9[classNameProperty] = 'o';
                                                     fadeIn(callbackValue9)
                                                 }
@@ -2067,7 +2086,7 @@
                                 }
                             } else {
                                 initializeVisualEditorValue248[removeAttributeMethod](dragOverAttribute);
-                                callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'an');
+                                callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'an');
                                 callbackValue9[classNameProperty] = 'o';
                                 fadeIn(callbackValue9)
                             }
@@ -2308,13 +2327,13 @@
                         },
                         callbackValue125 = function() {
                             if ((callbackValue9[getAttributeMethod](dataAttributePrefix + 'cg') * 1)) {
-                                callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bs') + ' (<a title="' + callbackValue9[getAttributeMethod](dataAttributePrefix + 'bt') + '">' + callbackValue9[getAttributeMethod](dataAttributePrefix + 'bu') + '</a>)';
+                                callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bs') + ' (' + callbackValue9[getAttributeMethod](dataAttributePrefix + 'bu') + ')';
                                 var initializeVisualEditorValue362 = callbackValue9[firstElementChildProperty];
                                 if (initializeVisualEditorValue362) {
                                     initializeVisualEditorValue362[addEventListenerMethod](clickEvent, function() {
                                         var hqValue1 = generateToken();
                                         writeCookie(tokenCookieSuffix, hqValue1);
-                                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bv');
+                                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bv');
                                         callbackValue9[classNameProperty] = 'b';
                                         windowObject[clearIntervalMethod](callbackValue9.a);
                                         callbackValue9[styleProperty][opacityProperty] = '';
@@ -2323,14 +2342,14 @@
                                             locationObject.href = locationObject.href[replaceMethod](locationObject.hash, '')
                                         }, function() {
                                             callbackValue9[classNameProperty] = 'd';
-                                            callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj')
+                                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj')
                                         }, function() {
                                             callbackValue9[classNameProperty] = 'd';
-                                            callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al')
+                                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al')
                                         })
                                     })
                                 }
-                            } else callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'br')
+                            } else callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'br')
                         },
                         callbackValue126 = documentObject[querySelectorMethod](iframeTagName),
                         callbackValue127 = callbackValue126[contentWindowProperty].document,
@@ -2357,7 +2376,7 @@
                     var callbackValue129 = readCookie(scriptsCookieSuffix);
                     if (callbackValue129) {
                         removeCookie(scriptsCookieSuffix);
-                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bw');
+                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bw');
                         callbackValue9[classNameProperty] = 'c';
                         fadeIn(callbackValue9)
                     }
@@ -2475,7 +2494,7 @@
                             var initializeSourceEditorValue5 = sha1(callbackValue131[innerHTMLProperty]);
                             if (callbackValue11[getAttributeMethod](dataAttributePrefix + 'cu')) callbackValue4[disabledProperty] = false;
                             else if (callbackValue131.A !== initializeSourceEditorValue5) {
-                                if (callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae')) fadeOut(callbackValue9);
+                                if (callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae')) fadeOut(callbackValue9);
                                 callbackValue4[disabledProperty] = false
                             } else callbackValue4[disabledProperty] = true;
                             if (callbackValue131.h != initializeSourceEditorValue5) {
@@ -2635,7 +2654,7 @@
                     var callbackValue151 = generateToken();
                     if (saveEditorContent.f) writeCookie(tokenCookieSuffix, callbackValue151);
                     else callbackArgument51 = '';
-                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ad');
+                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ad');
                     callbackValue9[classNameProperty] = 'b';
                     fadeIn(callbackValue9);
                     callbackValue4[disabledProperty] = true;
@@ -2657,21 +2676,21 @@
                         }
                         var saveEditorContentValue3 = callbackValue1[querySelectorMethod]('#f>ul>li>ul');
                         if (saveEditorContentValue3) saveEditorContentValue3[innerHTMLProperty] = '';
-                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae');
+                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ae');
                         callbackValue9[classNameProperty] = 'c';
                         if (callbackValue7[valueProperty] == callbackValue7[getAttributeMethod](dataAttributePrefix + 'ac')) logout()
                     }, function() {
                         callbackValue4[disabledProperty] = false;
                         callbackValue4[focusEvent]();
                         callbackValue9[classNameProperty] = 'd';
-                        if (this[getResponseHeaderMethod]('X-a')) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'am');
-                        else if (this[getResponseHeaderMethod]('X-b')) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bo');
-                        else callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj')
+                        if (this[getResponseHeaderMethod]('X-a')) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'am');
+                        else if (this[getResponseHeaderMethod]('X-b')) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bo');
+                        else callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj')
                     }, function() {
                         callbackValue4[disabledProperty] = false;
                         callbackValue4[focusEvent]();
-                        if (this.status == 403) callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ak');
-                        else callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
+                        if (this.status == 403) callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ak');
+                        else callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
                         callbackValue9[classNameProperty] = 'd'
                     })
                 },
@@ -2699,20 +2718,20 @@
                     callbackValue152.submit()
                 },
                 logout = function() {
-                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ag');
+                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ag');
                     callbackValue9[classNameProperty] = 'b';
                     fadeIn(callbackValue9);
                     ajaxRequest('logout=1', function() {
-                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah');
+                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah');
                         callbackValue9[classNameProperty] = 'c';
                         var logoutValue1 = locationObject.href[replaceMethod](locationObject.hash, '');
                         if (callbackValue9[getAttributeMethod](dataAttributePrefix + 'ci') * 1) logoutValue1 = logoutValue1[replaceMethod](callbackValue9[getAttributeMethod](dataAttributePrefix + 'cl')[sliceMethod](callbackValue9[getAttributeMethod](dataAttributePrefix + 'cl')[sliceMethod](0, -1)[lastIndexOfMethod]('/') + 1), '');
                         locationObject.href = logoutValue1
                     }, function() {
-                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj');
+                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'aj');
                         callbackValue9[classNameProperty] = 'd'
                     }, function() {
-                        callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
+                        callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
                         callbackValue9[classNameProperty] = 'd'
                     })
                 },
@@ -2753,7 +2772,7 @@
                 if (callbackValue4[disabledProperty] || callbackValue7[valueProperty] == callbackValue7[getAttributeMethod](dataAttributePrefix + 'ac')) logout();
                 else {
                     callbackValue7[valueProperty] = callbackValue7[getAttributeMethod](dataAttributePrefix + 'ac');
-                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'af');
+                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'af');
                     callbackValue9[classNameProperty] = 'o';
                     fadeIn(callbackValue9);
                     resetEditorFocus()
@@ -2762,9 +2781,9 @@
             var callbackValue14 = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ce') / 2;
             windowObject[setIntervalMethod](function() {
                 ajaxRequest('reload=1', function() {
-                    if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah') || callbackValue9[innerHTMLProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'al'))) fadeOut(callbackValue9)
+                    if (callbackValue9[styleProperty][displayProperty] == blockValue && (callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah') || callbackValue9[textContentProperty] == callbackValue9[getAttributeMethod](dataAttributePrefix + 'al'))) fadeOut(callbackValue9)
                 }, function() {
-                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah') + ' (<a>' + callbackValue9[getAttributeMethod](dataAttributePrefix + 'ai') + '</a>)';
+                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'ah') + ' (' + callbackValue9[getAttributeMethod](dataAttributePrefix + 'ai') + ')';
                     callbackValue9[classNameProperty] = 'o';
                     fadeIn(callbackValue9);
                     var callbackValue162 = callbackValue9[firstElementChildProperty];
@@ -2772,7 +2791,7 @@
                         locationObject.reload(true)
                     })
                 }, function() {
-                    callbackValue9[innerHTMLProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
+                    callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'al');
                     callbackValue9[classNameProperty] = 'o';
                     fadeIn(callbackValue9)
                 })
@@ -2883,13 +2902,13 @@
                     }, function() {
                         callbackValue185[classNameProperty] = '';
                         callbackValue184[addEventListenerMethod](clickEvent, openDirectory);
-                        callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'aj');
+                        callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'aj');
                         callbackValue165[classNameProperty] = 'd';
                         fadeIn(callbackValue165)
                     }, function() {
                         callbackValue185[classNameProperty] = '';
                         callbackValue184[addEventListenerMethod](clickEvent, openDirectory);
-                        callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
+                        callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
                         callbackValue165[classNameProperty] = 'd';
                         fadeIn(callbackValue165)
                     });
@@ -3004,13 +3023,13 @@
                                         }
                                     }
                                 } else {
-                                    if (queueUploadsValue1 > queueUploadsValue2) callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(queueUploadsValue2) + ')';
-                                    else callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(queueUploadsValue1) + ')';
+                                    if (queueUploadsValue1 > queueUploadsValue2) callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(queueUploadsValue2) + ')';
+                                    else callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bh') + ' (' + formatBytes(queueUploadsValue1) + ')';
                                     callbackValue165[classNameProperty] = 'o';
                                     fadeIn(callbackValue165)
                                 }
                             } else {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bg') + ' (' + queueUploadsValue3 + ')';
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bg') + ' (' + queueUploadsValue3 + ')';
                                 callbackValue165[classNameProperty] = 'o';
                                 fadeIn(callbackValue165)
                             }
@@ -3018,7 +3037,7 @@
                         callbackValue211[focusEvent]();
                         callbackValue211[clickEvent]()
                     } else {
-                        callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'an');
+                        callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'an');
                         callbackValue165[classNameProperty] = 'o';
                         fadeIn(callbackValue165)
                     }
@@ -3031,7 +3050,7 @@
                     callbackValue212.append('upload', windowObject[encodeURIComponentMethod](callbackValue214));
                     callbackValue212.append('token', callbackValue213);
                     writeCookie(tokenCookieSuffix, callbackValue213);
-                    callbackValue165[innerHTMLProperty] = callbackValue215 + ' (0%)';
+                    callbackValue165[textContentProperty] = callbackValue215 + ' (0%)';
                     callbackValue165[classNameProperty] = 'b';
                     fadeIn(callbackValue165);
                     ajaxRequest(callbackValue212, function(uploadFileArgument1) {
@@ -3087,7 +3106,7 @@
                     }, function() {
                         processUploadQueue(1)
                     }, function(uploadFileArgument2, uploadFileArgument3) {
-                        if (callbackValue165[innerHTMLProperty][indexOfMethod]('(') != -1) callbackValue165[innerHTMLProperty] = callbackValue215 + ' (' + ((uploadFileArgument2 + uploadFile.v) * 100 / uploadFile.w)[toFixedMethod](1) + '%)'
+                        if (callbackValue165[textContentProperty][indexOfMethod]('(') != -1) callbackValue165[textContentProperty] = callbackValue215 + ' (' + ((uploadFileArgument2 + uploadFile.v) * 100 / uploadFile.w)[toFixedMethod](1) + '%)'
                     })
                 },
                 processUploadQueue = function(callbackArgument61) {
@@ -3096,27 +3115,27 @@
                     else {
                         switch (uploadFile.u) {
                             case 0: {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bd');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bd');
                                 callbackValue165[classNameProperty] = 'c';
                                 break
                             }
                             case 1: {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
                                 callbackValue165[classNameProperty] = 'd';
                                 break
                             }
                             case 2: {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'be');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'be');
                                 callbackValue165[classNameProperty] = 'd';
                                 break
                             }
                             case 3: {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bf');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bf');
                                 callbackValue165[classNameProperty] = 'd';
                                 break
                             }
                             case 4: {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bo');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bo');
                                 callbackValue165[classNameProperty] = 'd';
                                 break
                             }
@@ -3138,7 +3157,7 @@
                                 deleteFileValue3 = deleteFileValue2[getAttributeMethod](dataAttributePrefix + 'cy'),
                                 deleteFileValue4 = generateToken();
                             writeCookie(tokenCookieSuffix, deleteFileValue4);
-                            callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bi');
+                            callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bi');
                             callbackValue165[classNameProperty] = 'b';
                             fadeIn(callbackValue165);
                             deleteFileValue1[styleProperty][displayProperty] = noneValue;
@@ -3146,7 +3165,7 @@
                                 var lValue1 = deleteFileValue1[parentNodeProperty],
                                     lValue2 = lValue1[previousElementSiblingProperty][firstElementChildProperty],
                                     lValue3 = lValue2[nextElementSiblingProperty];
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bj');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bj');
                                 callbackValue165[classNameProperty] = 'c';
                                 deleteFileValue1[parentNodeProperty][removeChildMethod](deleteFileValue1);
                                 if (deleteFileValue2[parentNodeProperty][classNameProperty] == 'n') locationObject.href = locationObject.href[replaceMethod](locationObject.hash, '');
@@ -3159,14 +3178,14 @@
                                 callbackValue165[classNameProperty] = 'd';
                                 deleteFileValue1[styleProperty][displayProperty] = blockValue;
                                 if (this[getResponseHeaderMethod]('X-d')) {
-                                    callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'aj');
+                                    callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'aj');
                                     callbackValue218[classNameProperty] = callbackValue218[classNameProperty][replaceMethod](' z', '')
                                 } else if (this[getResponseHeaderMethod]('X-b')) {
-                                    callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bo');
+                                    callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bo');
                                     callbackValue218[classNameProperty] = callbackValue218[classNameProperty][replaceMethod](' z', '')
-                                } else callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bk')
+                                } else callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bk')
                             }, function() {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
                                 callbackValue165[classNameProperty] = 'o';
                                 deleteFileValue1[styleProperty][displayProperty] = blockValue
                             })
@@ -3186,7 +3205,7 @@
                             var recoverBackupValue1 = callbackValue222[nextElementSiblingProperty][lastElementChildProperty][firstElementChildProperty][firstElementChildProperty][firstElementChildProperty][getAttributeMethod](dataAttributePrefix + 'cy'),
                                 recoverBackupValue2 = generateToken();
                             writeCookie(tokenCookieSuffix, recoverBackupValue2);
-                            callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bl');
+                            callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bl');
                             callbackValue165[classNameProperty] = 'b';
                             fadeIn(callbackValue165);
                             ajaxRequest('recovery=' + windowObject[encodeURIComponentMethod](recoverBackupValue1) + tokenParameter + recoverBackupValue2, function() {
@@ -3194,9 +3213,9 @@
                                 locationObject.href = locationObject.href[replaceMethod](locationObject.hash, '')
                             }, function() {
                                 callbackValue165[classNameProperty] = 'd';
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bn')
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bn')
                             }, function() {
-                                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
+                                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'al');
                                 callbackValue165[classNameProperty] = 'o'
                             })
                         };
@@ -3214,7 +3233,7 @@
             var callbackValue171 = readCookie(recoveryCookieSuffix);
             if (callbackValue171) {
                 removeCookie(recoveryCookieSuffix);
-                callbackValue165[innerHTMLProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bm');
+                callbackValue165[textContentProperty] = callbackValue165[getAttributeMethod](dataAttributePrefix + 'bm');
                 callbackValue165[classNameProperty] = 'c';
                 fadeIn(callbackValue165);
                 var callbackValue172 = callbackValue166[nextElementSiblingProperty];
@@ -3317,7 +3336,7 @@
                             callbackValue233[callbackValue251][removeEventListenerMethod](changeEvent, validateSettings)
                         }
                         if (callbackValue230[valueProperty]) {
-                            callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'az');
+                            callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'az');
                             callbackValue236[classNameProperty] = 'b';
                             fadeIn(callbackValue236);
                             hashSettingsPassword(callbackValue230[valueProperty], callbackValue236[getAttributeMethod](dataAttributePrefix + 'bb'), 200, submitSettings)
@@ -3388,7 +3407,7 @@
                 },
                 submitSettings = function(callbackArgument66) {
                     var callbackValue264 = false;
-                    callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ad');
+                    callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ad');
                     callbackValue236[classNameProperty] = 'b';
                     fadeIn(callbackValue236);
                     var callbackValue265 = generateToken();
@@ -3411,15 +3430,15 @@
                             locationObject.href = locationObject.href[replaceMethod](locationObject.hash, '')
                         } else {
                             applySavedSettings();
-                            callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ae');
+                            callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ae');
                             callbackValue236[classNameProperty] = 'c'
                         }
                     }, function() {
                         restoreSettingsUi();
-                        callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'aj')
+                        callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'aj')
                     }, function() {
                         restoreSettingsUi();
-                        callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'al')
+                        callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'al')
                     })
                 },
                 applySavedSettings = function() {
@@ -3494,14 +3513,14 @@
                 callbackValue237 = readCookie(activateMarker);
             if (callbackValue237) {
                 removeCookie(activateMarker, callbackValue236[getAttributeMethod](dataAttributePrefix + 'cl'));
-                callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'aw');
+                callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'aw');
                 callbackValue236[classNameProperty] = 'c';
                 fadeIn(callbackValue236)
             }
             var callbackValue238 = readCookie(stateCookieSuffix);
             if (callbackValue238) {
                 removeCookie(stateCookieSuffix, callbackValue236[getAttributeMethod](dataAttributePrefix + 'cl'));
-                callbackValue236[innerHTMLProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ae');
+                callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'ae');
                 callbackValue236[classNameProperty] = 'c';
                 fadeIn(callbackValue236);
                 var callbackValue239 = callbackValue226[nextElementSiblingProperty];
