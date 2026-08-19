@@ -1,55 +1,55 @@
-<?php /* MyVibeHTML v0.17 */
-function myvibehtml_runtime_directory($a = false)
+<?php /* MyVibeHTML v0.18 */
+function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
-    if (!$a && isset($_SERVER['DOCUMENT_ROOT'])) $a = $_SERVER['DOCUMENT_ROOT'];
-    $a = str_replace('\\', '/', (string)$a);
-    $b = realpath($a);
-    if (!$b || $b === '/') return false;
-    $b = rtrim(str_replace('\\', '/', $b), '/');
-    $c = dirname($b) . '/.myvibehtml-' . substr(sha1($b), 0, 16) . '/';
-    if (is_link(rtrim($c, '/'))) return false;
-    if (!is_dir($c)) @mkdir($c, 0700, true);
-    if (is_dir($c) && is_writable($c)) {
-        @chmod($c, 0700);
-        return $c;
+    if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
+    $MyvibehtmlruntimedirectoryValue1 = str_replace('\\', '/', (string)$MyvibehtmlruntimedirectoryValue1);
+    $MyvibehtmlruntimedirectoryValue2 = realpath($MyvibehtmlruntimedirectoryValue1);
+    if (!$MyvibehtmlruntimedirectoryValue2 || $MyvibehtmlruntimedirectoryValue2 === '/') return false;
+    $MyvibehtmlruntimedirectoryValue2 = rtrim(str_replace('\\', '/', $MyvibehtmlruntimedirectoryValue2), '/');
+    $MyvibehtmlruntimedirectoryValue3 = dirname($MyvibehtmlruntimedirectoryValue2) . '/.myvibehtml-' . substr(sha1($MyvibehtmlruntimedirectoryValue2), 0, 16) . '/';
+    if (is_link(rtrim($MyvibehtmlruntimedirectoryValue3, '/'))) return false;
+    if (!is_dir($MyvibehtmlruntimedirectoryValue3)) @mkdir($MyvibehtmlruntimedirectoryValue3, 0700, true);
+    if (is_dir($MyvibehtmlruntimedirectoryValue3) && is_writable($MyvibehtmlruntimedirectoryValue3)) {
+        @chmod($MyvibehtmlruntimedirectoryValue3, 0700);
+        return $MyvibehtmlruntimedirectoryValue3;
     }
     return false;
 }
 
-function myvibehtml_atomic_write($a, $b, $c, $d)
+function myvibehtml_atomic_write($MyvibehtmlatomicwriteValue1, $MyvibehtmlatomicwriteValue2, $MyvibehtmlatomicwriteValue3, $MyvibehtmlatomicwriteValue4)
 {
-    $e = dirname($a);
-    if (!is_dir($e) || !is_writable($e) || is_link($a)) return false;
-    $f = @fopen($e . '/' . $d, 'c');
-    if (!$f || !flock($f, LOCK_EX)) {
-        if ($f) fclose($f);
+    $MyvibehtmlatomicwriteValue5 = dirname($MyvibehtmlatomicwriteValue1);
+    if (!is_dir($MyvibehtmlatomicwriteValue5) || !is_writable($MyvibehtmlatomicwriteValue5) || is_link($MyvibehtmlatomicwriteValue1)) return false;
+    $MyvibehtmlatomicwriteValue6 = @fopen($MyvibehtmlatomicwriteValue5 . '/' . $MyvibehtmlatomicwriteValue4, 'c');
+    if (!$MyvibehtmlatomicwriteValue6 || !flock($MyvibehtmlatomicwriteValue6, LOCK_EX)) {
+        if ($MyvibehtmlatomicwriteValue6) fclose($MyvibehtmlatomicwriteValue6);
         return false;
     }
-    $g = tempnam($e, '.myvibehtml-write-');
-    $h = $g ? @fopen($g, 'wb') : false;
-    $i = false;
-    if ($h) {
-        $j = 0;
-        $k = strlen($b);
-        while ($j < $k && ($l = fwrite($h, substr($b, $j))) !== false && $l > 0) $j += $l;
-        $i = $j === $k && fflush($h);
-        fclose($h);
+    $MyvibehtmlatomicwriteValue7 = tempnam($MyvibehtmlatomicwriteValue5, '.myvibehtml-write-');
+    $MyvibehtmlatomicwriteValue8 = $MyvibehtmlatomicwriteValue7 ? @fopen($MyvibehtmlatomicwriteValue7, 'wb') : false;
+    $MyvibehtmlatomicwriteValue9 = false;
+    if ($MyvibehtmlatomicwriteValue8) {
+        $MyvibehtmlatomicwriteValue10 = 0;
+        $MyvibehtmlatomicwriteValue11 = strlen($MyvibehtmlatomicwriteValue2);
+        while ($MyvibehtmlatomicwriteValue10 < $MyvibehtmlatomicwriteValue11 && ($MyvibehtmlatomicwriteValue12 = fwrite($MyvibehtmlatomicwriteValue8, substr($MyvibehtmlatomicwriteValue2, $MyvibehtmlatomicwriteValue10))) !== false && $MyvibehtmlatomicwriteValue12 > 0) $MyvibehtmlatomicwriteValue10 += $MyvibehtmlatomicwriteValue12;
+        $MyvibehtmlatomicwriteValue9 = $MyvibehtmlatomicwriteValue10 === $MyvibehtmlatomicwriteValue11 && fflush($MyvibehtmlatomicwriteValue8);
+        fclose($MyvibehtmlatomicwriteValue8);
     }
-    if ($i) {
-        @chmod($g, $c);
-        $i = @rename($g, $a);
-        if ($i) @chmod($a, $c);
+    if ($MyvibehtmlatomicwriteValue9) {
+        @chmod($MyvibehtmlatomicwriteValue7, $MyvibehtmlatomicwriteValue3);
+        $MyvibehtmlatomicwriteValue9 = @rename($MyvibehtmlatomicwriteValue7, $MyvibehtmlatomicwriteValue1);
+        if ($MyvibehtmlatomicwriteValue9) @chmod($MyvibehtmlatomicwriteValue1, $MyvibehtmlatomicwriteValue3);
     }
-    if ($g && file_exists($g)) @unlink($g);
-    flock($f, LOCK_UN);
-    fclose($f);
-    return $i;
+    if ($MyvibehtmlatomicwriteValue7 && file_exists($MyvibehtmlatomicwriteValue7)) @unlink($MyvibehtmlatomicwriteValue7);
+    flock($MyvibehtmlatomicwriteValue6, LOCK_UN);
+    fclose($MyvibehtmlatomicwriteValue6);
+    return $MyvibehtmlatomicwriteValue9;
 }
 
-function myvibehtml_unserialize_array($a)
+function myvibehtml_unserialize_array($MyvibehtmlunserializearrayValue1)
 {
-    if (version_compare(PHP_VERSION, '7.0', '>=')) return @unserialize($a, ['allowed_classes' => false]);
-    return @unserialize($a);
+    if (version_compare(PHP_VERSION, '7.0', '>=')) return @unserialize($MyvibehtmlunserializearrayValue1, ['allowed_classes' => false]);
+    return @unserialize($MyvibehtmlunserializearrayValue1);
 }
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -59,95 +59,95 @@ ini_set('log_errors', 1);
 ini_set('error_log', $myvibehtmlRuntimeDirectory ? $myvibehtmlRuntimeDirectory . 'error.log' : dirname(__FILE__) . '/error.log');
 unset($myvibehtmlRuntimeDirectory);
 version_compare(PHP_VERSION, '5.2', '>=') || exit('PHP ' . PHP_VERSION . ' is not supported');
-define('a_', 'document_root');
-define('b_', 'query_string');
-define('c_', 'request_uri');
-define('d_', 'php_self');
-define('e_', 'http_accept_language');
-define('f_', 'http_user_agent');
-define('g_', 'remote_addr');
-define('h_', 'server_addr');
-define('i_', 'script_filename');
-define('j_', 'script_name');
-define('k_', 'server_name');
-define('l_', 'server_protocol');
-define('m_', 'lang');
-define('n_', 'password');
-define('o_', 'session');
-define('p_', 'pass_complexity');
-define('q_', 'pass_complexity_js');
-define('r_', 'auth_time');
-define('s_', 'auth_error_time');
-define('t_', 'auth_error_list');
-define('u_', 'auth_error_limit');
-define('v_', 'auth_lockout_duration');
-define('w_', 'auth_session_reset');
-define('x_', 'auth_bot_filter');
-define('y_', 'code_redraw_delay');
-define('z_', 'code_undo_limit');
-define('A_', 'code_highlighting');
-define('_s', 'visual_ext');
-define('B_', 'allowed_ext');
-define('C_', 'editable_ext');
-define('_P', 'editable_attributes');
-define('D_', 'default_file');
-define('_Q', 'folder_size');
-define('E_', 'document_root');
-define('F_', 'url_rewrite');
-define('G_', 'logout_to_site');
-define('H_', 'link_replacing');
-define('I_', 'image_rewriting');
-define('_R', 'name_correction');
-define('J_', 'recovery_points');
-define('K_', 'site_scripts');
-define('L_', 'site_styles');
-define('M_', 'update_final');
-define('N_', 'update_beta');
-define('O_', 'cache');
-define('_r', 'filelist');
-define('P_', 'system_url');
-define('Q_', 'error_limit');
-define('R_', 'error_count');
-define('S_', 'redraw_delay');
-define('T_', 'mode');
-define('U_', 'type');
-define('V_', 'base');
-define('W_', 'code');
-define('X_', 'title');
-define('Y_', 'version');
-define('Z_', 'is_edited');
-define('_a', 'post_max_size');
-define('_b', 'upload_max_filesize');
-define('_c', 'max_file_uploads');
-define('_d', '_checkbox');
-define('_m', 'http_ajax');
-define('_n', 'source');
-define('_o', 'token');
-define('_p', 'sha1');
-define('_q', 'html');
-define('_t', '404');
-define('_u', '403');
-define('_v', 'ip');
-define('_w', 'sip');
-define('_x', 'url');
-define('_y', 'name');
-define('_z', 'date');
-define('_A', 'size');
-define('_B', 'list');
-define('_C', 'file');
-define('_D', 'error');
-define('_E', 'value');
-define('_F', 'radio');
-define('_G', 'tmp_name');
-define('_H', 'language_list');
-define('_I', '<script');
-define('_J', '<_cript');
-define('_K', '</script');
-define('_L', '</_cript');
-define('_M', '</body>');
-define('_N', '<!--~~?');
-define('_O', '?~~-->');
-define('__', 'myvibehtml_');
+define('REQUEST_DOCUMENT_ROOT', 'document_root');
+define('REQUEST_QUERY_STRING', 'query_string');
+define('REQUEST_URI', 'request_uri');
+define('REQUEST_PHP_SELF', 'php_self');
+define('REQUEST_ACCEPT_LANGUAGE', 'http_accept_language');
+define('REQUEST_USER_AGENT', 'http_user_agent');
+define('REQUEST_REMOTE_ADDR', 'remote_addr');
+define('REQUEST_SERVER_ADDR', 'server_addr');
+define('REQUEST_SCRIPT_FILENAME', 'script_filename');
+define('REQUEST_SCRIPT_NAME', 'script_name');
+define('REQUEST_SERVER_NAME', 'server_name');
+define('REQUEST_SERVER_PROTOCOL', 'server_protocol');
+define('SETTING_LANGUAGE', 'lang');
+define('SETTING_PASSWORD', 'password');
+define('SETTING_SESSION', 'session');
+define('SETTING_PASSWORD_COMPLEXITY', 'pass_complexity');
+define('SETTING_PASSWORD_COMPLEXITY_JS', 'pass_complexity_js');
+define('SETTING_AUTH_TIME', 'auth_time');
+define('SETTING_AUTH_ERROR_TIME', 'auth_error_time');
+define('SETTING_AUTH_ERROR_LIST', 'auth_error_list');
+define('SETTING_AUTH_ERROR_LIMIT', 'auth_error_limit');
+define('SETTING_AUTH_LOCKOUT_DURATION', 'auth_lockout_duration');
+define('SETTING_AUTH_SESSION_RESET', 'auth_session_reset');
+define('SETTING_AUTH_BOT_FILTER', 'auth_bot_filter');
+define('SETTING_CODE_REDRAW_DELAY', 'code_redraw_delay');
+define('SETTING_CODE_UNDO_LIMIT', 'code_undo_limit');
+define('SETTING_CODE_HIGHLIGHTING', 'code_highlighting');
+define('SETTING_VISUAL_EXTENSIONS', 'visual_ext');
+define('SETTING_ALLOWED_EXTENSIONS', 'allowed_ext');
+define('SETTING_EDITABLE_EXTENSIONS', 'editable_ext');
+define('SETTING_EDITABLE_ATTRIBUTES', 'editable_attributes');
+define('SETTING_DEFAULT_FILE', 'default_file');
+define('SETTING_FOLDER_SIZE', 'folder_size');
+define('SETTING_DOCUMENT_ROOT', 'document_root');
+define('SETTING_URL_REWRITE', 'url_rewrite');
+define('SETTING_LOGOUT_TO_SITE', 'logout_to_site');
+define('SETTING_LINK_REPLACING', 'link_replacing');
+define('SETTING_IMAGE_REWRITING', 'image_rewriting');
+define('SETTING_NAME_CORRECTION', 'name_correction');
+define('SETTING_RECOVERY_POINTS', 'recovery_points');
+define('SETTING_SITE_SCRIPTS', 'site_scripts');
+define('SETTING_SITE_STYLES', 'site_styles');
+define('SETTING_UPDATE_FINAL', 'update_final');
+define('SETTING_UPDATE_BETA', 'update_beta');
+define('SETTING_CACHE', 'cache');
+define('PLACEHOLDER_FILE_LIST', 'filelist');
+define('PLACEHOLDER_SYSTEM_URL', 'system_url');
+define('PLACEHOLDER_ERROR_LIMIT', 'error_limit');
+define('PLACEHOLDER_ERROR_COUNT', 'error_count');
+define('PLACEHOLDER_REDRAW_DELAY', 'redraw_delay');
+define('PLACEHOLDER_MODE', 'mode');
+define('PLACEHOLDER_TYPE', 'type');
+define('PLACEHOLDER_BASE', 'base');
+define('PLACEHOLDER_CODE', 'code');
+define('PLACEHOLDER_TITLE', 'title');
+define('PLACEHOLDER_VERSION', 'version');
+define('PLACEHOLDER_IS_EDITED', 'is_edited');
+define('REQUEST_POST_MAX_SIZE', 'post_max_size');
+define('REQUEST_UPLOAD_MAX_FILESIZE', 'upload_max_filesize');
+define('REQUEST_MAX_FILE_UPLOADS', 'max_file_uploads');
+define('TEMPLATE_CHECKBOX_SUFFIX', '_checkbox');
+define('REQUEST_AJAX_HEADER', 'http_ajax');
+define('POST_SOURCE', 'source');
+define('POST_TOKEN', 'token');
+define('HASH_ALGORITHM', 'sha1');
+define('QUERY_HTML', 'html');
+define('HTTP_STATUS_NOT_FOUND', '404');
+define('HTTP_STATUS_FORBIDDEN', '403');
+define('REQUEST_IP', 'ip');
+define('REQUEST_SIP', 'sip');
+define('FILE_URL', 'url');
+define('FILE_NAME', 'name');
+define('FILE_DATE', 'date');
+define('FILE_SIZE', 'size');
+define('FILE_LIST', 'list');
+define('FILE_CONTENT', 'file');
+define('FILE_ERROR', 'error');
+define('FILE_VALUE', 'value');
+define('FILE_RADIO', 'radio');
+define('FILE_TMP_NAME', 'tmp_name');
+define('LANGUAGE_LIST', 'language_list');
+define('SCRIPT_TAG', '<script');
+define('SAFE_SCRIPT_TAG', '<_cript');
+define('CLOSING_SCRIPT_TAG', '</script');
+define('SAFE_CLOSING_SCRIPT_TAG', '</_cript');
+define('CLOSING_BODY_TAG', '</body>');
+define('UPDATE_MARKER_OPEN', '<!--~~?');
+define('UPDATE_MARKER_CLOSE', '?~~-->');
+define('COOKIE_PREFIX', 'myvibehtml_');
 
 final class MyVibeHTMLRequest
 {
@@ -163,116 +163,116 @@ final class MyVibeHTMLRequest
         $this->raw['e'] = $_FILES;
     }
 
-    public function getQuery($a)
+    public function getQuery($GetQueryValue1)
     {
-        if (isset($this->cache['a'][$a])) return $this->cache['a'][$a]; else if (isset($this->raw['a'][$a])) return $this->cache['a'][$a] = $this->filter($this->raw['a'][$a], $a);
+        if (isset($this->cache['a'][$GetQueryValue1])) return $this->cache['a'][$GetQueryValue1]; else if (isset($this->raw['a'][$GetQueryValue1])) return $this->cache['a'][$GetQueryValue1] = $this->filter($this->raw['a'][$GetQueryValue1], $GetQueryValue1);
     }
 
-    public function getPost($a = false)
+    public function getPost($GetPostValue1 = false)
     {
-        if ($a) {
-            if (isset($this->cache['b'][$a])) return $this->cache['b'][$a]; else if (isset($this->raw['b'][$a])) return $this->cache['b'][$a] = $this->filter($this->raw['b'][$a], $a);
+        if ($GetPostValue1) {
+            if (isset($this->cache['b'][$GetPostValue1])) return $this->cache['b'][$GetPostValue1]; else if (isset($this->raw['b'][$GetPostValue1])) return $this->cache['b'][$GetPostValue1] = $this->filter($this->raw['b'][$GetPostValue1], $GetPostValue1);
         } else if (count($this->raw['b'])) return true;
     }
 
-    public function getServer($a)
+    public function getServer($GetServerValue1)
     {
-        if (isset($this->cache['c'][$a])) return $this->cache['c'][$a]; else {
-            $b = strtoupper($a);
-            if (isset($this->raw['c'][$b])) return $this->cache['c'][$a] = $this->filter($this->raw['c'][$b], $a);
+        if (isset($this->cache['c'][$GetServerValue1])) return $this->cache['c'][$GetServerValue1]; else {
+            $GetServerValue2 = strtoupper($GetServerValue1);
+            if (isset($this->raw['c'][$GetServerValue2])) return $this->cache['c'][$GetServerValue1] = $this->filter($this->raw['c'][$GetServerValue2], $GetServerValue1);
         }
     }
 
-    public function getCookie($a)
+    public function getCookie($GetCookieValue1)
     {
-        if (isset($this->cache['d'][$a])) return $this->cache['d'][$a]; else if (isset($this->raw['d'][$a])) return $this->cache['d'][$a] = $this->filter($this->raw['d'][$a], $a);
+        if (isset($this->cache['d'][$GetCookieValue1])) return $this->cache['d'][$GetCookieValue1]; else if (isset($this->raw['d'][$GetCookieValue1])) return $this->cache['d'][$GetCookieValue1] = $this->filter($this->raw['d'][$GetCookieValue1], $GetCookieValue1);
     }
 
-    public function getFile($a)
+    public function getFile($GetFileValue1)
     {
-        if (isset($this->raw['e'][$a])) return $this->raw['e'][$a];
+        if (isset($this->raw['e'][$GetFileValue1])) return $this->raw['e'][$GetFileValue1];
     }
 
-    private function filter($a, $b)
+    private function filter($FilterValue1, $FilterValue2)
     {
-        $c = '_' . $b;
-        if (method_exists($this, $c)) return $this->$c($a); else return $a;
+        $FilterValue3 = '_' . $FilterValue2;
+        if (method_exists($this, $FilterValue3)) return $this->$FilterValue3($FilterValue1); else return $FilterValue1;
     }
 
-    private function _server_protocol($a)
+    private function filterServerProtocol($FilterServerProtocolValue1)
     {
-        preg_match('~^[a-z]{4,5}/[0-9]\.[0-9]$~i', $a, $b);
-        if (isset($b[0])) return $b[0];
+        preg_match('~^[a-z]{4,5}/[0-9]\.[0-9]$~i', $FilterServerProtocolValue1, $FilterServerProtocolValue2);
+        if (isset($FilterServerProtocolValue2[0])) return $FilterServerProtocolValue2[0];
     }
 
-    private function _server_name($a)
+    private function filterServerName($FilterServerNameValue1)
     {
-        preg_match('~^[a-z0-9-_.]{2,300}$~i', $a, $b);
-        if (isset($b[0])) return $b[0];
+        preg_match('~^[a-z0-9-_.]{2,300}$~i', $FilterServerNameValue1, $FilterServerNameValue2);
+        if (isset($FilterServerNameValue2[0])) return $FilterServerNameValue2[0];
     }
 
-    private function _script_filename($a)
+    private function filterScriptFilename($FilterScriptFilenameValue1)
     {
-        $b = str_replace('\\', '/', __FILE__);
-        if (stripos($b, $this->raw['c'][strtoupper(a_)]) === 0) return $b; else return str_replace('\\', '/', $a);
+        $FilterScriptFilenameValue2 = str_replace('\\', '/', __FILE__);
+        if (stripos($FilterScriptFilenameValue2, $this->raw['c'][strtoupper(REQUEST_DOCUMENT_ROOT)]) === 0) return $FilterScriptFilenameValue2; else return str_replace('\\', '/', $FilterScriptFilenameValue1);
     }
 
-    private function _document_root($a)
+    private function filterDocumentRoot($FilterDocumentRootValue1)
     {
-        $a = str_replace('\\', '/', $a);
-        $b = $this->getServer(i_);
-        $c = $this->getServer(d_);
-        $d = $this->getServer(j_);
+        $FilterDocumentRootValue1 = str_replace('\\', '/', $FilterDocumentRootValue1);
+        $FilterDocumentRootValue2 = $this->getServer(REQUEST_SCRIPT_FILENAME);
+        $FilterDocumentRootValue3 = $this->getServer(REQUEST_PHP_SELF);
+        $FilterDocumentRootValue4 = $this->getServer(REQUEST_SCRIPT_NAME);
         //if (__LINE__ != 1) exit;
-        if (stripos($b, $c) > 0) $e = str_ireplace($c, '', $b);
-        if (stripos($b, $d) > 0) $f = str_ireplace($d, '', $b);
-        if (isset($e)) {
-            if (isset($f)) {
-                if (strlen($e) > strlen($f)) $g = $e; else$g = $f;
-            } else$g = $e;
-        } else if (isset($f)) $g = $f; else$g = $a;
-        if (stripos($b, $a) === 0) {
-            if (strlen($g) > strlen($a)) $a = $g;
-        } else$a = $g;
-        if (substr($a, -1) == '/') return substr($a, 0, -1);
-        return $a;
+        if (stripos($FilterDocumentRootValue2, $FilterDocumentRootValue3) > 0) $FilterDocumentRootValue5 = str_ireplace($FilterDocumentRootValue3, '', $FilterDocumentRootValue2);
+        if (stripos($FilterDocumentRootValue2, $FilterDocumentRootValue4) > 0) $FilterDocumentRootValue6 = str_ireplace($FilterDocumentRootValue4, '', $FilterDocumentRootValue2);
+        if (isset($FilterDocumentRootValue5)) {
+            if (isset($FilterDocumentRootValue6)) {
+                if (strlen($FilterDocumentRootValue5) > strlen($FilterDocumentRootValue6)) $FilterDocumentRootValue7 = $FilterDocumentRootValue5; else$FilterDocumentRootValue7 = $FilterDocumentRootValue6;
+            } else$FilterDocumentRootValue7 = $FilterDocumentRootValue5;
+        } else if (isset($FilterDocumentRootValue6)) $FilterDocumentRootValue7 = $FilterDocumentRootValue6; else$FilterDocumentRootValue7 = $FilterDocumentRootValue1;
+        if (stripos($FilterDocumentRootValue2, $FilterDocumentRootValue1) === 0) {
+            if (strlen($FilterDocumentRootValue7) > strlen($FilterDocumentRootValue1)) $FilterDocumentRootValue1 = $FilterDocumentRootValue7;
+        } else$FilterDocumentRootValue1 = $FilterDocumentRootValue7;
+        if (substr($FilterDocumentRootValue1, -1) == '/') return substr($FilterDocumentRootValue1, 0, -1);
+        return $FilterDocumentRootValue1;
     }
 
-    private function _php_self($a)
+    private function filterPhpSelf($FilterPhpSelfValue1)
     {
-        return str_replace('\\', '/', $a);
+        return str_replace('\\', '/', $FilterPhpSelfValue1);
     }
 
-    private function _script_name($a)
+    private function filterScriptName($FilterScriptNameValue1)
     {
-        return str_replace('\\', '/', $a);
+        return str_replace('\\', '/', $FilterScriptNameValue1);
     }
 
-    private function _query_string($a)
+    private function filterQueryString($FilterQueryStringValue1)
     {
-        return str_replace('\\', '/', $a);
+        return str_replace('\\', '/', $FilterQueryStringValue1);
     }
 
-    private function _remote_addr($a)
+    private function filterRemoteAddress($FilterRemoteAddressValue1)
     {
-        return $this->_ip($a);
+        return $this->filterIpAddress($FilterRemoteAddressValue1);
     }
 
-    private function _server_addr($a)
+    private function filterServerAddress($FilterServerAddressValue1)
     {
-        return $this->_ip($a);
+        return $this->filterIpAddress($FilterServerAddressValue1);
     }
 
-    private function _ip($a)
+    private function filterIpAddress($FilterIpAddressValue1)
     {
-        preg_match('~^[a-z0-9.:]{1,40}$~i', $a, $b);
-        if (isset($b[0])) return $b[0];
+        preg_match('~^[a-z0-9.:]{1,40}$~i', $FilterIpAddressValue1, $FilterIpAddressValue2);
+        if (isset($FilterIpAddressValue2[0])) return $FilterIpAddressValue2[0];
     }
 
-    private function _sha1($a)
+    private function filterSha1($FilterSha1Value1)
     {
-        preg_match('~^[a-z0-9]{40}$~i', $a, $b);
-        if (isset($b[0])) return $b[0];
+        preg_match('~^[a-z0-9]{40}$~i', $FilterSha1Value1, $FilterSha1Value2);
+        if (isset($FilterSha1Value2[0])) return $FilterSha1Value2[0];
     }
 }
 
@@ -283,9 +283,9 @@ final class MyVibeHTMLResponse
     private $cookies;
     private $body;
 
-    public function __construct($a)
+    public function __construct($ConstructValue1)
     {
-        $this->protocol = $a;
+        $this->protocol = $ConstructValue1;
         $this->addHeader('Content-type:text/html;charset=utf-8');
         $this->addHeader('X-Content-Type-Options:nosniff');
         $this->addHeader('X-Frame-Options:SAMEORIGIN');
@@ -296,52 +296,52 @@ final class MyVibeHTMLResponse
         $this->addHeader("Content-Security-Policy-Report-Only:default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self'");
     }
 
-    public function addHeader($a)
+    public function addHeader($AddHeaderValue1)
     {
-        return $this->headers[] = $a;
+        return $this->headers[] = $AddHeaderValue1;
     }
 
-    public function setStatus($a, $b)
+    public function setStatus($SetStatusValue1, $SetStatusValue2)
     {
-        return $this->headers[] = $this->protocol . ' ' . $a . ' ' . $b;
+        return $this->headers[] = $this->protocol . ' ' . $SetStatusValue1 . ' ' . $SetStatusValue2;
     }
 
-    public function redirect($a)
+    public function redirect($RedirectValue1)
     {
-        return $this->headers[] = 'Location:' . $a;
+        return $this->headers[] = 'Location:' . $RedirectValue1;
     }
 
-    public function setCookie($a, $b = false, $c = false, $d = false, $e = false, $f = false, $g = false)
+    public function setCookie($SetCookieValue1, $SetCookieValue2 = false, $SetCookieValue3 = false, $SetCookieValue4 = false, $SetCookieValue5 = false, $SetCookieValue6 = false, $SetCookieValue7 = false)
     {
-        $h['a'] = $a;
-        $h['b'] = $b;
-        $h['c'] = $g;
-        $h['d'] = (int)$c;
-        $h['e'] = str_replace('%2F', '/', urlencode($d));
-        $h['f'] = $e;
-        $h['g'] = (int)$f;
-        $this->cookies[] = $h;
+        $SetCookieValue8['a'] = $SetCookieValue1;
+        $SetCookieValue8['b'] = $SetCookieValue2;
+        $SetCookieValue8['c'] = $SetCookieValue7;
+        $SetCookieValue8['d'] = (int)$SetCookieValue3;
+        $SetCookieValue8['e'] = str_replace('%2F', '/', urlencode($SetCookieValue4));
+        $SetCookieValue8['f'] = $SetCookieValue5;
+        $SetCookieValue8['g'] = (int)$SetCookieValue6;
+        $this->cookies[] = $SetCookieValue8;
     }
 
-    public function clearCookie($a, $b = false, $c = false)
+    public function clearCookie($ClearCookieValue1, $ClearCookieValue2 = false, $ClearCookieValue3 = false)
     {
-        $this->setCookie($a, '', time() - 60 * 60, $b, $c);
+        $this->setCookie($ClearCookieValue1, '', time() - 60 * 60, $ClearCookieValue2, $ClearCookieValue3);
     }
 
-    public function setBody($a)
+    public function setBody($SetBodyValue1)
     {
-        return $this->body = $a;
+        return $this->body = $SetBodyValue1;
     }
 
     public function send()
     {
         //if (__LINE__ != 1) exit;
-        if (isset($this->headers)) foreach ($this->headers as $a) header($a);
-        if (isset($this->cookies)) foreach ($this->cookies as $b) {
-            $d = $b['g'] || (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' && $_SERVER['HTTPS'] !== '');
-            $e = $b['e'] ? $b['e'] : '/';
-            if (version_compare(PHP_VERSION, '7.3', '>=')) setcookie($b['a'], $b['b'], ['expires' => $b['d'], 'path' => $e, 'domain' => $b['f'] ? $b['f'] : '', 'secure' => (bool)$d, 'httponly' => (bool)$b['c'], 'samesite' => 'Lax']);
-            else setcookie($b['a'], $b['b'], $b['d'], $e, $b['f'], $d, $b['c']);
+        if (isset($this->headers)) foreach ($this->headers as $SendValue1) header($SendValue1);
+        if (isset($this->cookies)) foreach ($this->cookies as $SendValue2) {
+            $SendValue3 = $SendValue2['g'] || (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' && $_SERVER['HTTPS'] !== '');
+            $SendValue4 = $SendValue2['e'] ? $SendValue2['e'] : '/';
+            if (version_compare(PHP_VERSION, '7.3', '>=')) setcookie($SendValue2['a'], $SendValue2['b'], ['expires' => $SendValue2['d'], 'path' => $SendValue4, 'domain' => $SendValue2['f'] ? $SendValue2['f'] : '', 'secure' => (bool)$SendValue3, 'httponly' => (bool)$SendValue2['c'], 'samesite' => 'Lax']);
+            else setcookie($SendValue2['a'], $SendValue2['b'], $SendValue2['d'], $SendValue4, $SendValue2['f'], $SendValue3, $SendValue2['c']);
         }
         if (isset($this->body)) print $this->body;
     }
@@ -349,21 +349,21 @@ final class MyVibeHTMLResponse
 
 final class MyVibeHTMLConfig
 {
-    const a = "\n";
-    const b = 'lang.ini';
-    const c = 'conf.ini';
+    const LINE_SEPARATOR = "\n";
+    const LANGUAGE_FILE = 'lang.ini';
+    const CONFIG_FILE = 'conf.ini';
     private $state;
-    private $b;
+    private $legacyState;
     private $translations;
     private $settings;
     private $templates;
     private $dirty;
     private $configPath;
 
-    public function __construct($a, $b)
+    public function __construct($ConstructValue1, $ConstructValue2)
     {
-        $this->translations = parse_ini_file($a . self::b, true);
-        $this->configPath = $this->getConfigPath($a, $b);
+        $this->translations = parse_ini_file($ConstructValue1 . self::LANGUAGE_FILE, true);
+        $this->configPath = $this->getConfigPath($ConstructValue1, $ConstructValue2);
         $this->settings = parse_ini_file($this->configPath, true);
         $this->templates = [
             'j' => '<ol><li title="{source_editor}">{type}</li><li title="{visual_editor}">text</li></ol>',
@@ -419,30 +419,30 @@ final class MyVibeHTMLConfig
         );
         foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"><link rel="stylesheet" href="{system_url}myvibehtml-fallback.css?v={version}"></head>', $this->templates[$templateName]);
         $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i title="{attributes}"></i></p>', $this->templates['h']);
-        $this->state['a'] = $a;
-        $this->state['b'] = $this->getSetting(a_);
+        $this->state['a'] = $ConstructValue1;
+        $this->state['b'] = $this->getSetting(REQUEST_DOCUMENT_ROOT);
         //if (__LINE__ != 1) exit;
-        if (!$this->state['b']) $this->state['b'] = $b;
+        if (!$this->state['b']) $this->state['b'] = $ConstructValue2;
         $this->state['c'] = str_ireplace($this->state['b'], '', $this->state['a']);
-        $this->state['d'] = $this->getParentDirectory($a);
+        $this->state['d'] = $this->getParentDirectory($ConstructValue1);
         $this->state['e'] = $this->getParentDirectory($this->state['c']);
     }
 
-    private function getConfigPath($a, $b)
+    private function getConfigPath($GetConfigPathValue1, $GetConfigPathValue2)
     {
-        $c = $a . self::c;
-        $d = myvibehtml_runtime_directory($b);
-        if (!$d) return $c;
-        $e = $d . self::c;
-        if (!file_exists($e) && !is_link($c) && file_exists($c) && @copy($c, $e)) {
-            @chmod($e, 0600);
-            @unlink($c);
+        $GetConfigPathValue3 = $GetConfigPathValue1 . self::CONFIG_FILE;
+        $GetConfigPathValue4 = myvibehtml_runtime_directory($GetConfigPathValue2);
+        if (!$GetConfigPathValue4) return $GetConfigPathValue3;
+        $GetConfigPathValue5 = $GetConfigPathValue4 . self::CONFIG_FILE;
+        if (!file_exists($GetConfigPathValue5) && !is_link($GetConfigPathValue3) && file_exists($GetConfigPathValue3) && @copy($GetConfigPathValue3, $GetConfigPathValue5)) {
+            @chmod($GetConfigPathValue5, 0600);
+            @unlink($GetConfigPathValue3);
         }
-        if (file_exists($e)) {
-            @chmod($e, 0600);
-            return $e;
+        if (file_exists($GetConfigPathValue5)) {
+            @chmod($GetConfigPathValue5, 0600);
+            return $GetConfigPathValue5;
         }
-        return $c;
+        return $GetConfigPathValue3;
     }
 
     public function __destruct()
@@ -460,7 +460,7 @@ final class MyVibeHTMLConfig
         return $this->state['a'];
     }
 
-    public function getSiteUrlBase($a = false)
+    public function getSiteUrlBase($GetSiteUrlBaseValue1 = false)
     {
         return $this->state['c'];
     }
@@ -485,48 +485,48 @@ final class MyVibeHTMLConfig
         return $this->state['c'] . 'backup/';
     }
 
-    public function getParentDirectory($a)
+    public function getParentDirectory($GetParentDirectoryValue1)
     {
-        if (substr_count($a, '/') > 2) return dirname($a) . '/'; else return '/';
+        if (substr_count($GetParentDirectoryValue1, '/') > 2) return dirname($GetParentDirectoryValue1) . '/'; else return '/';
     }
 
-    public function getSetting($a, $b = false)
+    public function getSetting($GetSettingValue1, $GetSettingValue2 = false)
     {
-        if ($b) {
-            if (isset($this->settings[$b][$a])) return $this->settings[$b][$a];
-        } else if (isset($this->settings[$a])) return $this->settings[$a];
+        if ($GetSettingValue2) {
+            if (isset($this->settings[$GetSettingValue2][$GetSettingValue1])) return $this->settings[$GetSettingValue2][$GetSettingValue1];
+        } else if (isset($this->settings[$GetSettingValue1])) return $this->settings[$GetSettingValue1];
     }
 
-    public function setSetting($a, $b, $c = false)
+    public function setSetting($SetSettingValue1, $SetSettingValue2, $SetSettingValue3 = false)
     {
-        if ($c) {
-            if (isset($this->settings[$c])) {
+        if ($SetSettingValue3) {
+            if (isset($this->settings[$SetSettingValue3])) {
                 $this->dirty = true;
-                return $this->settings[$c][$a] = $b;
+                return $this->settings[$SetSettingValue3][$SetSettingValue1] = $SetSettingValue2;
             }
         } else {
             $this->dirty = true;
-            return $this->settings[$a] = $b;
+            return $this->settings[$SetSettingValue1] = $SetSettingValue2;
         }
     }
 
     private function save()
     {
-        $c = [];
-        foreach ($this->settings as $a => $b) if (!is_array($b)) $c[] = $a . ' = ' . $b . self::a . self::a;
-        foreach ($this->settings as $a => $b) {
-            if (is_array($b)) {
-                $c[] = '[' . $a . ']' . self::a . self::a;
-                foreach ($b as $d => $e) $c[] = "\t" . $d . ' = ' . $e . self::a;
-                $c[] = self::a;
+        $SaveValue1 = [];
+        foreach ($this->settings as $SaveValue2 => $SaveValue3) if (!is_array($SaveValue3)) $SaveValue1[] = $SaveValue2 . ' = ' . $SaveValue3 . self::LINE_SEPARATOR . self::LINE_SEPARATOR;
+        foreach ($this->settings as $SaveValue2 => $SaveValue3) {
+            if (is_array($SaveValue3)) {
+                $SaveValue1[] = '[' . $SaveValue2 . ']' . self::LINE_SEPARATOR . self::LINE_SEPARATOR;
+                foreach ($SaveValue3 as $SaveValue4 => $SaveValue5) $SaveValue1[] = "\t" . $SaveValue4 . ' = ' . $SaveValue5 . self::LINE_SEPARATOR;
+                $SaveValue1[] = self::LINE_SEPARATOR;
             }
         }
-        $this->writeFileAtomically($this->configPath, implode('', $c), 0600);
+        $this->writeFileAtomically($this->configPath, implode('', $SaveValue1), 0600);
     }
 
-    private function writeFileAtomically($a, $b, $c = 0600)
+    private function writeFileAtomically($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3 = 0600)
     {
-        return myvibehtml_atomic_write($a, $b, $c, '.myvibehtml-config.lock');
+        return myvibehtml_atomic_write($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3, '.myvibehtml-config.lock');
     }
 
     public function isWritable()
@@ -534,201 +534,201 @@ final class MyVibeHTMLConfig
         return is_writable($this->configPath);
     }
 
-    public function getTemplate($a)
+    public function getTemplate($GetTemplateValue1)
     {
-        if (isset($this->templates[$a])) return $this->templates[$a];
+        if (isset($this->templates[$GetTemplateValue1])) return $this->templates[$GetTemplateValue1];
     }
 
-    public function replacePlaceholders($a, $b)
+    public function replacePlaceholders($ReplacePlaceholdersValue1, $ReplacePlaceholdersValue2)
     {
-        foreach ($b as $c => $d) $a = str_ireplace('{' . $c . '}', $d, $a);
-        return $a;
+        foreach ($ReplacePlaceholdersValue2 as $ReplacePlaceholdersValue3 => $ReplacePlaceholdersValue4) $ReplacePlaceholdersValue1 = str_ireplace('{' . $ReplacePlaceholdersValue3 . '}', $ReplacePlaceholdersValue4, $ReplacePlaceholdersValue1);
+        return $ReplacePlaceholdersValue1;
     }
 
-    public function localizeTemplate($a, $b)
+    public function localizeTemplate($LocalizeTemplateValue1, $LocalizeTemplateValue2)
     {
-        preg_match_all('~\{([a-z0-9_]{2,30})\}~i', $a, $c);
-        if ($c[1]) {
-            $c[1] = array_unique($c[1]);
-            foreach ($c[1] as $d) if ($e = $this->translate($d, $b)) $a = str_ireplace('{' . $d . '}', $e, $a);
+        preg_match_all('~\{([a-z0-9_]{2,30})\}~i', $LocalizeTemplateValue1, $LocalizeTemplateValue3);
+        if ($LocalizeTemplateValue3[1]) {
+            $LocalizeTemplateValue3[1] = array_unique($LocalizeTemplateValue3[1]);
+            foreach ($LocalizeTemplateValue3[1] as $LocalizeTemplateValue4) if ($LocalizeTemplateValue5 = $this->translate($LocalizeTemplateValue4, $LocalizeTemplateValue2)) $LocalizeTemplateValue1 = str_ireplace('{' . $LocalizeTemplateValue4 . '}', $LocalizeTemplateValue5, $LocalizeTemplateValue1);
         }
-        return $a;
+        return $LocalizeTemplateValue1;
     }
 
-    public function translate($a, $b)
+    public function translate($TranslateValue1, $TranslateValue2)
     {
-        if (isset($this->translations[$b][$a])) return $this->translations[$b][$a];
+        if (isset($this->translations[$TranslateValue2][$TranslateValue1])) return $this->translations[$TranslateValue2][$TranslateValue1];
     }
 }
 
 final class MyVibeHTMLController
 {
-    const a = '0.17';
+    const VERSION = '0.18';
     private $config;
     private $request;
     private $response;
     private $language;
     private $rewriteMode;
 
-    public function __construct($a, $b, $c)
+    public function __construct($ConstructValue1, $ConstructValue2, $ConstructValue3)
     {
-        $this->request = $a;
-        $this->response = $b;
-        $this->config = $c;
+        $this->request = $ConstructValue1;
+        $this->response = $ConstructValue2;
+        $this->config = $ConstructValue3;
         $this->language = $this->selectLanguage();
         $this->rewriteMode = $this->detectRewriteMode();
     }
 
-    private function normalizeRelativePath($a)
+    private function normalizeRelativePath($NormalizeRelativePathValue1)
     {
-        if (!is_string($a)) return false;
-        $a = rawurldecode(str_replace('\\', '/', $a));
-        if (strpos($a, "\0") !== false) return false;
-        $b = [];
-        foreach (explode('/', $a) as $c) {
-            if ($c == '' || $c == '.') continue;
-            if ($c == '..') {
-                if (!count($b)) return false;
-                array_pop($b);
-            } else if (strpos($c, '?') === false && strpos($c, '#') === false) $b[] = $c; else return false;
+        if (!is_string($NormalizeRelativePathValue1)) return false;
+        $NormalizeRelativePathValue1 = rawurldecode(str_replace('\\', '/', $NormalizeRelativePathValue1));
+        if (strpos($NormalizeRelativePathValue1, "\0") !== false) return false;
+        $NormalizeRelativePathValue2 = [];
+        foreach (explode('/', $NormalizeRelativePathValue1) as $NormalizeRelativePathValue3) {
+            if ($NormalizeRelativePathValue3 == '' || $NormalizeRelativePathValue3 == '.') continue;
+            if ($NormalizeRelativePathValue3 == '..') {
+                if (!count($NormalizeRelativePathValue2)) return false;
+                array_pop($NormalizeRelativePathValue2);
+            } else if (strpos($NormalizeRelativePathValue3, '?') === false && strpos($NormalizeRelativePathValue3, '#') === false) $NormalizeRelativePathValue2[] = $NormalizeRelativePathValue3; else return false;
         }
-        return implode('/', $b);
+        return implode('/', $NormalizeRelativePathValue2);
     }
 
-    private function getPublicFileUrl($a)
+    private function getPublicFileUrl($GetPublicFileUrlValue1)
     {
-        $b = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
-        $c = realpath($a);
-        if (!$b || !$c) {
-            $b = realpath($this->config->getSiteRoot());
-            $c = realpath($a);
+        $GetPublicFileUrlValue2 = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+        $GetPublicFileUrlValue3 = realpath($GetPublicFileUrlValue1);
+        if (!$GetPublicFileUrlValue2 || !$GetPublicFileUrlValue3) {
+            $GetPublicFileUrlValue2 = realpath($this->config->getSiteRoot());
+            $GetPublicFileUrlValue3 = realpath($GetPublicFileUrlValue1);
         }
-        if (!$b || !$c) return $this->config->getSiteUrl();
-        $b = str_replace('\\', '/', $b);
-        $c = str_replace('\\', '/', $c);
-        $d = rtrim($b, '/') . '/';
-        if (strpos($c, $d) !== 0) {
-            $b = str_replace('\\', '/', realpath($this->config->getSiteRoot()));
-            $d = rtrim($b, '/') . '/';
-            if (strpos($c, $d) !== 0) return $this->config->getSiteUrl();
+        if (!$GetPublicFileUrlValue2 || !$GetPublicFileUrlValue3) return $this->config->getSiteUrl();
+        $GetPublicFileUrlValue2 = str_replace('\\', '/', $GetPublicFileUrlValue2);
+        $GetPublicFileUrlValue3 = str_replace('\\', '/', $GetPublicFileUrlValue3);
+        $GetPublicFileUrlValue4 = rtrim($GetPublicFileUrlValue2, '/') . '/';
+        if (strpos($GetPublicFileUrlValue3, $GetPublicFileUrlValue4) !== 0) {
+            $GetPublicFileUrlValue2 = str_replace('\\', '/', realpath($this->config->getSiteRoot()));
+            $GetPublicFileUrlValue4 = rtrim($GetPublicFileUrlValue2, '/') . '/';
+            if (strpos($GetPublicFileUrlValue3, $GetPublicFileUrlValue4) !== 0) return $this->config->getSiteUrl();
         }
-        $e = $this->normalizeRelativePath(substr($c, strlen($d)));
-        if ($e === false || $e === '') return $this->config->getSiteUrl();
-        $f = array_map('rawurlencode', explode('/', $e));
-        return rtrim($this->config->getSiteUrl(), '/') . '/' . implode('/', $f);
+        $GetPublicFileUrlValue5 = $this->normalizeRelativePath(substr($GetPublicFileUrlValue3, strlen($GetPublicFileUrlValue4)));
+        if ($GetPublicFileUrlValue5 === false || $GetPublicFileUrlValue5 === '') return $this->config->getSiteUrl();
+        $GetPublicFileUrlValue6 = array_map('rawurlencode', explode('/', $GetPublicFileUrlValue5));
+        return rtrim($this->config->getSiteUrl(), '/') . '/' . implode('/', $GetPublicFileUrlValue6);
     }
 
-    private function getSiteRelativePath($a, $allowEditorBase = false)
+    private function getSiteRelativePath($GetSiteRelativePathValue1, $allowEditorBase = false)
     {
-        if (!is_string($a)) return false;
-        $a = str_replace('\\', '/', $a);
-        if (preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//~i', $a)) {
-            $b = parse_url($a);
-            $c = $this->request->getServer(k_);
-            if (!is_array($b) || !isset($b['host']) || !$c || strcasecmp($b['host'], $c) !== 0 || isset($b['query']) || isset($b['fragment'])) return false;
-            $a = isset($b['path']) ? $b['path'] : '/';
+        if (!is_string($GetSiteRelativePathValue1)) return false;
+        $GetSiteRelativePathValue1 = str_replace('\\', '/', $GetSiteRelativePathValue1);
+        if (preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//~i', $GetSiteRelativePathValue1)) {
+            $GetSiteRelativePathValue2 = parse_url($GetSiteRelativePathValue1);
+            $GetSiteRelativePathValue3 = $this->request->getServer(REQUEST_SERVER_NAME);
+            if (!is_array($GetSiteRelativePathValue2) || !isset($GetSiteRelativePathValue2['host']) || !$GetSiteRelativePathValue3 || strcasecmp($GetSiteRelativePathValue2['host'], $GetSiteRelativePathValue3) !== 0 || isset($GetSiteRelativePathValue2['query']) || isset($GetSiteRelativePathValue2['fragment'])) return false;
+            $GetSiteRelativePathValue1 = isset($GetSiteRelativePathValue2['path']) ? $GetSiteRelativePathValue2['path'] : '/';
         }
-        $b = str_replace('\\', '/', $this->config->getSiteUrl());
-        $c = str_replace('\\', '/', $this->config->getSiteUrlBase());
-        if ($allowEditorBase && $c !== '' && strpos($a, $c) === 0) return $this->normalizeRelativePath(substr($a, strlen($c)));
-        if ($b === '' || strpos($a, $b) !== 0) return false;
-        return $this->normalizeRelativePath(substr($a, strlen($b)));
+        $GetSiteRelativePathValue2 = str_replace('\\', '/', $this->config->getSiteUrl());
+        $GetSiteRelativePathValue3 = str_replace('\\', '/', $this->config->getSiteUrlBase());
+        if ($allowEditorBase && $GetSiteRelativePathValue3 !== '' && strpos($GetSiteRelativePathValue1, $GetSiteRelativePathValue3) === 0) return $this->normalizeRelativePath(substr($GetSiteRelativePathValue1, strlen($GetSiteRelativePathValue3)));
+        if ($GetSiteRelativePathValue2 === '' || strpos($GetSiteRelativePathValue1, $GetSiteRelativePathValue2) !== 0) return false;
+        return $this->normalizeRelativePath(substr($GetSiteRelativePathValue1, strlen($GetSiteRelativePathValue2)));
     }
 
-    private function getSafeSitePath($a, $b = false)
+    private function getSafeSitePath($GetSafeSitePathValue1, $GetSafeSitePathValue2 = false)
     {
-        $a = $this->normalizeRelativePath($a);
-        if ($a === false) return false;
-        $c = rtrim(str_replace('\\', '/', $this->config->getSiteRoot()), '/');
-        if ($c === '') $c = '/';
-        $d = $a === '' ? $c : ($c === '/' ? '/' . $a : $c . '/' . $a);
-        return $this->isSafeSitePath($d, $b);
+        $GetSafeSitePathValue1 = $this->normalizeRelativePath($GetSafeSitePathValue1);
+        if ($GetSafeSitePathValue1 === false) return false;
+        $GetSafeSitePathValue3 = rtrim(str_replace('\\', '/', $this->config->getSiteRoot()), '/');
+        if ($GetSafeSitePathValue3 === '') $GetSafeSitePathValue3 = '/';
+        $GetSafeSitePathValue4 = $GetSafeSitePathValue1 === '' ? $GetSafeSitePathValue3 : ($GetSafeSitePathValue3 === '/' ? '/' . $GetSafeSitePathValue1 : $GetSafeSitePathValue3 . '/' . $GetSafeSitePathValue1);
+        return $this->isSafeSitePath($GetSafeSitePathValue4, $GetSafeSitePathValue2);
     }
 
-    private function isSafeSitePath($a, $b = false)
+    private function isSafeSitePath($IsSafeSitePathValue1, $IsSafeSitePathValue2 = false)
     {
-        $c = realpath($this->config->getSiteRoot());
-        if ($c === false) return false;
-        $c = rtrim(str_replace('\\', '/', $c), '/');
-        if ($c === '') $c = '/';
-        $d = realpath($a);
-        if ($d === false) {
-            if (!$b) return false;
-            $d = realpath(dirname($a));
+        $IsSafeSitePathValue3 = realpath($this->config->getSiteRoot());
+        if ($IsSafeSitePathValue3 === false) return false;
+        $IsSafeSitePathValue3 = rtrim(str_replace('\\', '/', $IsSafeSitePathValue3), '/');
+        if ($IsSafeSitePathValue3 === '') $IsSafeSitePathValue3 = '/';
+        $IsSafeSitePathValue4 = realpath($IsSafeSitePathValue1);
+        if ($IsSafeSitePathValue4 === false) {
+            if (!$IsSafeSitePathValue2) return false;
+            $IsSafeSitePathValue4 = realpath(dirname($IsSafeSitePathValue1));
         }
-        if ($d === false) return false;
-        $d = rtrim(str_replace('\\', '/', $d), '/');
-        if ($d === '') $d = '/';
-        if ($d !== $c && strpos($d . '/', $c . '/') !== 0) return false;
-        return $a;
+        if ($IsSafeSitePathValue4 === false) return false;
+        $IsSafeSitePathValue4 = rtrim(str_replace('\\', '/', $IsSafeSitePathValue4), '/');
+        if ($IsSafeSitePathValue4 === '') $IsSafeSitePathValue4 = '/';
+        if ($IsSafeSitePathValue4 !== $IsSafeSitePathValue3 && strpos($IsSafeSitePathValue4 . '/', $IsSafeSitePathValue3 . '/') !== 0) return false;
+        return $IsSafeSitePathValue1;
     }
 
-    private function normalizeUploadFilename($a)
+    private function normalizeUploadFilename($NormalizeUploadFilenameValue1)
     {
-        if (!is_string($a)) return false;
-        $a = rawurldecode(str_replace('\\', '/', $a));
-        if (strpos($a, "\0") !== false) return false;
-        $a = basename($a);
-        if ($a == '' || $a == '.' || $a == '..') return false;
-        return $a;
+        if (!is_string($NormalizeUploadFilenameValue1)) return false;
+        $NormalizeUploadFilenameValue1 = rawurldecode(str_replace('\\', '/', $NormalizeUploadFilenameValue1));
+        if (strpos($NormalizeUploadFilenameValue1, "\0") !== false) return false;
+        $NormalizeUploadFilenameValue1 = basename($NormalizeUploadFilenameValue1);
+        if ($NormalizeUploadFilenameValue1 == '' || $NormalizeUploadFilenameValue1 == '.' || $NormalizeUploadFilenameValue1 == '..') return false;
+        return $NormalizeUploadFilenameValue1;
     }
 
-    private function escapeHtml($a)
+    private function escapeHtml($EscapeHtmlValue1)
     {
-        return htmlspecialchars((string)$a, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars((string)$EscapeHtmlValue1, ENT_QUOTES, 'UTF-8');
     }
 
     public function authenticate()
     {
-        $a = $this->request->getCookie(__ . o_, _p);
-        if ($a && $a == $this->config->getSetting(o_)) $this->dispatch(); else {
-            $b = time();
-            $c = myvibehtml_unserialize_array(urldecode($this->config->getSetting(t_)));
-            $d = $this->config->getSetting(u_);
-            $e = $this->request->getServer(g_);
-            if ($c && isset($c[$e])) $f = $c[$e]; else$f = 0;
-            if ($this->request->getPost() && $this->request->getServer(_m)) {
-                $g = $this->request->getPost(n_, _p);
-                if ($g && ($f < $d || $this->config->getSetting(s_) + ($this->config->getSetting(v_) * 60) < $b)) {
-                    $h = $this->config->getSetting(n_);
-                    $i = $this->config->getSetting(q_) * 1;
-                    $j = $this->config->getSetting(p_) * 1;
-                    $k = $j - $i;
-                    for ($l = 0; $l < $k; $l++) $g = sha1($g);
-                    if ($h == $g) {
+        $AuthenticateValue1 = $this->request->getCookie(COOKIE_PREFIX . SETTING_SESSION, HASH_ALGORITHM);
+        if ($AuthenticateValue1 && $AuthenticateValue1 == $this->config->getSetting(SETTING_SESSION)) $this->dispatch(); else {
+            $AuthenticateValue2 = time();
+            $AuthenticateValue3 = myvibehtml_unserialize_array(urldecode($this->config->getSetting(SETTING_AUTH_ERROR_LIST)));
+            $AuthenticateValue4 = $this->config->getSetting(SETTING_AUTH_ERROR_LIMIT);
+            $AuthenticateValue5 = $this->request->getServer(REQUEST_REMOTE_ADDR);
+            if ($AuthenticateValue3 && isset($AuthenticateValue3[$AuthenticateValue5])) $AuthenticateValue6 = $AuthenticateValue3[$AuthenticateValue5]; else$AuthenticateValue6 = 0;
+            if ($this->request->getPost() && $this->request->getServer(REQUEST_AJAX_HEADER)) {
+                $AuthenticateValue7 = $this->request->getPost(SETTING_PASSWORD, HASH_ALGORITHM);
+                if ($AuthenticateValue7 && ($AuthenticateValue6 < $AuthenticateValue4 || $this->config->getSetting(SETTING_AUTH_ERROR_TIME) + ($this->config->getSetting(SETTING_AUTH_LOCKOUT_DURATION) * 60) < $AuthenticateValue2)) {
+                    $AuthenticateValue8 = $this->config->getSetting(SETTING_PASSWORD);
+                    $AuthenticateValue9 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS) * 1;
+                    $AuthenticateValue10 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY) * 1;
+                    $AuthenticateValue11 = $AuthenticateValue10 - $AuthenticateValue9;
+                    for ($AuthenticateValue12 = 0; $AuthenticateValue12 < $AuthenticateValue11; $AuthenticateValue12++) $AuthenticateValue7 = sha1($AuthenticateValue7);
+                    if ($AuthenticateValue8 == $AuthenticateValue7) {
                         if ($this->config->isWritable()) {
                             $this->createSession();
-                            if (isset($c[$e])) {
-                                unset($c[$e]);
-                                $this->config->setSetting(t_, urlencode(serialize($c)));
+                            if (isset($AuthenticateValue3[$AuthenticateValue5])) {
+                                unset($AuthenticateValue3[$AuthenticateValue5]);
+                                $this->config->setSetting(SETTING_AUTH_ERROR_LIST, urlencode(serialize($AuthenticateValue3)));
                             }
-                            if ($i < 5) $this->config->setSetting(q_, 15000); else$this->config->setSetting(q_, $i - 1);
-                            $this->config->setSetting(r_, $b);
-                            $this->config->setSetting(O_, '');
+                            if ($AuthenticateValue9 < 5) $this->config->setSetting(SETTING_PASSWORD_COMPLEXITY_JS, 15000); else$this->config->setSetting(SETTING_PASSWORD_COMPLEXITY_JS, $AuthenticateValue9 - 1);
+                            $this->config->setSetting(SETTING_AUTH_TIME, $AuthenticateValue2);
+                            $this->config->setSetting(SETTING_CACHE, '');
                         } else {
                             $this->response->addHeader('X-a:1');
-                            $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                            $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                         }
                     } else {
-                        $this->config->setSetting(s_, $b);
-                        $c[$e] = $f + 1;
-                        $this->config->setSetting(t_, urlencode(serialize($c)));
-                        $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                        $this->config->setSetting(SETTING_AUTH_ERROR_TIME, $AuthenticateValue2);
+                        $AuthenticateValue3[$AuthenticateValue5] = $AuthenticateValue6 + 1;
+                        $this->config->setSetting(SETTING_AUTH_ERROR_LIST, urlencode(serialize($AuthenticateValue3)));
+                        $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
-                } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
             } else {
-                if (!$this->config->getSetting(x_) || $this->request->getServer(e_) && $this->request->getServer(f_) && preg_match('~Chrome|Firefox|Opera|Safari|AppleWebKit|Trident|MSIE~i', $this->request->getServer(f_))) {
-                    if ($f < $d || $this->config->getSetting(s_) + ($this->config->getSetting(v_) * 60) < $b) {
-                        if ($this->request->getServer(c_) === substr($this->config->getSiteUrlBase(), 0, -1)) throw new Exception($this->config->getSiteUrlBase(), 307);
-                        $m[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-                        $m[Q_] = $d;
-                        $m[R_] = $f;
-                        $m[p_] = $this->config->getSetting(q_);
-                        $m[Y_] = self::a;
-                        $n = $this->config->getTemplate('a');
-                        $n = $this->config->replacePlaceholders($n, $m);
-                        $n = $this->config->localizeTemplate($n, $this->language);
-                        $this->response->setBody($n);
+                if (!$this->config->getSetting(SETTING_AUTH_BOT_FILTER) || $this->request->getServer(REQUEST_ACCEPT_LANGUAGE) && $this->request->getServer(REQUEST_USER_AGENT) && preg_match('~Chrome|Firefox|Opera|Safari|AppleWebKit|Trident|MSIE~i', $this->request->getServer(REQUEST_USER_AGENT))) {
+                    if ($AuthenticateValue6 < $AuthenticateValue4 || $this->config->getSetting(SETTING_AUTH_ERROR_TIME) + ($this->config->getSetting(SETTING_AUTH_LOCKOUT_DURATION) * 60) < $AuthenticateValue2) {
+                        if ($this->request->getServer(REQUEST_URI) === substr($this->config->getSiteUrlBase(), 0, -1)) throw new Exception($this->config->getSiteUrlBase(), 307);
+                        $AuthenticateValue13[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+                        $AuthenticateValue13[PLACEHOLDER_ERROR_LIMIT] = $AuthenticateValue4;
+                        $AuthenticateValue13[PLACEHOLDER_ERROR_COUNT] = $AuthenticateValue6;
+                        $AuthenticateValue13[SETTING_PASSWORD_COMPLEXITY] = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS);
+                        $AuthenticateValue13[PLACEHOLDER_VERSION] = self::VERSION;
+                        $AuthenticateValue14 = $this->config->getTemplate('a');
+                        $AuthenticateValue14 = $this->config->replacePlaceholders($AuthenticateValue14, $AuthenticateValue13);
+                        $AuthenticateValue14 = $this->config->localizeTemplate($AuthenticateValue14, $this->language);
+                        $this->response->setBody($AuthenticateValue14);
                     } else throw new Exception(false, 403);
                 } else throw new Exception(false, 403);
             }
@@ -737,297 +737,282 @@ final class MyVibeHTMLController
 
     public function dispatch()
     {
-        $aa = $this->request->getQuery('q');
-        $ab = $this->getSafeSitePath($aa);
-        if (!$aa || !preg_match('~\.[a-z]{2,5}$~i', $aa)) {
-            if ($this->request->getServer(i_) != str_replace('\\', '/', __FILE__)) $this->ensureRewriteBase();
-            $ac = $this->getSafeSitePath($this->config->getSetting(D_));
-            if (!file_exists($ac) && ($ad = $this->findDefaultFile())) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $ad, 307); else throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(D_), 307);
+        $DispatchValue1 = $this->request->getQuery('q');
+        $DispatchValue2 = $this->getSafeSitePath($DispatchValue1);
+        if (!$DispatchValue1 || !preg_match('~\.[a-z]{2,5}$~i', $DispatchValue1)) {
+            if ($this->request->getServer(REQUEST_SCRIPT_FILENAME) != str_replace('\\', '/', __FILE__)) $this->ensureRewriteBase();
+            $DispatchValue3 = $this->getSafeSitePath($this->config->getSetting(SETTING_DEFAULT_FILE));
+            if (!file_exists($DispatchValue3) && ($DispatchValue4 = $this->findDefaultFile())) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $DispatchValue4, 307); else throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(SETTING_DEFAULT_FILE), 307);
         }
         $sitePrefix = trim($this->config->getSiteUrlBase(), '/');
-        if ($sitePrefix !== '' && stripos($aa, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(D_), 307);
-        if ($this->request->getServer(_m)) {
-            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($ae = $this->request->getPost('save')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $ae = str_replace(_L, _K, base64_decode(str_replace('_', 'a', $ae)));
-                $ae = str_replace(_J, _I, $ae);
-                if ($ab && $this->isAllowedExtension(strtolower(substr($ab, strripos($ab, '.') + 1)))) {
-                    if ($this->createBackup($aa)) {
-                        if ($this->writeFileAtomically($ab, $ae)) {
-                            $this->config->setSetting(O_, '');
+        if ($sitePrefix !== '' && stripos($DispatchValue1, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(SETTING_DEFAULT_FILE), 307);
+        if ($this->request->getServer(REQUEST_AJAX_HEADER)) {
+            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($DispatchValue5 = $this->request->getPost('save')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $DispatchValue5 = str_replace(SAFE_CLOSING_SCRIPT_TAG, CLOSING_SCRIPT_TAG, base64_decode(str_replace('_', 'a', $DispatchValue5)));
+                $DispatchValue5 = str_replace(SAFE_SCRIPT_TAG, SCRIPT_TAG, $DispatchValue5);
+                if ($DispatchValue2 && $this->isAllowedExtension(strtolower(substr($DispatchValue2, strripos($DispatchValue2, '.') + 1)))) {
+                    if ($this->createBackup($DispatchValue1)) {
+                        if ($this->writeFileAtomically($DispatchValue2, $DispatchValue5)) {
+                            $this->config->setSetting(SETTING_CACHE, '');
                         } else {
                             $this->response->addHeader('X-a:1');
-                            $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                            $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                         }
                     } else {
                         $this->response->addHeader('X-b:1');
-                        $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                        $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
-                } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-            } else if ($ah = $this->request->getPost('open')) {
-                $ah = rawurldecode($ah);
-                $this->response->setBody($this->renderFileList($ah));
-            } else if (($ah = $this->request->getPost('upload')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $ah = rawurldecode($ah);
-                $uploadDirectory = $this->getSiteRelativePath($ah);
-                $ai = $uploadDirectory === false ? false : $this->getSafeSitePath($uploadDirectory);
-                $aj = $this->request->getFile(_C);
-                if (isset($aj[_G]) && is_dir($ai)) {
+                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+            } else if ($DispatchValue7 = $this->request->getPost('open')) {
+                $DispatchValue7 = rawurldecode($DispatchValue7);
+                $this->response->setBody($this->renderFileList($DispatchValue7));
+            } else if (($DispatchValue7 = $this->request->getPost('upload')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $DispatchValue7 = rawurldecode($DispatchValue7);
+                $uploadDirectory = $this->getSiteRelativePath($DispatchValue7);
+                $DispatchValue8 = $uploadDirectory === false ? false : $this->getSafeSitePath($uploadDirectory);
+                $DispatchValue9 = $this->request->getFile(FILE_CONTENT);
+                if (isset($DispatchValue9[FILE_TMP_NAME]) && is_dir($DispatchValue8)) {
                     $uploadOutput = '';
                     $uploadTemplate = $this->config->getTemplate('b');
-                    $allowedPattern = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(C_)));
-                    foreach ($aj[_G] as $ao => $ap) {
-                        $uploadName = $this->normalizeUploadFilename($aj[_y][$ao]);
+                    $allowedPattern = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_EDITABLE_EXTENSIONS)));
+                    foreach ($DispatchValue9[FILE_TMP_NAME] as $DispatchValue10 => $DispatchValue11) {
+                        $uploadName = $this->normalizeUploadFilename($DispatchValue9[FILE_NAME][$DispatchValue10]);
                         if ($uploadName && $this->isAllowedExtension(strtolower(substr($uploadName, strripos($uploadName, '.') + 1)))) {
-                            if (!$aj[_D][$ao]) {
+                            if (!$DispatchValue9[FILE_ERROR][$DispatchValue10]) {
                                 $relativeFile = $uploadDirectory === '' ? $uploadName : $uploadDirectory . '/' . $uploadName;
-                                $ab = $this->getSafeSitePath($relativeFile, true);
-                                if ($ab && $this->createBackup($relativeFile, true) && move_uploaded_file($ap, $ab)) {
-                                    $fileEntry[_y] = $this->escapeHtml($uploadName);
-                                    $fileEntry[_z] = $this->escapeHtml(filemtime($ab));
-                                    $fileEntry[_A] = $this->escapeHtml(filesize($ab));
+                                $DispatchValue2 = $this->getSafeSitePath($relativeFile, true);
+                                if ($DispatchValue2 && $this->createBackup($relativeFile, true) && move_uploaded_file($DispatchValue11, $DispatchValue2)) {
+                                    $fileEntry[FILE_NAME] = $this->escapeHtml($uploadName);
+                                    $fileEntry[FILE_DATE] = $this->escapeHtml(filemtime($DispatchValue2));
+                                    $fileEntry[FILE_SIZE] = $this->escapeHtml(filesize($DispatchValue2));
                                     preg_match('~\.(?:' . $allowedPattern . ')$~i', $uploadName, $extensionMatch);
-                                    if (isset($extensionMatch[0])) $fileEntry[_x] = $this->escapeHtml($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $relativeFile); else$fileEntry[_x] = $this->escapeHtml($ah . $uploadName);
+                                    if (isset($extensionMatch[0])) $fileEntry[FILE_URL] = $this->escapeHtml($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $relativeFile); else$fileEntry[FILE_URL] = $this->escapeHtml($DispatchValue7 . $uploadName);
                                     $uploadOutput .= $this->config->localizeTemplate($this->config->replacePlaceholders($uploadTemplate, $fileEntry), $this->language);
-                                } else$as = true;
-                            } else$at = true;
-                        } else$au = true;
+                                } else$DispatchValue12 = true;
+                            } else$DispatchValue13 = true;
+                        } else$DispatchValue14 = true;
                         if ($uploadOutput !== '') {
-                            $this->config->setSetting(O_, '');
-                            $this->response->addHeader('X-c:' . $this->getDirectorySize($ah));
+                            $this->config->setSetting(SETTING_CACHE, '');
+                            $this->response->addHeader('X-c:' . $this->getDirectorySize($DispatchValue7));
                             $this->response->setBody($uploadOutput);
                         }
-                        if (isset($au)) $this->response->addHeader('X-d:1'); else if (isset($as)) $this->response->addHeader('X-b:1'); else if (isset($at)) $this->response->addHeader('X-e:1');
+                        if (isset($DispatchValue14)) $this->response->addHeader('X-d:1'); else if (isset($DispatchValue12)) $this->response->addHeader('X-b:1'); else if (isset($DispatchValue13)) $this->response->addHeader('X-e:1');
                     }
-                } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-            } else if (($av = $this->request->getPost('remove')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $av = rawurldecode($av);
-                $removeRelative = $this->getSiteRelativePath($av, true);
-                $ab = $removeRelative === false ? false : $this->getSafeSitePath($removeRelative);
-                if ($ab && $this->isAllowedExtension(strtolower(substr($ab, strripos($ab, '.') + 1)))) {
+                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+            } else if (($DispatchValue15 = $this->request->getPost('remove')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $DispatchValue15 = rawurldecode($DispatchValue15);
+                $removeRelative = $this->getSiteRelativePath($DispatchValue15, true);
+                $DispatchValue2 = $removeRelative === false ? false : $this->getSafeSitePath($removeRelative);
+                if ($DispatchValue2 && $this->isAllowedExtension(strtolower(substr($DispatchValue2, strripos($DispatchValue2, '.') + 1)))) {
                     if ($this->createBackup($removeRelative)) {
-                        if (is_file($ab) && unlink($ab)) {
-                            $this->config->setSetting(O_, '');
+                        if (is_file($DispatchValue2) && unlink($DispatchValue2)) {
+                            $this->config->setSetting(SETTING_CACHE, '');
                             $removeDirectory = dirname($removeRelative);
                             $removeDirectory = $this->config->getSiteUrl() . ($removeDirectory == '.' ? '' : $removeDirectory . '/');
                             $this->response->addHeader('X-c:' . $this->getDirectorySize($removeDirectory));
-                        } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                        } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     } else {
                         $this->response->addHeader('X-b:1');
-                        $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                        $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
                 } else {
                     $this->response->addHeader('X-d:1');
-                    $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                    $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($av = $this->request->getPost('replace')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $av = rawurldecode($av);
-                $aw = $this->request->getFile(_C);
-                $replaceName = isset($aw[_y]) ? $this->normalizeUploadFilename($aw[_y]) : false;
-                $replaceRelative = $this->getSiteRelativePath($av, true);
-                $ab = $replaceRelative === false ? false : $this->getSafeSitePath($replaceRelative);
-                if (isset($aw[_G]) && $aw[_D] < 1 && $replaceName && $this->isAllowedExtension(strtolower(substr($replaceName, strripos($replaceName, '.') + 1)))) {
-                    if ($ab && file_exists($ab)) {
+            } else if (($DispatchValue15 = $this->request->getPost('replace')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $DispatchValue15 = rawurldecode($DispatchValue15);
+                $DispatchValue16 = $this->request->getFile(FILE_CONTENT);
+                $replaceName = isset($DispatchValue16[FILE_NAME]) ? $this->normalizeUploadFilename($DispatchValue16[FILE_NAME]) : false;
+                $replaceRelative = $this->getSiteRelativePath($DispatchValue15, true);
+                $DispatchValue2 = $replaceRelative === false ? false : $this->getSafeSitePath($replaceRelative);
+                if (isset($DispatchValue16[FILE_TMP_NAME]) && $DispatchValue16[FILE_ERROR] < 1 && $replaceName && $this->isAllowedExtension(strtolower(substr($replaceName, strripos($replaceName, '.') + 1)))) {
+                    if ($DispatchValue2 && file_exists($DispatchValue2)) {
                         if ($this->createBackup($replaceRelative)) {
-                            $ay = dirname($ab) . '/';
-                            $az = $this->normalizeImageFilename($ay, $replaceName);
-                            if ($az && move_uploaded_file($aw[_G], $az)) {
-                                $this->config->setSetting(O_, '');
+                            $DispatchValue17 = dirname($DispatchValue2) . '/';
+                            $DispatchValue18 = $this->normalizeImageFilename($DispatchValue17, $replaceName);
+                            if ($DispatchValue18 && move_uploaded_file($DispatchValue16[FILE_TMP_NAME], $DispatchValue18)) {
+                                $this->config->setSetting(SETTING_CACHE, '');
                                 $replaceDirectory = dirname($replaceRelative);
                                 $replaceDirectory = $this->config->getSiteUrl() . ($replaceDirectory == '.' ? '' : $replaceDirectory . '/');
-                                $this->response->setBody($replaceDirectory . basename($az));
-                            } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                                $this->response->setBody($replaceDirectory . basename($DispatchValue18));
+                            } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                         } else {
                             $this->response->addHeader('X-b:1');
-                            $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                            $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                         }
                     } else {
-                        $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                        $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
                 } else {
                     $this->response->addHeader('X-d:1');
-                    $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                    $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($aA = $this->request->getPost('settings')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                if ($aA[n_]) {
-                    $aB = $this->config->getSetting(n_);
-                    $aC = $this->config->getSetting(p_) - $this->config->getSetting(q_);
-                    for ($aD = 0; $aD < $aC; $aD++) $aA[n_] = sha1($aA[n_]);
-                    if ($aA[n_] != $aB) $this->config->setSetting(n_, $aA[n_]);
+            } else if (($DispatchValue19 = $this->request->getPost('settings')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                if ($DispatchValue19[SETTING_PASSWORD]) {
+                    $DispatchValue20 = $this->config->getSetting(SETTING_PASSWORD);
+                    $DispatchValue21 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY) - $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS);
+                    for ($DispatchValue22 = 0; $DispatchValue22 < $DispatchValue21; $DispatchValue22++) $DispatchValue19[SETTING_PASSWORD] = sha1($DispatchValue19[SETTING_PASSWORD]);
+                    if ($DispatchValue19[SETTING_PASSWORD] != $DispatchValue20) $this->config->setSetting(SETTING_PASSWORD, $DispatchValue19[SETTING_PASSWORD]);
                 }
-                if ($aA[m_] && $aA[m_] != $this->language) {
-                    if (stripos($aE = $this->config->getSetting(m_), ',') && stripos($aE, $aA[m_]) !== false) {
-                        if ($aA[m_] != $this->request->getServer(e_)) $this->response->setCookie(__ . m_, $aA[m_], time() + 60 * 60 * 24 * 365, $this->config->getSiteUrlBase(), false, false, true); else$this->response->clearCookie(__ . m_, $this->config->getSiteUrlBase());
-                    } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                if ($DispatchValue19[SETTING_LANGUAGE] && $DispatchValue19[SETTING_LANGUAGE] != $this->language) {
+                    if (stripos($DispatchValue23 = $this->config->getSetting(SETTING_LANGUAGE), ',') && stripos($DispatchValue23, $DispatchValue19[SETTING_LANGUAGE]) !== false) {
+                        if ($DispatchValue19[SETTING_LANGUAGE] != $this->request->getServer(REQUEST_ACCEPT_LANGUAGE)) $this->response->setCookie(COOKIE_PREFIX . SETTING_LANGUAGE, $DispatchValue19[SETTING_LANGUAGE], time() + 60 * 60 * 24 * 365, $this->config->getSiteUrlBase(), false, false, true); else$this->response->clearCookie(COOKIE_PREFIX . SETTING_LANGUAGE, $this->config->getSiteUrlBase());
+                    } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-                if ($this->config->getSetting(D_) !== null && preg_match('~^.{1,30}$~i', $aA[D_], $ar) && isset($ar[0])) $this->config->setSetting(D_, $aA[D_]); else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-                unset($aA[n_], $aA[m_], $aA[D_]);
-                foreach ($aA as $ao => $aF) {
-                    if ($this->config->getSetting($ao) !== null && preg_match('~^[0-9]{1,7}$~i', $aF, $ar) && isset($ar[0])) $this->config->setSetting($ao, $aF); else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                if ($this->config->getSetting(SETTING_DEFAULT_FILE) !== null && preg_match('~^.{1,30}$~i', $DispatchValue19[SETTING_DEFAULT_FILE], $DispatchValue24) && isset($DispatchValue24[0])) $this->config->setSetting(SETTING_DEFAULT_FILE, $DispatchValue19[SETTING_DEFAULT_FILE]); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+                unset($DispatchValue19[SETTING_PASSWORD], $DispatchValue19[SETTING_LANGUAGE], $DispatchValue19[SETTING_DEFAULT_FILE]);
+                foreach ($DispatchValue19 as $DispatchValue10 => $DispatchValue25) {
+                    if ($this->config->getSetting($DispatchValue10) !== null && preg_match('~^[0-9]{1,7}$~i', $DispatchValue25, $DispatchValue24) && isset($DispatchValue24[0])) $this->config->setSetting($DispatchValue10, $DispatchValue25); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($ah = $this->request->getPost('recovery')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $ah = rawurldecode($ah);
-                $recoveryRelative = $this->getSiteRelativePath($ah);
-                $ai = $recoveryRelative === false ? false : $this->getSafeSitePath($recoveryRelative);
-                if ($ai) $ai = rtrim($ai, '/') . '/';
-                if ($ai && is_dir($ai) && is_writable($this->config->getBackupRoot()) && $aG = opendir($ai)) {
-                    while (($aH = readdir($aG)) !== false) {
-                        if ($aH != '.' && $aH != '..' && is_file($ai . $aH) && !is_link($ai . $aH)) {
-                            $aH = str_ireplace('ꜜ', '[~]', $aH);
-                            if (substr($aH, 0, 3) == '[~]') {
-                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', substr($aH, 3)));
-                                $ab = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
-                                if ($ab && file_exists($ab)) if (!unlink($ab)) $aI = true;
+            } else if (($DispatchValue7 = $this->request->getPost('recovery')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $DispatchValue7 = rawurldecode($DispatchValue7);
+                $recoveryRelative = $this->getSiteRelativePath($DispatchValue7);
+                $DispatchValue8 = $recoveryRelative === false ? false : $this->getSafeSitePath($recoveryRelative);
+                if ($DispatchValue8) $DispatchValue8 = rtrim($DispatchValue8, '/') . '/';
+                if ($DispatchValue8 && is_dir($DispatchValue8) && is_writable($this->config->getBackupRoot()) && $DispatchValue26 = opendir($DispatchValue8)) {
+                    while (($DispatchValue27 = readdir($DispatchValue26)) !== false) {
+                        if ($DispatchValue27 != '.' && $DispatchValue27 != '..' && is_file($DispatchValue8 . $DispatchValue27) && !is_link($DispatchValue8 . $DispatchValue27)) {
+                            $DispatchValue27 = str_ireplace('ꜜ', '[~]', $DispatchValue27);
+                            if (substr($DispatchValue27, 0, 3) == '[~]') {
+                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', substr($DispatchValue27, 3)));
+                                $DispatchValue2 = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
+                                if ($DispatchValue2 && file_exists($DispatchValue2)) if (!unlink($DispatchValue2)) $DispatchValue28 = true;
                             } else {
-                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', $aH));
-                                $ab = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
-                                if (!$ab || !copy($ai . $aH, $ab)) $aI = true;
+                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', $DispatchValue27));
+                                $DispatchValue2 = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
+                                if (!$DispatchValue2 || !copy($DispatchValue8 . $DispatchValue27, $DispatchValue2)) $DispatchValue28 = true;
                             }
-                            if (!unlink($ai . str_ireplace('[~]', 'ꜜ', $aH))) $aI = true;
+                            if (!unlink($DispatchValue8 . str_ireplace('[~]', 'ꜜ', $DispatchValue27))) $DispatchValue28 = true;
                         }
                     }
-                    closedir($aG);
-                    $this->config->setSetting(O_, '');
-                    if (!isset($aI)) {
-                        if (!rmdir($ai)) $this->response->setStatus(404, $this->config->translate(_t, 'en'));
-                    } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-                } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-            } else if (($aJ = $this->request->getPost('scripts')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                if ($this->config->getSetting(K_) !== null) $this->config->setSetting(K_, '0'); else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-            } /*else if (($aK = $this->request->getPost('install')) && ($af = $this->request->getPost(_o, _p)) && ($af == $this->request->getCookie(__ . _o, _p))) {
-                $this->response->clearCookie(__ . _o);
-                $aw = $this->config->getEditorDirectory() . 'update.php';
-                preg_match('~^[a-z0-9+=/_]+$~i', $aK, $ar);
-                if (isset($ar[0]) && ($aK = base64_decode(str_replace('_', 'a', $aK))) && ($ag = fopen($aw, 'w'))) {
-                    flock($ag, LOCK_EX);
-                    $aL = fwrite($ag, $aK);
-                    flock($ag, LOCK_UN);
-                    fclose($ag);
-                    if ($aL) {
-                        $aq = include $aw;
-                        if ($aq == _D) $this->response->setStatus(404, $this->config->translate(_t, 'en')); else if (file_exists($this->config->getSiteRoot() . $aq)) $this->response->setBody($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $aq);
-                        unlink($aw);
-                    } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-                } else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
-            }*/ else$this->response->setStatus(404, $this->config->translate(_t, 'en'));
+                    closedir($DispatchValue26);
+                    $this->config->setSetting(SETTING_CACHE, '');
+                    if (!isset($DispatchValue28)) {
+                        if (!rmdir($DispatchValue8)) $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+                    } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+            } else if (($DispatchValue29 = $this->request->getPost('scripts')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                if ($this->config->getSetting(SETTING_SITE_SCRIPTS) !== null) $this->config->setSetting(SETTING_SITE_SCRIPTS, '0'); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+            } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
         } else {
             $this->createSession();
-            if (file_exists($ab)) {
-                $aM = strtolower(substr($ab, strripos($ab, '.') + 1));
-                if ($this->isAllowedExtension($aM)) {
-                    $aN = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(_s)));
-                    preg_match('~^' . $aN . '$~i', $aM, $ar);
-                    if (isset($ar[0])) {
-                        $aO = $this->request->getCookie(__ . _q);
-                        $aP = $this->request->getPost('switch');
-                        if ($aO) {
-                            if ($aP === '0') {
-                                $this->response->clearCookie(__ . _q, $this->config->getSiteUrlBase());
-                                $this->renderVisualEditor($ab);
-                            } else$this->renderSourceEditor($ab);
+            if (file_exists($DispatchValue2)) {
+                $DispatchValue30 = strtolower(substr($DispatchValue2, strripos($DispatchValue2, '.') + 1));
+                if ($this->isAllowedExtension($DispatchValue30)) {
+                    $DispatchValue31 = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_VISUAL_EXTENSIONS)));
+                    preg_match('~^' . $DispatchValue31 . '$~i', $DispatchValue30, $DispatchValue24);
+                    if (isset($DispatchValue24[0])) {
+                        $DispatchValue32 = $this->request->getCookie(COOKIE_PREFIX . QUERY_HTML);
+                        $DispatchValue33 = $this->request->getPost('switch');
+                        if ($DispatchValue32) {
+                            if ($DispatchValue33 === '0') {
+                                $this->response->clearCookie(COOKIE_PREFIX . QUERY_HTML, $this->config->getSiteUrlBase());
+                                $this->renderVisualEditor($DispatchValue2);
+                            } else$this->renderSourceEditor($DispatchValue2);
                         } else {
-                            if ($aP === '1') {
-                                $this->response->setCookie(__ . _q, 1, time() + 60 * 60 * 24 * 90, $this->config->getSiteUrlBase(), false, false, true);
-                                $this->renderSourceEditor($ab);
-                            } else$this->renderVisualEditor($ab);
+                            if ($DispatchValue33 === '1') {
+                                $this->response->setCookie(COOKIE_PREFIX . QUERY_HTML, 1, time() + 60 * 60 * 24 * 90, $this->config->getSiteUrlBase(), false, false, true);
+                                $this->renderSourceEditor($DispatchValue2);
+                            } else$this->renderVisualEditor($DispatchValue2);
                         }
-                    } else$this->renderSourceEditor($ab);
-                } else$this->renderErrorPage(_u);
-            } else$this->renderErrorPage(_t);
+                    } else$this->renderSourceEditor($DispatchValue2);
+                } else$this->renderErrorPage(HTTP_STATUS_FORBIDDEN);
+            } else$this->renderErrorPage(HTTP_STATUS_NOT_FOUND);
         }
     }
 
-    public function renderVisualEditor($a)
+    public function renderVisualEditor($RenderVisualEditorValue1)
     {
-        $b[X_] = $this->config->translate('visual_editor', $this->language);
-        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $b[Y_] = self::a;
-        $b[V_] = $this->escapeHtml($this->config->getSiteUrl());
-        $c = $this->request->getQuery('q');
-        if ($d = strripos($c, '/')) $b[V_] .= substr($c, 0, $d + 1);
-        $b['panel'] = $this->renderPanel($a);
-        $b[_n] = $this->switchMode();
-        if (!$b[_n]) {
-            $b[_n] = $this->readHtmlFile($a);
-            $b[Z_] = '';
-        } else$b[Z_] = '1';
-        $b[_n] = str_replace('{', '!~!', $b[_n]);
-        $e = $this->config->getTemplate('c');
-        $e = $this->config->replacePlaceholders($e, $b);
-        $e = $this->config->localizeTemplate($e, $this->language);
-        $e = str_replace('!~!', '{', $e);
-        $this->response->setBody($e);
+        $RenderVisualEditorValue2[PLACEHOLDER_TITLE] = $this->config->translate('visual_editor', $this->language);
+        $RenderVisualEditorValue2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $RenderVisualEditorValue2[PLACEHOLDER_VERSION] = self::VERSION;
+        $RenderVisualEditorValue2[PLACEHOLDER_BASE] = $this->escapeHtml($this->config->getSiteUrl());
+        $RenderVisualEditorValue3 = $this->request->getQuery('q');
+        if ($RenderVisualEditorValue4 = strripos($RenderVisualEditorValue3, '/')) $RenderVisualEditorValue2[PLACEHOLDER_BASE] .= substr($RenderVisualEditorValue3, 0, $RenderVisualEditorValue4 + 1);
+        $RenderVisualEditorValue2['panel'] = $this->renderPanel($RenderVisualEditorValue1);
+        $RenderVisualEditorValue2[POST_SOURCE] = $this->switchMode();
+        if (!$RenderVisualEditorValue2[POST_SOURCE]) {
+            $RenderVisualEditorValue2[POST_SOURCE] = $this->readHtmlFile($RenderVisualEditorValue1);
+            $RenderVisualEditorValue2[PLACEHOLDER_IS_EDITED] = '';
+        } else$RenderVisualEditorValue2[PLACEHOLDER_IS_EDITED] = '1';
+        $RenderVisualEditorValue2[POST_SOURCE] = str_replace('{', '!~!', $RenderVisualEditorValue2[POST_SOURCE]);
+        $RenderVisualEditorValue5 = $this->config->getTemplate('c');
+        $RenderVisualEditorValue5 = $this->config->replacePlaceholders($RenderVisualEditorValue5, $RenderVisualEditorValue2);
+        $RenderVisualEditorValue5 = $this->config->localizeTemplate($RenderVisualEditorValue5, $this->language);
+        $RenderVisualEditorValue5 = str_replace('!~!', '{', $RenderVisualEditorValue5);
+        $this->response->setBody($RenderVisualEditorValue5);
     }
 
-    public function renderSourceEditor($a)
+    public function renderSourceEditor($RenderSourceEditorValue1)
     {
-        $b[X_] = $this->config->translate('source_editor', $this->language);
-        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $b[Y_] = self::a;
-        $b[S_] = $this->config->getSetting(y_);
-        $b[A_] = $this->config->getSetting(A_);
-        $b[z_] = $this->config->getSetting(z_);
-        $b['panel'] = $this->renderPanel($a);
-        $b[_n] = $this->switchMode();
-        if (!$b[_n]) {
-            $b[_n] = $this->readHtmlFile($a);
-            $b[Z_] = '';
-        } else$b[Z_] = '1';
-        $b[_n] = str_replace('{', '!~!', $b[_n]);
-        $c = $this->config->getTemplate('d');
-        $c = $this->config->replacePlaceholders($c, $b);
-        $c = str_replace('!~!', '{', $c);
-        $this->response->setBody($c);
+        $RenderSourceEditorValue2[PLACEHOLDER_TITLE] = $this->config->translate('source_editor', $this->language);
+        $RenderSourceEditorValue2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $RenderSourceEditorValue2[PLACEHOLDER_VERSION] = self::VERSION;
+        $RenderSourceEditorValue2[PLACEHOLDER_REDRAW_DELAY] = $this->config->getSetting(SETTING_CODE_REDRAW_DELAY);
+        $RenderSourceEditorValue2[SETTING_CODE_HIGHLIGHTING] = $this->config->getSetting(SETTING_CODE_HIGHLIGHTING);
+        $RenderSourceEditorValue2[SETTING_CODE_UNDO_LIMIT] = $this->config->getSetting(SETTING_CODE_UNDO_LIMIT);
+        $RenderSourceEditorValue2['panel'] = $this->renderPanel($RenderSourceEditorValue1);
+        $RenderSourceEditorValue2[POST_SOURCE] = $this->switchMode();
+        if (!$RenderSourceEditorValue2[POST_SOURCE]) {
+            $RenderSourceEditorValue2[POST_SOURCE] = $this->readHtmlFile($RenderSourceEditorValue1);
+            $RenderSourceEditorValue2[PLACEHOLDER_IS_EDITED] = '';
+        } else$RenderSourceEditorValue2[PLACEHOLDER_IS_EDITED] = '1';
+        $RenderSourceEditorValue2[POST_SOURCE] = str_replace('{', '!~!', $RenderSourceEditorValue2[POST_SOURCE]);
+        $RenderSourceEditorValue3 = $this->config->getTemplate('d');
+        $RenderSourceEditorValue3 = $this->config->replacePlaceholders($RenderSourceEditorValue3, $RenderSourceEditorValue2);
+        $RenderSourceEditorValue3 = str_replace('!~!', '{', $RenderSourceEditorValue3);
+        $this->response->setBody($RenderSourceEditorValue3);
     }
 
-    public function renderErrorPage($a)
+    public function renderErrorPage($RenderErrorPageValue1)
     {
-        $b[W_] = $a;
-        $b[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $b[Y_] = self::a;
-        $b['panel'] = $this->renderPanel($a);
-        $c = $this->config->getTemplate('e');
-        $c = $this->config->replacePlaceholders($c, $b);
-        return $this->config->localizeTemplate($c, $this->language);
+        $RenderErrorPageValue2[PLACEHOLDER_CODE] = $RenderErrorPageValue1;
+        $RenderErrorPageValue2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $RenderErrorPageValue2[PLACEHOLDER_VERSION] = self::VERSION;
+        $RenderErrorPageValue2['panel'] = $this->renderPanel($RenderErrorPageValue1);
+        $RenderErrorPageValue3 = $this->config->getTemplate('e');
+        $RenderErrorPageValue3 = $this->config->replacePlaceholders($RenderErrorPageValue3, $RenderErrorPageValue2);
+        return $this->config->localizeTemplate($RenderErrorPageValue3, $this->language);
     }
 
-    public function handleException($a)
+    public function handleException($HandleExceptionValue1)
     {
-        $this->response->setStatus($a->getCode(), $this->config->translate($a->getCode(), 'en'));
-        if ($b = $a->getMessage()) $this->response->redirect($b);
-        $c[W_] = $a->getCode();
-        $c[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $c[Y_] = self::a;
-        $c['panel'] = '';
-        $d = $this->config->getTemplate('e');
-        $d = $this->config->replacePlaceholders($d, $c);
-        return $this->response->setBody($this->config->localizeTemplate($d, $this->language));
+        $this->response->setStatus($HandleExceptionValue1->getCode(), $this->config->translate($HandleExceptionValue1->getCode(), 'en'));
+        if ($HandleExceptionValue2 = $HandleExceptionValue1->getMessage()) $this->response->redirect($HandleExceptionValue2);
+        $HandleExceptionValue3[PLACEHOLDER_CODE] = $HandleExceptionValue1->getCode();
+        $HandleExceptionValue3[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $HandleExceptionValue3[PLACEHOLDER_VERSION] = self::VERSION;
+        $HandleExceptionValue3['panel'] = '';
+        $HandleExceptionValue4 = $this->config->getTemplate('e');
+        $HandleExceptionValue4 = $this->config->replacePlaceholders($HandleExceptionValue4, $HandleExceptionValue3);
+        return $this->response->setBody($this->config->localizeTemplate($HandleExceptionValue4, $this->language));
     }
 
     private function selectLanguage()
     {
-        $a = $this->config->getSetting(m_);
-        if (stripos($a, ',')) {
-            $b = $this->request->getCookie(__ . m_);
-            if ($b && stripos($a, $b) !== false) return $b; else {
-                $c = substr((string)$this->request->getServer(e_), 0, 2);
-                if ($c !== '' && stripos($a, $c) !== false) return $c;
+        $SelectLanguageValue1 = $this->config->getSetting(SETTING_LANGUAGE);
+        if (stripos($SelectLanguageValue1, ',')) {
+            $SelectLanguageValue2 = $this->request->getCookie(COOKIE_PREFIX . SETTING_LANGUAGE);
+            if ($SelectLanguageValue2 && stripos($SelectLanguageValue1, $SelectLanguageValue2) !== false) return $SelectLanguageValue2; else {
+                $SelectLanguageValue3 = substr((string)$this->request->getServer(REQUEST_ACCEPT_LANGUAGE), 0, 2);
+                if ($SelectLanguageValue3 !== '' && stripos($SelectLanguageValue1, $SelectLanguageValue3) !== false) return $SelectLanguageValue3;
             }
         }
-        return substr($a, 0, 2);
+        return substr($SelectLanguageValue1, 0, 2);
     }
 
     private function detectRewriteMode()
     {
-        $a = $this->config->getSetting(F_);
-        if ($a === '1') return 1; else if ($a === '0') return 0; else {
-            if ((stripos($this->request->getServer(b_), 'q=') === 0) && (stripos($this->request->getServer(c_), $this->request->getServer(b_)) === false)) return 1; else return 0;
+        $DetectRewriteModeValue1 = $this->config->getSetting(SETTING_URL_REWRITE);
+        if ($DetectRewriteModeValue1 === '1') return 1; else if ($DetectRewriteModeValue1 === '0') return 0; else {
+            if ((stripos($this->request->getServer(REQUEST_QUERY_STRING), 'q=') === 0) && (stripos($this->request->getServer(REQUEST_URI), $this->request->getServer(REQUEST_QUERY_STRING)) === false)) return 1; else return 0;
         }
     }
 
@@ -1038,457 +1023,456 @@ final class MyVibeHTMLController
 
     private function findDefaultFile()
     {
-        $a = $this->config->getSiteRoot();
-        if ($b = opendir($a)) {
-            $c = [];
-            $d = [];
-            $e = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(_s)));
-            $f = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(C_)));
-            while (($g = readdir($b)) !== false) {
-                if ($g != '.' && $g != '..') {
-                    if (is_file($a . $g) && !is_link($a . $g)) {
-                        if (preg_match('~^index\.(?:' . $e . ')$~i', $g)) {
-                            closedir($b);
-                            return $g;
-                        } else if (preg_match('~\.(?:' . $e . ')$~i', $g)) $c[] = $g; else if (preg_match('~\.(?:' . $f . ')$~i', $g)) $d[] = $g;
+        $FindDefaultFileValue1 = $this->config->getSiteRoot();
+        if ($FindDefaultFileValue2 = opendir($FindDefaultFileValue1)) {
+            $FindDefaultFileValue3 = [];
+            $FindDefaultFileValue4 = [];
+            $FindDefaultFileValue5 = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_VISUAL_EXTENSIONS)));
+            $FindDefaultFileValue6 = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_EDITABLE_EXTENSIONS)));
+            while (($FindDefaultFileValue7 = readdir($FindDefaultFileValue2)) !== false) {
+                if ($FindDefaultFileValue7 != '.' && $FindDefaultFileValue7 != '..') {
+                    if (is_file($FindDefaultFileValue1 . $FindDefaultFileValue7) && !is_link($FindDefaultFileValue1 . $FindDefaultFileValue7)) {
+                        if (preg_match('~^index\.(?:' . $FindDefaultFileValue5 . ')$~i', $FindDefaultFileValue7)) {
+                            closedir($FindDefaultFileValue2);
+                            return $FindDefaultFileValue7;
+                        } else if (preg_match('~\.(?:' . $FindDefaultFileValue5 . ')$~i', $FindDefaultFileValue7)) $FindDefaultFileValue3[] = $FindDefaultFileValue7; else if (preg_match('~\.(?:' . $FindDefaultFileValue6 . ')$~i', $FindDefaultFileValue7)) $FindDefaultFileValue4[] = $FindDefaultFileValue7;
                     }
                 }
             }
-            closedir($b);
-            if (isset($c[0])) return $c[0]; else if (isset($d[0])) return $d[0];
+            closedir($FindDefaultFileValue2);
+            if (isset($FindDefaultFileValue3[0])) return $FindDefaultFileValue3[0]; else if (isset($FindDefaultFileValue4[0])) return $FindDefaultFileValue4[0];
         }
     }
 
     private function ensureRewriteBase()
     {
-        $a = $this->config->getEditorDirectory() . '.htaccess';
-        if (file_exists($a)) {
-            $b = file_get_contents($a);
-            preg_match('~RewriteBase (.+?)\n~i', $b, $c);
-            if (isset($c[0]) && isset($c[1])) {
-                if ($c[1] != $this->config->getSiteUrlBase()) {
-                    $b = str_replace($c[0], 'RewriteBase ' . $this->config->getSiteUrlBase() . "\n", $b);
-                    $this->writeHtaccess($b);
+        $EnsureRewriteBaseValue1 = $this->config->getEditorDirectory() . '.htaccess';
+        if (file_exists($EnsureRewriteBaseValue1)) {
+            $EnsureRewriteBaseValue2 = file_get_contents($EnsureRewriteBaseValue1);
+            preg_match('~RewriteBase (.+?)\n~i', $EnsureRewriteBaseValue2, $EnsureRewriteBaseValue3);
+            if (isset($EnsureRewriteBaseValue3[0]) && isset($EnsureRewriteBaseValue3[1])) {
+                if ($EnsureRewriteBaseValue3[1] != $this->config->getSiteUrlBase()) {
+                    $EnsureRewriteBaseValue2 = str_replace($EnsureRewriteBaseValue3[0], 'RewriteBase ' . $this->config->getSiteUrlBase() . "\n", $EnsureRewriteBaseValue2);
+                    $this->writeHtaccess($EnsureRewriteBaseValue2);
                 }
             } else {
-                $b = preg_replace('~(RewriteEngine .+?\n)~i', '$1' . "\n" . 'RewriteBase ' . $this->config->getSiteUrlBase() . "\n", $b);
-                $this->writeHtaccess($b);
+                $EnsureRewriteBaseValue2 = preg_replace('~(RewriteEngine .+?\n)~i', '$1' . "\n" . 'RewriteBase ' . $this->config->getSiteUrlBase() . "\n", $EnsureRewriteBaseValue2);
+                $this->writeHtaccess($EnsureRewriteBaseValue2);
             }
         }
     }
 
-    private function writeHtaccess($a)
+    private function writeHtaccess($WriteHtaccessValue1)
     {
-        $this->writeFileAtomically($this->config->getEditorDirectory() . '.htaccess', $a, 0644);
+        $this->writeFileAtomically($this->config->getEditorDirectory() . '.htaccess', $WriteHtaccessValue1, 0644);
     }
 
-    private function writeFileAtomically($a, $b, $c = 0644)
+    private function writeFileAtomically($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3 = 0644)
     {
-        return myvibehtml_atomic_write($a, $b, $c, '.' . basename($a) . '.myvibehtml.lock');
+        return myvibehtml_atomic_write($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3, '.' . basename($WriteFileAtomicallyValue1) . '.myvibehtml.lock');
     }
 
-    private function copyFileAtomically($a, $b)
+    private function copyFileAtomically($CopyFileAtomicallyValue1, $CopyFileAtomicallyValue2)
     {
-        if (is_link($a) || !is_file($a)) return false;
-        $c = @fopen($a, 'rb');
-        if (!$c) return false;
-        $d = dirname($b);
-        if (!is_dir($d) || !is_writable($d)) {
-            fclose($c);
+        if (is_link($CopyFileAtomicallyValue1) || !is_file($CopyFileAtomicallyValue1)) return false;
+        $CopyFileAtomicallyValue3 = @fopen($CopyFileAtomicallyValue1, 'rb');
+        if (!$CopyFileAtomicallyValue3) return false;
+        $CopyFileAtomicallyValue4 = dirname($CopyFileAtomicallyValue2);
+        if (!is_dir($CopyFileAtomicallyValue4) || !is_writable($CopyFileAtomicallyValue4)) {
+            fclose($CopyFileAtomicallyValue3);
             return false;
         }
-        $e = tempnam($d, '.myvibehtml-backup-');
-        $f = $e ? @fopen($e, 'wb') : false;
-        $g = false;
-        if ($f) {
-            $h = true;
-            while (!feof($c) && ($h = fread($c, 8192)) !== false) {
-                if ($h !== '' && fwrite($f, $h) !== strlen($h)) {
-                    $h = false;
+        $CopyFileAtomicallyValue5 = tempnam($CopyFileAtomicallyValue4, '.myvibehtml-backup-');
+        $CopyFileAtomicallyValue6 = $CopyFileAtomicallyValue5 ? @fopen($CopyFileAtomicallyValue5, 'wb') : false;
+        $CopyFileAtomicallyValue7 = false;
+        if ($CopyFileAtomicallyValue6) {
+            $CopyFileAtomicallyValue8 = true;
+            while (!feof($CopyFileAtomicallyValue3) && ($CopyFileAtomicallyValue8 = fread($CopyFileAtomicallyValue3, 8192)) !== false) {
+                if ($CopyFileAtomicallyValue8 !== '' && fwrite($CopyFileAtomicallyValue6, $CopyFileAtomicallyValue8) !== strlen($CopyFileAtomicallyValue8)) {
+                    $CopyFileAtomicallyValue8 = false;
                     break;
                 }
             }
-            $g = $h !== false && feof($c) && fflush($f);
-            fclose($f);
+            $CopyFileAtomicallyValue7 = $CopyFileAtomicallyValue8 !== false && feof($CopyFileAtomicallyValue3) && fflush($CopyFileAtomicallyValue6);
+            fclose($CopyFileAtomicallyValue6);
         }
-        fclose($c);
-        if ($g) $g = @rename($e, $b);
-        if ($e && file_exists($e)) @unlink($e);
-        return $g;
+        fclose($CopyFileAtomicallyValue3);
+        if ($CopyFileAtomicallyValue7) $CopyFileAtomicallyValue7 = @rename($CopyFileAtomicallyValue5, $CopyFileAtomicallyValue2);
+        if ($CopyFileAtomicallyValue5 && file_exists($CopyFileAtomicallyValue5)) @unlink($CopyFileAtomicallyValue5);
+        return $CopyFileAtomicallyValue7;
     }
 
     private function createSession()
     {
-        $a = sha1(time() . mt_rand());
-        $this->config->setSetting(o_, $a);
-        $this->response->setCookie(__ . o_, $a, time() + 60 * $this->config->getSetting(w_), $this->config->getSiteUrlBase(), false, false, true);
+        $CreateSessionValue1 = sha1(time() . mt_rand());
+        $this->config->setSetting(SETTING_SESSION, $CreateSessionValue1);
+        $this->response->setCookie(COOKIE_PREFIX . SETTING_SESSION, $CreateSessionValue1, time() + 60 * $this->config->getSetting(SETTING_AUTH_SESSION_RESET), $this->config->getSiteUrlBase(), false, false, true);
     }
 
     private function destroySession()
     {
-        $this->config->setSetting(o_, '');
-        $this->response->clearCookie(__ . o_, $this->config->getSiteUrlBase());
+        $this->config->setSetting(SETTING_SESSION, '');
+        $this->response->clearCookie(COOKIE_PREFIX . SETTING_SESSION, $this->config->getSiteUrlBase());
     }
 
     private function switchMode()
     {
-        $a = $this->request->getPost('switch');
-        if (is_numeric($a)) {
-            $b = $this->request->getPost(_n);
-            if ($b && ($c = $this->request->getPost(_o)) && $c == $this->request->getCookie(__ . _o)) {
-                $b = base64_decode(str_replace('_', 'a', $b));
+        $SwitchModeValue1 = $this->request->getPost('switch');
+        if (is_numeric($SwitchModeValue1)) {
+            $SwitchModeValue2 = $this->request->getPost(POST_SOURCE);
+            if ($SwitchModeValue2 && ($SwitchModeValue3 = $this->request->getPost(POST_TOKEN)) && $SwitchModeValue3 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN)) {
+                $SwitchModeValue2 = base64_decode(str_replace('_', 'a', $SwitchModeValue2));
                 $this->response->addHeader('X-f:0');
-                $this->response->clearCookie(__ . _o);
-                return $b;
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                return $SwitchModeValue2;
             }
         }
     }
 
-    private function readHtmlFile($a)
+    private function readHtmlFile($ReadHtmlFileValue1)
     {
-        $b = file_get_contents($a);
-        preg_match('~<meta[^>]+utf-8~i', $b, $c);
-        preg_match('~<meta[^>]+windows-1251~i', $b, $d);
-        if (!isset($c[0]) && isset($d[0])) {
-            $b = preg_replace('~(<meta[^>]+)windows-1251~i', '$1utf-8', $b);
-            $b = iconv('Windows-1251', 'UTF-8', $b);
+        $ReadHtmlFileValue2 = file_get_contents($ReadHtmlFileValue1);
+        preg_match('~<meta[^>]+utf-8~i', $ReadHtmlFileValue2, $ReadHtmlFileValue3);
+        preg_match('~<meta[^>]+windows-1251~i', $ReadHtmlFileValue2, $ReadHtmlFileValue4);
+        if (!isset($ReadHtmlFileValue3[0]) && isset($ReadHtmlFileValue4[0])) {
+            $ReadHtmlFileValue2 = preg_replace('~(<meta[^>]+)windows-1251~i', '$1utf-8', $ReadHtmlFileValue2);
+            $ReadHtmlFileValue2 = iconv('Windows-1251', 'UTF-8', $ReadHtmlFileValue2);
         }
-        $b = str_replace(_K, _L, $b);
-        return str_replace(_I, _J, $b);
+        $ReadHtmlFileValue2 = str_replace(CLOSING_SCRIPT_TAG, SAFE_CLOSING_SCRIPT_TAG, $ReadHtmlFileValue2);
+        return str_replace(SCRIPT_TAG, SAFE_SCRIPT_TAG, $ReadHtmlFileValue2);
     }
 
-    private function isAllowedExtension($a)
+    private function isAllowedExtension($IsAllowedExtensionValue1)
     {
-        $b = $this->config->getSetting(B_);
-        if (!$b || preg_match('~(?:^|,\s*)' . $a . '(?:\s*,|$)~i', $b)) return true;
+        $IsAllowedExtensionValue2 = $this->config->getSetting(SETTING_ALLOWED_EXTENSIONS);
+        if (!$IsAllowedExtensionValue2 || preg_match('~(?:^|,\s*)' . $IsAllowedExtensionValue1 . '(?:\s*,|$)~i', $IsAllowedExtensionValue2)) return true;
     }
 
-    private function renderPanel($aa)
+    private function renderPanel($RenderPanelValue1)
     {
-        $ab[T_] = $this->renderFileType($aa);
-        $ab[_r] = $this->renderSiteStatus();
-        $ab[P_] = $this->escapeHtml($this->config->getSiteUrlBase());
-        $ab['site_preview_url'] = $this->escapeHtml($this->getPublicFileUrl($aa));
-        $ab[Y_] = self::a;
-        $ab[_b] = $this->parseSize(ini_get(_b));
-        $ab[_c] = ini_get(_c);
-        /*if (md5(str_replace('www.', '', $this->request->getServer(k_))) != 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') $ac[_a] = '0';*/
-        $ab[p_] = $this->config->getSetting(q_);
-        $ab[u_] = $this->config->getSetting(u_);
-        $ab[v_] = $this->config->getSetting(v_);
-        $ab[w_] = $this->config->getSetting(w_);
-        $ab[G_] = $this->config->getSetting(G_);
-        if ($ab[G_]) $ab[G_ . _d] = $this->config->getTemplate('f'); else$ab[G_ . _d] = $this->config->getTemplate('g');
-        $ab[K_] = $this->config->getSetting(K_);
-        if ($ab[K_]) $ab[K_ . _d] = $this->config->getTemplate('f'); else$ab[K_ . _d] = $this->config->getTemplate('g');
-        $ab[L_] = $this->config->getSetting(L_);
-        if ($ab[L_]) $ab[L_ . _d] = $this->config->getTemplate('f'); else$ab[L_ . _d] = $this->config->getTemplate('g');
-        $ab[H_] = $this->config->getSetting(H_);
-        if ($ab[H_]) $ab[H_ . _d] = $this->config->getTemplate('f'); else$ab[H_ . _d] = $this->config->getTemplate('g');
-        if ($this->config->getSetting(_R)) $ab[_R . _d] = $this->config->getTemplate('f'); else$ab[_R . _d] = $this->config->getTemplate('g');
-        if ($this->config->getSetting(I_)) $ab[I_ . _d] = $this->config->getTemplate('f'); else$ab[I_ . _d] = $this->config->getTemplate('g');
+        $RenderPanelValue2[PLACEHOLDER_MODE] = $this->renderFileType($RenderPanelValue1);
+        $RenderPanelValue2[PLACEHOLDER_FILE_LIST] = $this->renderSiteStatus();
+        $RenderPanelValue2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
+        $RenderPanelValue2['site_preview_url'] = $this->escapeHtml($this->getPublicFileUrl($RenderPanelValue1));
+        $RenderPanelValue2[PLACEHOLDER_VERSION] = self::VERSION;
+        $RenderPanelValue2[REQUEST_UPLOAD_MAX_FILESIZE] = $this->parseSize(ini_get(REQUEST_UPLOAD_MAX_FILESIZE));
+        $RenderPanelValue2[REQUEST_MAX_FILE_UPLOADS] = ini_get(REQUEST_MAX_FILE_UPLOADS);
+        $RenderPanelValue2[SETTING_PASSWORD_COMPLEXITY] = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS);
+        $RenderPanelValue2[SETTING_AUTH_ERROR_LIMIT] = $this->config->getSetting(SETTING_AUTH_ERROR_LIMIT);
+        $RenderPanelValue2[SETTING_AUTH_LOCKOUT_DURATION] = $this->config->getSetting(SETTING_AUTH_LOCKOUT_DURATION);
+        $RenderPanelValue2[SETTING_AUTH_SESSION_RESET] = $this->config->getSetting(SETTING_AUTH_SESSION_RESET);
+        $RenderPanelValue2[SETTING_LOGOUT_TO_SITE] = $this->config->getSetting(SETTING_LOGOUT_TO_SITE);
+        if ($RenderPanelValue2[SETTING_LOGOUT_TO_SITE]) $RenderPanelValue2[SETTING_LOGOUT_TO_SITE . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_LOGOUT_TO_SITE . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[SETTING_SITE_SCRIPTS] = $this->config->getSetting(SETTING_SITE_SCRIPTS);
+        if ($RenderPanelValue2[SETTING_SITE_SCRIPTS]) $RenderPanelValue2[SETTING_SITE_SCRIPTS . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_SITE_SCRIPTS . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[SETTING_SITE_STYLES] = $this->config->getSetting(SETTING_SITE_STYLES);
+        if ($RenderPanelValue2[SETTING_SITE_STYLES]) $RenderPanelValue2[SETTING_SITE_STYLES . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_SITE_STYLES . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[SETTING_LINK_REPLACING] = $this->config->getSetting(SETTING_LINK_REPLACING);
+        if ($RenderPanelValue2[SETTING_LINK_REPLACING]) $RenderPanelValue2[SETTING_LINK_REPLACING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_LINK_REPLACING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        if ($this->config->getSetting(SETTING_NAME_CORRECTION)) $RenderPanelValue2[SETTING_NAME_CORRECTION . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_NAME_CORRECTION . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        if ($this->config->getSetting(SETTING_IMAGE_REWRITING)) $RenderPanelValue2[SETTING_IMAGE_REWRITING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_IMAGE_REWRITING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
         if (!$this->modified) return;
-        $ab[y_] = $this->config->getSetting(y_);
-        $ab[z_] = $this->config->getSetting(z_);
-        if ($this->config->getSetting(A_)) $ab[A_ . _d] = $this->config->getTemplate('f'); else$ab[A_ . _d] = $this->config->getTemplate('g');
-        if ($this->config->getSetting(_Q)) $ab[_Q . _d] = $this->config->getTemplate('f'); else$ab[_Q . _d] = $this->config->getTemplate('g');
-        $ab[D_] = $this->escapeHtml($this->config->getSetting(D_));
-        $ab[J_] = $this->config->getSetting(J_);
-        $ab[M_] = $this->config->getSetting(M_);
-        if ($ab[M_]) $ab[M_ . _d] = $this->config->getTemplate('f'); else$ab[M_ . _d] = $this->config->getTemplate('g');
-        $ab[N_] = $this->config->getSetting(N_);
-        if ($ab[N_]) $ab[N_ . _d] = $this->config->getTemplate('f'); else$ab[N_ . _d] = $this->config->getTemplate('g');
-        $ab[_v] = $this->escapeHtml($this->request->getServer(g_));
-        $ab[_w] = $this->escapeHtml($this->request->getServer(h_));
-        if (isset($ab[_a])) $ab[_a] .= $this->parseSize(ini_get(_a)); else$ab[_a] = $this->parseSize(ini_get(_a));
-        $ab[_H] = $this->renderLanguageList();
-        $ab[_P] = $this->escapeHtml(preg_replace('~\s~', '', $this->config->getSetting(_P)));
-        $ad = $this->config->getTemplate('h');
-        $ad = $this->config->replacePlaceholders($ad, $ab);
-        return $this->config->localizeTemplate($ad, $this->language);
+        $RenderPanelValue2[SETTING_CODE_REDRAW_DELAY] = $this->config->getSetting(SETTING_CODE_REDRAW_DELAY);
+        $RenderPanelValue2[SETTING_CODE_UNDO_LIMIT] = $this->config->getSetting(SETTING_CODE_UNDO_LIMIT);
+        if ($this->config->getSetting(SETTING_CODE_HIGHLIGHTING)) $RenderPanelValue2[SETTING_CODE_HIGHLIGHTING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_CODE_HIGHLIGHTING . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        if ($this->config->getSetting(SETTING_FOLDER_SIZE)) $RenderPanelValue2[SETTING_FOLDER_SIZE . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_FOLDER_SIZE . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[SETTING_DEFAULT_FILE] = $this->escapeHtml($this->config->getSetting(SETTING_DEFAULT_FILE));
+        $RenderPanelValue2[SETTING_RECOVERY_POINTS] = $this->config->getSetting(SETTING_RECOVERY_POINTS);
+        $RenderPanelValue2[SETTING_UPDATE_FINAL] = $this->config->getSetting(SETTING_UPDATE_FINAL);
+        if ($RenderPanelValue2[SETTING_UPDATE_FINAL]) $RenderPanelValue2[SETTING_UPDATE_FINAL . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_UPDATE_FINAL . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[SETTING_UPDATE_BETA] = $this->config->getSetting(SETTING_UPDATE_BETA);
+        if ($RenderPanelValue2[SETTING_UPDATE_BETA]) $RenderPanelValue2[SETTING_UPDATE_BETA . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('f'); else$RenderPanelValue2[SETTING_UPDATE_BETA . TEMPLATE_CHECKBOX_SUFFIX] = $this->config->getTemplate('g');
+        $RenderPanelValue2[REQUEST_IP] = $this->escapeHtml($this->request->getServer(REQUEST_REMOTE_ADDR));
+        $RenderPanelValue2[REQUEST_SIP] = $this->escapeHtml($this->request->getServer(REQUEST_SERVER_ADDR));
+        if (isset($RenderPanelValue2[REQUEST_POST_MAX_SIZE])) $RenderPanelValue2[REQUEST_POST_MAX_SIZE] .= $this->parseSize(ini_get(REQUEST_POST_MAX_SIZE)); else$RenderPanelValue2[REQUEST_POST_MAX_SIZE] = $this->parseSize(ini_get(REQUEST_POST_MAX_SIZE));
+        $RenderPanelValue2[LANGUAGE_LIST] = $this->renderLanguageList();
+        $RenderPanelValue2[SETTING_EDITABLE_ATTRIBUTES] = $this->escapeHtml(preg_replace('~\s~', '', $this->config->getSetting(SETTING_EDITABLE_ATTRIBUTES)));
+        $RenderPanelValue3 = $this->config->getTemplate('h');
+        $RenderPanelValue3 = $this->config->replacePlaceholders($RenderPanelValue3, $RenderPanelValue2);
+        return $this->config->localizeTemplate($RenderPanelValue3, $this->language);
     }
 
-    private function renderFileType($a)
+    private function renderFileType($RenderFileTypeValue1)
     {
-        if (is_numeric($a)) {
-            $b[U_] = $a;
-            $c = $this->config->getTemplate('i');
+        if (is_numeric($RenderFileTypeValue1)) {
+            $RenderFileTypeValue2[PLACEHOLDER_TYPE] = $RenderFileTypeValue1;
+            $RenderFileTypeValue3 = $this->config->getTemplate('i');
         } else {
-            $d = strtolower(substr($a, strripos($a, '.') + 1));
-            $e = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(_s)));
-            preg_match('~^' . $e . '$~i', $d, $f);
-            if (isset($f[0])) $c = $this->config->getTemplate('j'); else$c = $this->config->getTemplate('i');
-            if ($d == 'htm') $b[U_] = _q; else$b[U_] = $d;
+            $RenderFileTypeValue4 = strtolower(substr($RenderFileTypeValue1, strripos($RenderFileTypeValue1, '.') + 1));
+            $RenderFileTypeValue5 = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_VISUAL_EXTENSIONS)));
+            preg_match('~^' . $RenderFileTypeValue5 . '$~i', $RenderFileTypeValue4, $RenderFileTypeValue6);
+            if (isset($RenderFileTypeValue6[0])) $RenderFileTypeValue3 = $this->config->getTemplate('j'); else$RenderFileTypeValue3 = $this->config->getTemplate('i');
+            if ($RenderFileTypeValue4 == 'htm') $RenderFileTypeValue2[PLACEHOLDER_TYPE] = QUERY_HTML; else$RenderFileTypeValue2[PLACEHOLDER_TYPE] = $RenderFileTypeValue4;
         }
-        $b[U_] = $this->escapeHtml($b[U_]);
-        $c = $this->config->replacePlaceholders($c, $b);
-        return $this->config->localizeTemplate($c, $this->language);
+        $RenderFileTypeValue2[PLACEHOLDER_TYPE] = $this->escapeHtml($RenderFileTypeValue2[PLACEHOLDER_TYPE]);
+        $RenderFileTypeValue3 = $this->config->replacePlaceholders($RenderFileTypeValue3, $RenderFileTypeValue2);
+        return $this->config->localizeTemplate($RenderFileTypeValue3, $this->language);
     }
 
     private function renderLanguageList()
     {
-        $a = '';
-        $b = explode(',', $this->config->getSetting(m_));
+        $RenderLanguageListValue1 = '';
+        $RenderLanguageListValue2 = explode(',', $this->config->getSetting(SETTING_LANGUAGE));
         //if (__LINE__ != 1) exit;
-        $c[_y] = m_;
-        foreach ($b as $d) {
-            $languageValue = trim($d);
-            $c[_E] = $this->escapeHtml($languageValue);
-            if ($this->language == $languageValue) $e = $this->config->getTemplate('k'); else$e = $this->config->getTemplate('l');
-            $f[_F] = $this->config->replacePlaceholders($e, $c);
-            $f[m_] = $c[_E];
-            $g = $this->config->getTemplate('m');
-            $g = $this->config->replacePlaceholders($g, $f);
-            $a .= $this->config->localizeTemplate($g, $this->language);
+        $RenderLanguageListValue3[FILE_NAME] = SETTING_LANGUAGE;
+        foreach ($RenderLanguageListValue2 as $RenderLanguageListValue4) {
+            $languageValue = trim($RenderLanguageListValue4);
+            $RenderLanguageListValue3[FILE_VALUE] = $this->escapeHtml($languageValue);
+            if ($this->language == $languageValue) $RenderLanguageListValue5 = $this->config->getTemplate('k'); else$RenderLanguageListValue5 = $this->config->getTemplate('l');
+            $RenderLanguageListValue6[FILE_RADIO] = $this->config->replacePlaceholders($RenderLanguageListValue5, $RenderLanguageListValue3);
+            $RenderLanguageListValue6[SETTING_LANGUAGE] = $RenderLanguageListValue3[FILE_VALUE];
+            $RenderLanguageListValue7 = $this->config->getTemplate('m');
+            $RenderLanguageListValue7 = $this->config->replacePlaceholders($RenderLanguageListValue7, $RenderLanguageListValue6);
+            $RenderLanguageListValue1 .= $this->config->localizeTemplate($RenderLanguageListValue7, $this->language);
         }
-        return $a;
+        return $RenderLanguageListValue1;
     }
 
-    private function parseSize($a)
+    private function parseSize($ParseSizeValue1)
     {
-        $a = strtolower(trim($a));
-        $b = (int)$a;
-        switch ($a[strlen($a) - 1]) {
+        $ParseSizeValue1 = strtolower(trim($ParseSizeValue1));
+        $ParseSizeValue2 = (int)$ParseSizeValue1;
+        switch ($ParseSizeValue1[strlen($ParseSizeValue1) - 1]) {
             case'm':
-                return $b * 1048576;
+                return $ParseSizeValue2 * 1048576;
             case'k':
-                return $b * 1024;
+                return $ParseSizeValue2 * 1024;
             case'g':
-                return $b * 1073741824;
+                return $ParseSizeValue2 * 1073741824;
             default:
-                return $b;
+                return $ParseSizeValue2;
         }
     }
 
     private function renderSiteStatus()
     {
-        $a = $this->config->getSiteUrl();
-        $b = $this->config->getSiteRoot();
-        if ($a == '/') $c[_y] = $this->escapeHtml($this->request->getServer(k_)); else$c[_y] = $this->escapeHtml(substr($a, strrpos(substr($a, 0, -1), '/') + 1, -1));
-        $c[_z] = $this->escapeHtml(filemtime($b));
-        $c[_x] = $this->escapeHtml($a);
-        $c[_A] = '';
-        $d = $this->config->getEditorDirectory();
-        if ($e = opendir($d)) {
-            while (($f = readdir($e)) !== false) {
-                if ($f != '.' && $f != '..' && is_file($d . $f) && !is_link($d . $f) && (substr($f, 0, strlen('myvibehtml')) == 'myvibehtml' || substr($f, 0, 5) == 'index') && ((substr($f, -2, -1) == 'h' && filesize($d . $f) != 36307) || (substr($f, -2, -1) == 'j' && filesize($d . $f) != 66258) || (substr($f, -3, -2) == 'c' && filesize($d . $f) != 42150))) {
-                    $c[_A] = '0' . $c[_A];
+        $RenderSiteStatusValue1 = $this->config->getSiteUrl();
+        $RenderSiteStatusValue2 = $this->config->getSiteRoot();
+        if ($RenderSiteStatusValue1 == '/') $RenderSiteStatusValue3[FILE_NAME] = $this->escapeHtml($this->request->getServer(REQUEST_SERVER_NAME)); else$RenderSiteStatusValue3[FILE_NAME] = $this->escapeHtml(substr($RenderSiteStatusValue1, strrpos(substr($RenderSiteStatusValue1, 0, -1), '/') + 1, -1));
+        $RenderSiteStatusValue3[FILE_DATE] = $this->escapeHtml(filemtime($RenderSiteStatusValue2));
+        $RenderSiteStatusValue3[FILE_URL] = $this->escapeHtml($RenderSiteStatusValue1);
+        $RenderSiteStatusValue3[FILE_SIZE] = '';
+        $RenderSiteStatusValue4 = $this->config->getEditorDirectory();
+        if ($RenderSiteStatusValue5 = opendir($RenderSiteStatusValue4)) {
+            while (($RenderSiteStatusValue6 = readdir($RenderSiteStatusValue5)) !== false) {
+                if ($RenderSiteStatusValue6 != '.' && $RenderSiteStatusValue6 != '..' && is_file($RenderSiteStatusValue4 . $RenderSiteStatusValue6) && !is_link($RenderSiteStatusValue4 . $RenderSiteStatusValue6) && (substr($RenderSiteStatusValue6, 0, strlen('myvibehtml')) == 'myvibehtml' || substr($RenderSiteStatusValue6, 0, 5) == 'index') && ((substr($RenderSiteStatusValue6, -2, -1) == 'h' && filesize($RenderSiteStatusValue4 . $RenderSiteStatusValue6) != 36307) || (substr($RenderSiteStatusValue6, -2, -1) == 'j' && filesize($RenderSiteStatusValue4 . $RenderSiteStatusValue6) != 66258) || (substr($RenderSiteStatusValue6, -3, -2) == 'c' && filesize($RenderSiteStatusValue4 . $RenderSiteStatusValue6) != 42150))) {
+                    $RenderSiteStatusValue3[FILE_SIZE] = '0' . $RenderSiteStatusValue3[FILE_SIZE];
                     break;
                 }
                 $this->modified = true;
             }
-            closedir($e);
+            closedir($RenderSiteStatusValue5);
         }
-        $g = $this->config->getTemplate('n');
-        $g = $this->config->replacePlaceholders($g, $c);
-        return $this->config->localizeTemplate($g, $this->language);
+        $RenderSiteStatusValue7 = $this->config->getTemplate('n');
+        $RenderSiteStatusValue7 = $this->config->replacePlaceholders($RenderSiteStatusValue7, $RenderSiteStatusValue3);
+        return $this->config->localizeTemplate($RenderSiteStatusValue7, $this->language);
     }
 
-    private function renderFileList($aa)
+    private function renderFileList($RenderFileListValue1)
     {
-        $relativeDirectory = $this->getSiteRelativePath($aa);
-        $ab = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
-        if ($ab) $ab = rtrim($ab, '/') . '/';
-        $ac = [];
-        $ad = [];
-        $ae = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(C_)));
-        if (!$ab || !is_dir($ab)) {
-            $this->response->setStatus(404, $this->config->translate(_t, 'en'));
+        $relativeDirectory = $this->getSiteRelativePath($RenderFileListValue1);
+        $RenderFileListValue2 = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
+        if ($RenderFileListValue2) $RenderFileListValue2 = rtrim($RenderFileListValue2, '/') . '/';
+        $RenderFileListValue3 = [];
+        $RenderFileListValue4 = [];
+        $RenderFileListValue5 = str_replace(' ', '', str_replace(',', '|', $this->config->getSetting(SETTING_EDITABLE_EXTENSIONS)));
+        if (!$RenderFileListValue2 || !is_dir($RenderFileListValue2)) {
+            $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
             return '';
         }
         $currentDirectoryUrl = $this->config->getSiteUrl() . ($relativeDirectory === '' ? '' : $relativeDirectory . '/');
-        if ($af = opendir($ab)) {
-            while (($ag = readdir($af)) !== false) {
-                if ($ag != '.' && $ag != '..') {
-                    $ah = [];
-                    $ah[_y] = $ag;
-                    $ah[_z] = filemtime($ab . $ag);
-                    if (is_file($ab . $ag) && !is_link($ab . $ag)) {
-                        preg_match('~\.(?:' . $ae . ')$~i', $ag, $ai);
-                        if (isset($ai[0])) $ah[_x] = $this->config->getSiteUrlBase() . $this->getQueryPrefix() . ($relativeDirectory === '' ? '' : $relativeDirectory . '/') . $ag; else$ah[_x] = $currentDirectoryUrl . $ag;
-                        $ah[_A] = filesize($ab . $ag);
-                        $ad[] = $ah;
-                    } else if (is_dir($ab . $ag) && !is_link($ab . $ag)) {
-                        $ah[_x] = $currentDirectoryUrl . $ag . '/';
-                        $ah[_A] = $this->getDirectorySize($ah[_x]);
-                        $ac[] = $ah;
+        if ($RenderFileListValue6 = opendir($RenderFileListValue2)) {
+            while (($RenderFileListValue7 = readdir($RenderFileListValue6)) !== false) {
+                if ($RenderFileListValue7 != '.' && $RenderFileListValue7 != '..') {
+                    $RenderFileListValue8 = [];
+                    $RenderFileListValue8[FILE_NAME] = $RenderFileListValue7;
+                    $RenderFileListValue8[FILE_DATE] = filemtime($RenderFileListValue2 . $RenderFileListValue7);
+                    if (is_file($RenderFileListValue2 . $RenderFileListValue7) && !is_link($RenderFileListValue2 . $RenderFileListValue7)) {
+                        preg_match('~\.(?:' . $RenderFileListValue5 . ')$~i', $RenderFileListValue7, $RenderFileListValue9);
+                        if (isset($RenderFileListValue9[0])) $RenderFileListValue8[FILE_URL] = $this->config->getSiteUrlBase() . $this->getQueryPrefix() . ($relativeDirectory === '' ? '' : $relativeDirectory . '/') . $RenderFileListValue7; else$RenderFileListValue8[FILE_URL] = $currentDirectoryUrl . $RenderFileListValue7;
+                        $RenderFileListValue8[FILE_SIZE] = filesize($RenderFileListValue2 . $RenderFileListValue7);
+                        $RenderFileListValue4[] = $RenderFileListValue8;
+                    } else if (is_dir($RenderFileListValue2 . $RenderFileListValue7) && !is_link($RenderFileListValue2 . $RenderFileListValue7)) {
+                        $RenderFileListValue8[FILE_URL] = $currentDirectoryUrl . $RenderFileListValue7 . '/';
+                        $RenderFileListValue8[FILE_SIZE] = $this->getDirectorySize($RenderFileListValue8[FILE_URL]);
+                        $RenderFileListValue3[] = $RenderFileListValue8;
                     }
                 }
             }
-            closedir($af);
+            closedir($RenderFileListValue6);
         }
-        $aj = '';
-        if (count($ac)) {
-            $ac = $this->sortEntries($ac);
-            $ak = $this->config->getTemplate('n');
-            $al = $this->config->getTemplate('o');
-            foreach ($ac as $am) {
-                $directoryUrl = $am[_x];
+        $RenderFileListValue10 = '';
+        if (count($RenderFileListValue3)) {
+            $RenderFileListValue3 = $this->sortEntries($RenderFileListValue3);
+            $RenderFileListValue11 = $this->config->getTemplate('n');
+            $RenderFileListValue12 = $this->config->getTemplate('o');
+            foreach ($RenderFileListValue3 as $RenderFileListValue13) {
+                $directoryUrl = $RenderFileListValue13[FILE_URL];
                 if ($directoryUrl == $this->config->getBackupUrl()) {
-                    $an = $al;
-                    $am[_B] = $this->renderFileList($directoryUrl);
-                } else$an = $ak;
-                $am[_y] = $this->escapeHtml($am[_y]);
-                $am[_z] = $this->escapeHtml($am[_z]);
-                $am[_x] = $this->escapeHtml($directoryUrl);
-                $am[_A] = $this->escapeHtml($am[_A]);
-                $aj .= $this->config->localizeTemplate($this->config->replacePlaceholders($an, $am), $this->language);
+                    $RenderFileListValue14 = $RenderFileListValue12;
+                    $RenderFileListValue13[FILE_LIST] = $this->renderFileList($directoryUrl);
+                } else$RenderFileListValue14 = $RenderFileListValue11;
+                $RenderFileListValue13[FILE_NAME] = $this->escapeHtml($RenderFileListValue13[FILE_NAME]);
+                $RenderFileListValue13[FILE_DATE] = $this->escapeHtml($RenderFileListValue13[FILE_DATE]);
+                $RenderFileListValue13[FILE_URL] = $this->escapeHtml($directoryUrl);
+                $RenderFileListValue13[FILE_SIZE] = $this->escapeHtml($RenderFileListValue13[FILE_SIZE]);
+                $RenderFileListValue10 .= $this->config->localizeTemplate($this->config->replacePlaceholders($RenderFileListValue14, $RenderFileListValue13), $this->language);
             }
         }
-        if (count($ad)) {
-            $ad = $this->sortEntries($ad);
-            $ao = $this->config->getTemplate('b');
-            foreach ($ad as $ap) {
-                $ap[_y] = $this->escapeHtml($ap[_y]);
-                $ap[_z] = $this->escapeHtml($ap[_z]);
-                $ap[_x] = $this->escapeHtml($ap[_x]);
-                $ap[_A] = $this->escapeHtml($ap[_A]);
-                $aj .= $this->config->localizeTemplate($this->config->replacePlaceholders($ao, $ap), $this->language);
+        if (count($RenderFileListValue4)) {
+            $RenderFileListValue4 = $this->sortEntries($RenderFileListValue4);
+            $RenderFileListValue15 = $this->config->getTemplate('b');
+            foreach ($RenderFileListValue4 as $RenderFileListValue16) {
+                $RenderFileListValue16[FILE_NAME] = $this->escapeHtml($RenderFileListValue16[FILE_NAME]);
+                $RenderFileListValue16[FILE_DATE] = $this->escapeHtml($RenderFileListValue16[FILE_DATE]);
+                $RenderFileListValue16[FILE_URL] = $this->escapeHtml($RenderFileListValue16[FILE_URL]);
+                $RenderFileListValue16[FILE_SIZE] = $this->escapeHtml($RenderFileListValue16[FILE_SIZE]);
+                $RenderFileListValue10 .= $this->config->localizeTemplate($this->config->replacePlaceholders($RenderFileListValue15, $RenderFileListValue16), $this->language);
             }
         }
-        if ($ab == $this->config->getSiteRoot()) $this->response->addHeader('X-c:' . $this->getDirectorySize($aa));
-        return $aj;
+        if ($RenderFileListValue2 == $this->config->getSiteRoot()) $this->response->addHeader('X-c:' . $this->getDirectorySize($RenderFileListValue1));
+        return $RenderFileListValue10;
     }
 
-    private function sortEntries($a)
+    private function sortEntries($SortEntriesValue1)
     {
-        $b = [];
-        $c = [];
-        foreach ($a as $d) $b[] = $d[_y];
-        asort($b);
-        foreach ($b as $e) foreach ($a as $d) if ($e == $d[_y]) $c[] = $d;
-        return $c;
+        $SortEntriesValue2 = [];
+        $SortEntriesValue3 = [];
+        foreach ($SortEntriesValue1 as $SortEntriesValue4) $SortEntriesValue2[] = $SortEntriesValue4[FILE_NAME];
+        asort($SortEntriesValue2);
+        foreach ($SortEntriesValue2 as $SortEntriesValue5) foreach ($SortEntriesValue1 as $SortEntriesValue4) if ($SortEntriesValue5 == $SortEntriesValue4[FILE_NAME]) $SortEntriesValue3[] = $SortEntriesValue4;
+        return $SortEntriesValue3;
     }
 
-    private function getDirectorySize($a)
+    private function getDirectorySize($GetDirectorySizeValue1)
     {
-        if ($this->config->getSetting(_Q)) {
-            $b = $this->config->getSetting(O_);
-            if (!$b) {
-                $b = $this->calculateDirectorySizes($this->config->getSiteUrl());
-                $this->config->setSetting(O_, urlencode(serialize($b)));
-            } else$b = myvibehtml_unserialize_array(urldecode($b));
-            return $b[$a];
+        if ($this->config->getSetting(SETTING_FOLDER_SIZE)) {
+            $GetDirectorySizeValue2 = $this->config->getSetting(SETTING_CACHE);
+            if (!$GetDirectorySizeValue2) {
+                $GetDirectorySizeValue2 = $this->calculateDirectorySizes($this->config->getSiteUrl());
+                $this->config->setSetting(SETTING_CACHE, urlencode(serialize($GetDirectorySizeValue2)));
+            } else$GetDirectorySizeValue2 = myvibehtml_unserialize_array(urldecode($GetDirectorySizeValue2));
+            return $GetDirectorySizeValue2[$GetDirectorySizeValue1];
         } else return '';
     }
 
-    private function calculateDirectorySizes($a)
+    private function calculateDirectorySizes($CalculateDirectorySizesValue1)
     {
-        $relativeDirectory = $this->getSiteRelativePath($a);
-        $b = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
-        if ($b) $b = rtrim($b, '/') . '/';
-        $c = [];
-        $c[$a] = 0;
-        if ($b && $d = opendir($b)) {
-            while (($e = readdir($d)) !== false) {
-                if ($e != '.' && $e != '..') {
-                    if (is_file($b . $e) && !is_link($b . $e)) $c[$a] += filesize($b . $e); else if (is_dir($b . $e . '/') && !is_link($b . $e)) {
-                        $f = $this->calculateDirectorySizes($a . $e . '/');
-                        $c[$a] += $f[$a . $e . '/'];
-                        $c = array_merge($c, $f);
+        $relativeDirectory = $this->getSiteRelativePath($CalculateDirectorySizesValue1);
+        $CalculateDirectorySizesValue2 = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
+        if ($CalculateDirectorySizesValue2) $CalculateDirectorySizesValue2 = rtrim($CalculateDirectorySizesValue2, '/') . '/';
+        $CalculateDirectorySizesValue3 = [];
+        $CalculateDirectorySizesValue3[$CalculateDirectorySizesValue1] = 0;
+        if ($CalculateDirectorySizesValue2 && $CalculateDirectorySizesValue4 = opendir($CalculateDirectorySizesValue2)) {
+            while (($CalculateDirectorySizesValue5 = readdir($CalculateDirectorySizesValue4)) !== false) {
+                if ($CalculateDirectorySizesValue5 != '.' && $CalculateDirectorySizesValue5 != '..') {
+                    if (is_file($CalculateDirectorySizesValue2 . $CalculateDirectorySizesValue5) && !is_link($CalculateDirectorySizesValue2 . $CalculateDirectorySizesValue5)) $CalculateDirectorySizesValue3[$CalculateDirectorySizesValue1] += filesize($CalculateDirectorySizesValue2 . $CalculateDirectorySizesValue5); else if (is_dir($CalculateDirectorySizesValue2 . $CalculateDirectorySizesValue5 . '/') && !is_link($CalculateDirectorySizesValue2 . $CalculateDirectorySizesValue5)) {
+                        $CalculateDirectorySizesValue6 = $this->calculateDirectorySizes($CalculateDirectorySizesValue1 . $CalculateDirectorySizesValue5 . '/');
+                        $CalculateDirectorySizesValue3[$CalculateDirectorySizesValue1] += $CalculateDirectorySizesValue6[$CalculateDirectorySizesValue1 . $CalculateDirectorySizesValue5 . '/'];
+                        $CalculateDirectorySizesValue3 = array_merge($CalculateDirectorySizesValue3, $CalculateDirectorySizesValue6);
                     }
                 }
             }
-            closedir($d);
+            closedir($CalculateDirectorySizesValue4);
         }
-        return $c;
+        return $CalculateDirectorySizesValue3;
     }
 
-    private function createBackup($a, $allowMissing = false)
+    private function createBackup($CreateBackupValue1, $allowMissing = false)
     {
-        $a = $this->normalizeRelativePath($a);
-        if ($a === false || !$this->getSafeSitePath($a, $allowMissing)) return false;
-        $b = $this->config->getSetting(J_);
-        if ($b && $b > 0) {
-            $c = $this->config->getBackupRoot();
-            if ($this->isSafeSitePath($c, true) && (is_dir($c) || is_writable($this->config->getEditorDirectory()) && mkdir($c))) {
-                $d = date('y.m.d.H.i', $this->config->getSetting(r_));
-                $e = $c . $d . '/';
-                if ($this->isSafeSitePath($e, true) && (is_dir($e) || is_writable($c) && mkdir($e))) {
-                    $this->pruneBackups($c, $b);
-                    if ($f = opendir($e)) {
-                        $g = $e . str_ireplace('/', '⁄', $a);
-                        $h = $e . 'ꜜ' . str_ireplace('/', '⁄', $a);
-                        while (($i = readdir($f)) !== false) {
-                            $j = $e . $i;
-                            if ($i != '.' && $i != '..' && !is_link($j) && is_file($j) && file_exists($j) && ($j == $g || $j == $h)) return true;
+        $CreateBackupValue1 = $this->normalizeRelativePath($CreateBackupValue1);
+        if ($CreateBackupValue1 === false || !$this->getSafeSitePath($CreateBackupValue1, $allowMissing)) return false;
+        $CreateBackupValue2 = $this->config->getSetting(SETTING_RECOVERY_POINTS);
+        if ($CreateBackupValue2 && $CreateBackupValue2 > 0) {
+            $CreateBackupValue3 = $this->config->getBackupRoot();
+            if ($this->isSafeSitePath($CreateBackupValue3, true) && (is_dir($CreateBackupValue3) || is_writable($this->config->getEditorDirectory()) && mkdir($CreateBackupValue3))) {
+                $CreateBackupValue4 = date('y.m.d.H.i', $this->config->getSetting(SETTING_AUTH_TIME));
+                $CreateBackupValue5 = $CreateBackupValue3 . $CreateBackupValue4 . '/';
+                if ($this->isSafeSitePath($CreateBackupValue5, true) && (is_dir($CreateBackupValue5) || is_writable($CreateBackupValue3) && mkdir($CreateBackupValue5))) {
+                    $this->pruneBackups($CreateBackupValue3, $CreateBackupValue2);
+                    if ($CreateBackupValue6 = opendir($CreateBackupValue5)) {
+                        $CreateBackupValue7 = $CreateBackupValue5 . str_ireplace('/', '⁄', $CreateBackupValue1);
+                        $CreateBackupValue8 = $CreateBackupValue5 . 'ꜜ' . str_ireplace('/', '⁄', $CreateBackupValue1);
+                        while (($CreateBackupValue9 = readdir($CreateBackupValue6)) !== false) {
+                            $CreateBackupValue10 = $CreateBackupValue5 . $CreateBackupValue9;
+                            if ($CreateBackupValue9 != '.' && $CreateBackupValue9 != '..' && !is_link($CreateBackupValue10) && is_file($CreateBackupValue10) && file_exists($CreateBackupValue10) && ($CreateBackupValue10 == $CreateBackupValue7 || $CreateBackupValue10 == $CreateBackupValue8)) return true;
                         }
-                        closedir($f);
+                        closedir($CreateBackupValue6);
                     }
-                    $k = $this->getSafeSitePath($a, $allowMissing);
-                    if ($k && !is_link($k) && file_exists($k)) {
-                        if ($this->copyFileAtomically($k, $e . str_ireplace('/', '⁄', $a))) return true;
-                    } else if ($this->writeFileAtomically($e . 'ꜜ' . str_ireplace('/', '⁄', $a), '', 0600)) return true;
+                    $CreateBackupValue11 = $this->getSafeSitePath($CreateBackupValue1, $allowMissing);
+                    if ($CreateBackupValue11 && !is_link($CreateBackupValue11) && file_exists($CreateBackupValue11)) {
+                        if ($this->copyFileAtomically($CreateBackupValue11, $CreateBackupValue5 . str_ireplace('/', '⁄', $CreateBackupValue1))) return true;
+                    } else if ($this->writeFileAtomically($CreateBackupValue5 . 'ꜜ' . str_ireplace('/', '⁄', $CreateBackupValue1), '', 0600)) return true;
                 }
             }
         } else return true;
     }
 
-    private function pruneBackups($a, $b)
+    private function pruneBackups($PruneBackupsValue1, $PruneBackupsValue2)
     {
-        $c = [];
-        if ($d = opendir($a)) {
-            while (($e = readdir($d)) !== false) if ($e != '.' && $e != '..' && is_dir($a . $e)) array_push($c, $e);
-            closedir($d);
+        $PruneBackupsValue3 = [];
+        if ($PruneBackupsValue4 = opendir($PruneBackupsValue1)) {
+            while (($PruneBackupsValue5 = readdir($PruneBackupsValue4)) !== false) if ($PruneBackupsValue5 != '.' && $PruneBackupsValue5 != '..' && is_dir($PruneBackupsValue1 . $PruneBackupsValue5)) array_push($PruneBackupsValue3, $PruneBackupsValue5);
+            closedir($PruneBackupsValue4);
         }
-        $f = count($c) - $b;
-        if ($f > 0) {
-            asort($c);
-            $c = array_slice($c, 0, $f);
-            if ($d = opendir($a)) {
-                while (($e = readdir($d)) !== false) {
-                    if ($e != '.' && $e != '..' && is_dir($a . $e)) {
-                        foreach ($c as $g) {
-                            if ($e == $g) {
-                                $h = $a . $e . '/';
-                                if ($i = opendir($h)) while (($j = readdir($i)) !== false) if ($j != '.' && $j != '..') if (!is_file($h . $j) || !unlink($h . $j)) $k = true;
-                                closedir($i);
-                                if (!isset($k)) rmdir($h); else unset($k);
+        $PruneBackupsValue6 = count($PruneBackupsValue3) - $PruneBackupsValue2;
+        if ($PruneBackupsValue6 > 0) {
+            asort($PruneBackupsValue3);
+            $PruneBackupsValue3 = array_slice($PruneBackupsValue3, 0, $PruneBackupsValue6);
+            if ($PruneBackupsValue4 = opendir($PruneBackupsValue1)) {
+                while (($PruneBackupsValue5 = readdir($PruneBackupsValue4)) !== false) {
+                    if ($PruneBackupsValue5 != '.' && $PruneBackupsValue5 != '..' && is_dir($PruneBackupsValue1 . $PruneBackupsValue5)) {
+                        foreach ($PruneBackupsValue3 as $PruneBackupsValue7) {
+                            if ($PruneBackupsValue5 == $PruneBackupsValue7) {
+                                $PruneBackupsValue8 = $PruneBackupsValue1 . $PruneBackupsValue5 . '/';
+                                if ($PruneBackupsValue9 = opendir($PruneBackupsValue8)) while (($PruneBackupsValue10 = readdir($PruneBackupsValue9)) !== false) if ($PruneBackupsValue10 != '.' && $PruneBackupsValue10 != '..') if (!is_file($PruneBackupsValue8 . $PruneBackupsValue10) || !unlink($PruneBackupsValue8 . $PruneBackupsValue10)) $PruneBackupsValue11 = true;
+                                closedir($PruneBackupsValue9);
+                                if (!isset($PruneBackupsValue11)) rmdir($PruneBackupsValue8); else unset($PruneBackupsValue11);
                             }
                         }
                     }
                 }
-                closedir($d);
+                closedir($PruneBackupsValue4);
             }
         }
     }
 
-    private function normalizeImageFilename($a, $b)
+    private function normalizeImageFilename($NormalizeImageFilenameValue1, $NormalizeImageFilenameValue2)
     {
-        if (!$this->isSafeSitePath($a, true)) return false;
-        if ($this->config->getSetting(_R)) {
-            preg_match('~\.[a-z0-9]{1,5}$~i', $b, $c);
-            if (!isset($c[0])) {
-                $c[1] = $b;
-                $c[2] = '';
-            } else preg_match('~^(.+)(\.[a-z0-9]{1,5})$~i', $b, $c);
-            $c[1] = preg_replace('~[^a-z0-9]+~i', '-', $c[1]);
-            $c[1] = preg_replace('~^-~i', '', $c[1]);
-            $c[1] = preg_replace('~-$~i', '', $c[1]);
-            if (!preg_match('~[^-]+~i', $c[1])) $c[1] = 'image';
-            $b = $c[1] . $c[2];
+        if (!$this->isSafeSitePath($NormalizeImageFilenameValue1, true)) return false;
+        if ($this->config->getSetting(SETTING_NAME_CORRECTION)) {
+            preg_match('~\.[a-z0-9]{1,5}$~i', $NormalizeImageFilenameValue2, $NormalizeImageFilenameValue3);
+            if (!isset($NormalizeImageFilenameValue3[0])) {
+                $NormalizeImageFilenameValue3[1] = $NormalizeImageFilenameValue2;
+                $NormalizeImageFilenameValue3[2] = '';
+            } else preg_match('~^(.+)(\.[a-z0-9]{1,5})$~i', $NormalizeImageFilenameValue2, $NormalizeImageFilenameValue3);
+            $NormalizeImageFilenameValue3[1] = preg_replace('~[^a-z0-9]+~i', '-', $NormalizeImageFilenameValue3[1]);
+            $NormalizeImageFilenameValue3[1] = preg_replace('~^-~i', '', $NormalizeImageFilenameValue3[1]);
+            $NormalizeImageFilenameValue3[1] = preg_replace('~-$~i', '', $NormalizeImageFilenameValue3[1]);
+            if (!preg_match('~[^-]+~i', $NormalizeImageFilenameValue3[1])) $NormalizeImageFilenameValue3[1] = 'image';
+            $NormalizeImageFilenameValue2 = $NormalizeImageFilenameValue3[1] . $NormalizeImageFilenameValue3[2];
         }
-        $b = preg_replace('~[%#]~i', '', $b);
-        $d = $a . $b;
-        if (!$this->isSafeSitePath($d, true)) return false;
-        if (file_exists($d)) {
-            if (!$this->config->getSetting(I_)) {
-                preg_match('~\.[a-z0-9]{1,5}$~i', $d, $c);
-                if (isset($c[0])) $e = preg_replace('~\.([a-z0-9]{1,5})$~i', '{prefix}.$1', $d); else$e = $d . '{prefix}';
-                for ($f = 2; file_exists($d); $f++) $d = preg_replace('~\{prefix\}~i', '-' . $f, $e);
+        $NormalizeImageFilenameValue2 = preg_replace('~[%#]~i', '', $NormalizeImageFilenameValue2);
+        $NormalizeImageFilenameValue4 = $NormalizeImageFilenameValue1 . $NormalizeImageFilenameValue2;
+        if (!$this->isSafeSitePath($NormalizeImageFilenameValue4, true)) return false;
+        if (file_exists($NormalizeImageFilenameValue4)) {
+            if (!$this->config->getSetting(SETTING_IMAGE_REWRITING)) {
+                preg_match('~\.[a-z0-9]{1,5}$~i', $NormalizeImageFilenameValue4, $NormalizeImageFilenameValue3);
+                if (isset($NormalizeImageFilenameValue3[0])) $NormalizeImageFilenameValue5 = preg_replace('~\.([a-z0-9]{1,5})$~i', '{prefix}.$1', $NormalizeImageFilenameValue4); else$NormalizeImageFilenameValue5 = $NormalizeImageFilenameValue4 . '{prefix}';
+                for ($NormalizeImageFilenameValue6 = 2; file_exists($NormalizeImageFilenameValue4); $NormalizeImageFilenameValue6++) $NormalizeImageFilenameValue4 = preg_replace('~\{prefix\}~i', '-' . $NormalizeImageFilenameValue6, $NormalizeImageFilenameValue5);
             }
         }
-        return $this->isSafeSitePath($d, true);
+        return $this->isSafeSitePath($NormalizeImageFilenameValue4, true);
     }
 }
 
 $request = new MyVibeHTMLRequest();
-$response = new MyVibeHTMLResponse($request->getServer(l_));
-$config = new MyVibeHTMLConfig(dirname($request->getServer(i_)) . '/', $request->getServer(a_));
+$response = new MyVibeHTMLResponse($request->getServer(REQUEST_SERVER_PROTOCOL));
+$config = new MyVibeHTMLConfig(dirname($request->getServer(REQUEST_SCRIPT_FILENAME)) . '/', $request->getServer(REQUEST_DOCUMENT_ROOT));
 $controller = new MyVibeHTMLController($request, $response, $config);
 try {
     $controller->authenticate();
-} catch (Exception$e) {
-    $controller->handleException($e);
+} catch (Exception$GlobalValue1) {
+    $controller->handleException($GlobalValue1);
 }
 $response->send(); ?>
