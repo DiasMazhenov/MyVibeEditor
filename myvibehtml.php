@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.18 */
+<?php /* MyVibeHTML v0.19 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -195,8 +195,18 @@ final class MyVibeHTMLRequest
 
     private function filter($FilterValue1, $FilterValue2)
     {
-        $FilterValue3 = '_' . $FilterValue2;
-        if (method_exists($this, $FilterValue3)) return $this->$FilterValue3($FilterValue1); else return $FilterValue1;
+        $filterMethods = [
+            REQUEST_SERVER_PROTOCOL => 'filterServerProtocol', REQUEST_SERVER_NAME => 'filterServerName',
+            REQUEST_SCRIPT_FILENAME => 'filterScriptFilename', REQUEST_DOCUMENT_ROOT => 'filterDocumentRoot',
+            REQUEST_PHP_SELF => 'filterPhpSelf', REQUEST_SCRIPT_NAME => 'filterScriptName',
+            REQUEST_QUERY_STRING => 'filterQueryString', REQUEST_REMOTE_ADDR => 'filterRemoteAddress',
+            REQUEST_SERVER_ADDR => 'filterServerAddress', 'ip' => 'filterIpAddress', HASH_ALGORITHM => 'filterSha1'
+        ];
+        if (isset($filterMethods[$FilterValue2]) && method_exists($this, $filterMethods[$FilterValue2])) {
+            $filterMethod = $filterMethods[$FilterValue2];
+            return $this->$filterMethod($FilterValue1);
+        }
+        return $FilterValue1;
     }
 
     private function filterServerProtocol($FilterServerProtocolValue1)
@@ -563,7 +573,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.18';
+    const VERSION = '0.19';
     private $config;
     private $request;
     private $response;
