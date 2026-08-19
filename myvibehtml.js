@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.21 */
+/* MyVibeHTML v0.22 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -18,10 +18,13 @@
         querySelectorMethod = 'querySelector',
         removeChildMethod = 'removeChild',
         appendChildMethod = 'appendChild',
+        replaceChildMethod = 'replaceChild',
         cloneNodeMethod = 'cloneNode',
         insertNodeMethod = 'insertNode',
         insertBeforeMethod = 'insertBefore',
         createElementMethod = 'createElement',
+        parseFromStringMethod = 'parseFromString',
+        serializeToStringMethod = 'serializeToString',
         createTextNodeMethod = 'createTextNode',
         firstElementChildProperty = 'firstElementChild',
         lastElementChildProperty = 'lastElementChild',
@@ -29,6 +32,7 @@
         previousElementSiblingProperty = 'previousElementSibling',
         nextSiblingProperty = 'nextSibling',
         parentNodeProperty = 'parentNode',
+        ownerDocumentProperty = 'ownerDocument',
         contentWindowProperty = 'contentWindow',
         activeElementProperty = 'activeElement',
         documentElementProperty = 'documentElement',
@@ -651,6 +655,8 @@
                         styleInspectorTarget = null,
                         styleInspectorFields = null,
                         styleInspectorError = null,
+                        mediaPicker = null,
+                        mediaPickerTarget = null,
                         getContextNode = function(initializeVisualEditorArgument1) {
                             for (var initializeVisualEditorValue2 = initializeVisualEditorArgument1; initializeVisualEditorValue2 && initializeVisualEditorValue2 != callbackValue127.body; initializeVisualEditorValue2 = initializeVisualEditorValue2[parentNodeProperty]) {
                                 if (initializeVisualEditorValue2.realNode) initializeVisualEditorValue2 = initializeVisualEditorValue2.realNode;
@@ -688,6 +694,98 @@
                                 contextMenu[styleProperty][displayProperty] = noneValue;
                                 contextMenu[setAttributeMethod]('aria-hidden', 'true')
                             }
+                        },
+                        getMediaTarget = function(initializeVisualEditorArgument6) {
+                            for (var initializeVisualEditorValue7 = initializeVisualEditorArgument6; initializeVisualEditorValue7 && initializeVisualEditorValue7 != callbackValue127.body; initializeVisualEditorValue7 = initializeVisualEditorValue7[parentNodeProperty]) {
+                                if (initializeVisualEditorValue7.realNode) initializeVisualEditorValue7 = initializeVisualEditorValue7.realNode;
+                                if (initializeVisualEditorValue7[tagNameProperty] && (initializeVisualEditorValue7[tagNameProperty][toLowerCaseMethod]() == imageTagName || initializeVisualEditorValue7[tagNameProperty][toLowerCaseMethod]() == 'svg')) return initializeVisualEditorValue7
+                            }
+                            return null
+                        },
+                        isMediaTarget = function(initializeVisualEditorArgument7) {
+                            return !!getMediaTarget(initializeVisualEditorArgument7)
+                        },
+                        showMediaReplaceError = function() {
+                            callbackValue9[textContentProperty] = callbackValue9[getAttributeMethod](dataAttributePrefix + 'bq') || 'Не удалось заменить изображение';
+                            callbackValue9[classNameProperty] = 'd';
+                            fadeIn(callbackValue9)
+                        },
+                        sanitizeInlineSvg = function(initializeVisualEditorArgument7) {
+                            var initializeVisualEditorValue8 = new DOMParser()[parseFromStringMethod](initializeVisualEditorArgument7, 'image/svg+xml'),
+                                initializeVisualEditorValue9 = initializeVisualEditorValue8[documentElementProperty];
+                            if (!initializeVisualEditorValue9 || initializeVisualEditorValue9[tagNameProperty][toLowerCaseMethod]() != 'svg' || initializeVisualEditorValue8[querySelectorMethod]('parsererror')) return false;
+                            var initializeVisualEditorValue10 = [initializeVisualEditorValue9];
+                            Array.prototype.push.apply(initializeVisualEditorValue10, initializeVisualEditorValue9[querySelectorAllMethod]('*'));
+                            for (var initializeVisualEditorValue11 = 0, initializeVisualEditorValue12 = initializeVisualEditorValue10[lengthProperty]; initializeVisualEditorValue11 < initializeVisualEditorValue12; initializeVisualEditorValue11++) {
+                                var initializeVisualEditorValue13 = initializeVisualEditorValue10[initializeVisualEditorValue11];
+                                if (initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'script' || initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'foreignobject' || initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'iframe' || initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'object' || initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'embed' || initializeVisualEditorValue13[tagNameProperty][toLowerCaseMethod]() == 'style') {
+                                    if (initializeVisualEditorValue13[parentNodeProperty]) initializeVisualEditorValue13[parentNodeProperty][removeChildMethod](initializeVisualEditorValue13);
+                                    continue
+                                }
+                                for (var initializeVisualEditorValue14 = initializeVisualEditorValue13.attributes[lengthProperty] - 1; initializeVisualEditorValue14 >= 0; initializeVisualEditorValue14--) {
+                                    var initializeVisualEditorValue15 = initializeVisualEditorValue13.attributes[initializeVisualEditorValue14],
+                                        initializeVisualEditorValue16 = initializeVisualEditorValue15.name[toLowerCaseMethod](),
+                                        initializeVisualEditorValue17 = initializeVisualEditorValue15.value;
+                                    if (initializeVisualEditorValue16[indexOfMethod]('on') === 0 || (initializeVisualEditorValue16 == 'href' || initializeVisualEditorValue16 == 'xlink:href' || initializeVisualEditorValue16 == 'src') && /^(?:javascript|vbscript):/i.test(initializeVisualEditorValue17) || initializeVisualEditorValue16 == 'style' && /(?:javascript|expression)\s*:|url\s*\(\s*(?:javascript|data:text\/html)/i.test(initializeVisualEditorValue17)) initializeVisualEditorValue13[removeAttributeMethod](initializeVisualEditorValue15.name)
+                                }
+                            }
+                            return new XMLSerializer()[serializeToStringMethod](initializeVisualEditorValue9)
+                        },
+                        replaceInlineSvg = function(initializeVisualEditorArgument8, initializeVisualEditorArgument9) {
+                            var initializeVisualEditorValue18 = new FileReader();
+                            initializeVisualEditorValue18.onload = function() {
+                                var initializeVisualEditorValue19 = sanitizeInlineSvg(this.result);
+                                if (!initializeVisualEditorValue19) {
+                                    showMediaReplaceError();
+                                    return
+                                }
+                                var initializeVisualEditorValue20 = getStyleSourceRange(initializeVisualEditorArgument8),
+                                    initializeVisualEditorValue21 = initializeVisualEditorArgument8[parentNodeProperty];
+                                if (!initializeVisualEditorValue20 || !initializeVisualEditorValue21) {
+                                    showMediaReplaceError();
+                                    return
+                                }
+                                var initializeVisualEditorValue22 = callbackValue127[createElementMethod]('div');
+                                initializeVisualEditorValue22[innerHTMLProperty] = initializeVisualEditorValue19;
+                                var initializeVisualEditorValue23 = initializeVisualEditorValue22[firstElementChildProperty];
+                                if (!initializeVisualEditorValue23 || initializeVisualEditorValue23[tagNameProperty][toLowerCaseMethod]() != 'svg') {
+                                    showMediaReplaceError();
+                                    return
+                                }
+                                initializeVisualEditorValue21[replaceChildMethod](initializeVisualEditorValue23, initializeVisualEditorArgument8);
+                                serializedSource = serializedSource[sliceMethod](0, initializeVisualEditorValue20[0]) + initializeVisualEditorValue19 + serializedSource[sliceMethod](initializeVisualEditorValue20[1]);
+                                callbackValue11[innerHTMLProperty] = serializedSource;
+                                callbackValue4[disabledProperty] = false;
+                                mediaPickerTarget = initializeVisualEditorValue23;
+                                callbackValue106.call(initializeVisualEditorValue23);
+                                callbackValue75();
+                                callbackValue4[disabledProperty] = false
+                            };
+                            initializeVisualEditorValue18.onerror = showMediaReplaceError;
+                            initializeVisualEditorValue18.readAsText(initializeVisualEditorArgument9)
+                        },
+                        replaceMediaFile = function(initializeVisualEditorArgument10, initializeVisualEditorArgument11) {
+                            var initializeVisualEditorValue24 = initializeVisualEditorArgument10[tagNameProperty][toLowerCaseMethod]();
+                            if (initializeVisualEditorValue24 == imageTagName) callbackValue114.call(initializeVisualEditorArgument10, {preventDefault: function() {}, dataTransfer: {files: [initializeVisualEditorArgument11], types: ['Files']}});
+                            else if (initializeVisualEditorValue24 == 'svg') replaceInlineSvg(initializeVisualEditorArgument10, initializeVisualEditorArgument11)
+                        },
+                        openMediaPicker = function(initializeVisualEditorArgument12) {
+                            if (!isMediaTarget(initializeVisualEditorArgument12)) return;
+                            if (!mediaPicker) {
+                                mediaPicker = documentObject[createElementMethod]('input');
+                                mediaPicker.type = 'file';
+                                mediaPicker.hidden = true;
+                                mediaPicker[setAttributeMethod]('aria-hidden', 'true');
+                                mediaPicker[addEventListenerMethod](changeEvent, function() {
+                                    var initializeVisualEditorValue25 = this.files && this.files[0];
+                                    this.value = '';
+                                    if (initializeVisualEditorValue25 && mediaPickerTarget) replaceMediaFile(mediaPickerTarget, initializeVisualEditorValue25)
+                                });
+                                documentObject.body[appendChildMethod](mediaPicker)
+                            }
+                            mediaPickerTarget = initializeVisualEditorArgument12;
+                            mediaPicker.accept = initializeVisualEditorArgument12[tagNameProperty][toLowerCaseMethod]() == 'svg' ? 'image/svg+xml,.svg' : 'image/*,.svg';
+                            mediaPicker.click()
                         },
                         createStyleInspector = function() {
                             if (styleInspector) return styleInspector;
@@ -828,7 +926,6 @@
                                 initializeVisualEditorValue30[appendChildMethod](initializeVisualEditorValue32);
                                 initializeVisualEditorValue25[appendChildMethod](initializeVisualEditorValue30)
                             }
-                            styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
                             styleInspectorError = documentObject[createElementMethod]('p');
                             styleInspectorError[classNameProperty] = 'myvibehtml-style-inspector-error';
                             styleInspectorError[textContentProperty] = initializeVisualEditorValue10.invalid;
@@ -845,6 +942,7 @@
                             styleInspector[appendChildMethod](initializeVisualEditorValue23);
                             styleInspector[appendChildMethod](initializeVisualEditorValue24);
                             styleInspector[appendChildMethod](initializeVisualEditorValue25);
+                            styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
                             styleInspector[appendChildMethod](styleInspectorError);
                             initializeVisualEditorValue26[appendChildMethod](initializeVisualEditorValue27);
                             styleInspector[appendChildMethod](initializeVisualEditorValue26);
@@ -869,7 +967,7 @@
                                 if (initializeVisualEditorValue36 >= 0) initializeVisualEditorValue34 = initializeVisualEditorValue36
                             }
                             if (typeof initializeVisualEditorValue34 == 'number' && typeof initializeVisualEditorValue35 != 'number') {
-                                var initializeVisualEditorValue37 = initializeVisualEditorArgument2[tagNameProperty][toLowerCaseMethod()],
+                                var initializeVisualEditorValue37 = initializeVisualEditorArgument2[tagNameProperty][toLowerCaseMethod](),
                                     initializeVisualEditorValue38 = '</' + initializeVisualEditorValue37 + '>',
                                     initializeVisualEditorValue39 = serializedSource[indexOfMethod](initializeVisualEditorValue38, initializeVisualEditorValue34);
                                 if (initializeVisualEditorValue39 >= initializeVisualEditorValue34) {
@@ -950,7 +1048,7 @@
                             if (!initializeVisualEditorArgument11 || initializeVisualEditorArgument11 == callbackValue127.body) return;
                             createStyleInspector();
                             styleInspectorTarget = initializeVisualEditorArgument11;
-                            var initializeVisualEditorValue53 = callbackValue126[contentWindowProperty][getComputedStyleMethod](initializeVisualEditorArgument11),
+                            var initializeVisualEditorValue53 = initializeVisualEditorArgument11[ownerDocumentProperty] && initializeVisualEditorArgument11[ownerDocumentProperty].defaultView ? initializeVisualEditorArgument11[ownerDocumentProperty].defaultView[getComputedStyleMethod](initializeVisualEditorArgument11) : callbackValue126[contentWindowProperty][getComputedStyleMethod](initializeVisualEditorArgument11),
                                 initializeVisualEditorValue54 = initializeVisualEditorArgument11[tagNameProperty][toLowerCaseMethod](),
                                 initializeVisualEditorValue55 = initializeVisualEditorArgument11.id ? '#' + initializeVisualEditorArgument11.id : '',
                                 initializeVisualEditorValue56 = initializeVisualEditorArgument11.className && typeof initializeVisualEditorArgument11.className == 'string' ? '.' + initializeVisualEditorArgument11.className[replaceMethod](/\s+/g, '.') : '';
@@ -958,7 +1056,17 @@
                             for (var initializeVisualEditorValue57 = 0, initializeVisualEditorValue58 = styleInspectorFields[lengthProperty]; initializeVisualEditorValue57 < initializeVisualEditorValue58; initializeVisualEditorValue57++) {
                                 var initializeVisualEditorValue59 = styleInspectorFields[initializeVisualEditorValue57],
                                     initializeVisualEditorValue60 = initializeVisualEditorValue59[getAttributeMethod]('data-myvibehtml-style-property'),
-                                initializeVisualEditorValue61 = initializeVisualEditorArgument11[styleProperty].getPropertyValue(initializeVisualEditorValue60) || initializeVisualEditorValue53.getPropertyValue(initializeVisualEditorValue60);
+                                initializeVisualEditorValue61 = initializeVisualEditorArgument11[styleProperty].getPropertyValue(initializeVisualEditorValue60) || initializeVisualEditorValue53.getPropertyValue(initializeVisualEditorValue60) || '';
+                                if (initializeVisualEditorValue59[tagNameProperty][toLowerCaseMethod]() == 'select' && initializeVisualEditorValue61) {
+                                    var initializeVisualEditorValue62 = false;
+                                    for (var initializeVisualEditorValue63 = 0, initializeVisualEditorValue64 = initializeVisualEditorValue59.options[lengthProperty]; initializeVisualEditorValue63 < initializeVisualEditorValue64; initializeVisualEditorValue63++) if (initializeVisualEditorValue59.options[initializeVisualEditorValue63].value == initializeVisualEditorValue61) initializeVisualEditorValue62 = true;
+                                    if (!initializeVisualEditorValue62) {
+                                        var initializeVisualEditorValue65 = documentObject[createElementMethod]('option');
+                                        initializeVisualEditorValue65.value = initializeVisualEditorValue61;
+                                        initializeVisualEditorValue65[textContentProperty] = initializeVisualEditorValue61;
+                                        initializeVisualEditorValue59[appendChildMethod](initializeVisualEditorValue65)
+                                    }
+                                }
                                 initializeVisualEditorValue59[valueProperty] = initializeVisualEditorValue61;
                                 initializeVisualEditorValue59[removeAttributeMethod]('aria-invalid')
                             }
@@ -998,13 +1106,14 @@
                             var initializeVisualEditorValue12 = documentObject[createElementMethod]('div');
                             initializeVisualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](initializeVisualEditorValue12);
-                            var initializeVisualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(callbackValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['clone', callbackValue9[getAttributeMethod]('data-context-copy') || 'Clone', callbackValue89], ['up', callbackValue9[getAttributeMethod]('data-context-up') || 'Move up', callbackValue90], ['down', callbackValue9[getAttributeMethod]('data-context-down') || 'Move down', callbackValue91], ['delete', callbackValue9[getAttributeMethod]('data-context-delete') || 'Delete', callbackValue92]];
+                            var initializeVisualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(callbackValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['media', callbackValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', callbackValue9[getAttributeMethod]('data-context-copy') || 'Clone', callbackValue89], ['up', callbackValue9[getAttributeMethod]('data-context-up') || 'Move up', callbackValue90], ['down', callbackValue9[getAttributeMethod]('data-context-down') || 'Move down', callbackValue91], ['delete', callbackValue9[getAttributeMethod]('data-context-delete') || 'Delete', callbackValue92]];
                             for (var initializeVisualEditorValue14 = 0, initializeVisualEditorValue15 = initializeVisualEditorValue13[lengthProperty]; initializeVisualEditorValue14 < initializeVisualEditorValue15; initializeVisualEditorValue14++) {
                                 var initializeVisualEditorValue16 = documentObject[createElementMethod]('button');
                                 initializeVisualEditorValue16.type = 'button';
                                 initializeVisualEditorValue16[setAttributeMethod]('role', 'menuitem');
                                 initializeVisualEditorValue16[classNameProperty] = 'myvibehtml-context-action';
                                 initializeVisualEditorValue16.action = initializeVisualEditorValue13[initializeVisualEditorValue14][0];
+                                if (initializeVisualEditorValue16.action == 'media') initializeVisualEditorValue16[setAttributeMethod]('data-myvibehtml-media-action', 'true');
                                 initializeVisualEditorValue16.handler = initializeVisualEditorValue13[initializeVisualEditorValue14][2];
                                 initializeVisualEditorValue16[textContentProperty] = initializeVisualEditorValue13[initializeVisualEditorValue14][1];
                                 initializeVisualEditorValue16[addEventListenerMethod](clickEvent, function() {
@@ -1013,6 +1122,14 @@
                                         selectContextNode(initializeVisualEditorValue17, 'element');
                                         renderStyleInspector(initializeVisualEditorValue17);
                                         hideContextMenu();
+                                        return
+                                    }
+                                    if (this.action == 'media') {
+                                        var initializeVisualEditorValue18 = getMediaTarget(contextTarget);
+                                        if (!initializeVisualEditorValue18) return;
+                                        selectContextNode(initializeVisualEditorValue18, 'element');
+                                        hideContextMenu();
+                                        openMediaPicker(initializeVisualEditorValue18);
                                         return
                                     }
                                     selectContextNode(contextTarget, 'element');
@@ -1038,6 +1155,8 @@
                                 initializeVisualEditorValue14 = callbackValue126.getBoundingClientRect(),
                                 initializeVisualEditorValue15 = initializeVisualEditorValue14.left + event.clientX,
                                 initializeVisualEditorValue16 = initializeVisualEditorValue14.top + event.clientY;
+                            var initializeVisualEditorValue17 = initializeVisualEditorValue13[querySelectorMethod]('[data-myvibehtml-media-action]');
+                            if (initializeVisualEditorValue17) initializeVisualEditorValue17[styleProperty][displayProperty] = isMediaTarget(contextTarget) ? blockValue : noneValue;
                             initializeVisualEditorValue13[styleProperty][displayProperty] = blockValue;
                             initializeVisualEditorValue13[setAttributeMethod]('aria-hidden', 'false');
                             initializeVisualEditorValue15 = Math.max(8, Math.min(initializeVisualEditorValue15, windowObject.innerWidth - initializeVisualEditorValue13.offsetWidth - 8));
