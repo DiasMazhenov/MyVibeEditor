@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.20 */
+<?php /* MyVibeHTML v0.21 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -573,7 +573,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.20';
+    const VERSION = '0.21';
     private $config;
     private $request;
     private $response;

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.20 */
+/* MyVibeHTML v0.21 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -647,6 +647,10 @@
                         callbackValue71 = 'input,button,textarea,select,iframe,svg,canvas,object,video,audio',
                         contextMenu = null,
                         contextTarget = null,
+                        styleInspector = null,
+                        styleInspectorTarget = null,
+                        styleInspectorFields = null,
+                        styleInspectorError = null,
                         getContextNode = function(initializeVisualEditorArgument1) {
                             for (var initializeVisualEditorValue2 = initializeVisualEditorArgument1; initializeVisualEditorValue2 && initializeVisualEditorValue2 != callbackValue127.body; initializeVisualEditorValue2 = initializeVisualEditorValue2[parentNodeProperty]) {
                                 if (initializeVisualEditorValue2.realNode) initializeVisualEditorValue2 = initializeVisualEditorValue2.realNode;
@@ -676,13 +680,300 @@
                             if (!initializeVisualEditorArgument4) return;
                             clearContextSelection();
                             initializeVisualEditorArgument4[setAttributeMethod]('data-myvibehtml-selection', initializeVisualEditorArgument5);
-                            callbackValue106.call(initializeVisualEditorArgument4)
+                            callbackValue106.call(initializeVisualEditorArgument4);
+                            if (styleInspector && !styleInspector.hidden) renderStyleInspector(initializeVisualEditorArgument4)
                         },
                         hideContextMenu = function() {
                             if (contextMenu) {
                                 contextMenu[styleProperty][displayProperty] = noneValue;
                                 contextMenu[setAttributeMethod]('aria-hidden', 'true')
                             }
+                        },
+                        createStyleInspector = function() {
+                            if (styleInspector) return styleInspector;
+                            var initializeVisualEditorValue8 = callbackValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '',
+                                initializeVisualEditorValue9 = /[А-Яа-яЁё]/.test(initializeVisualEditorValue8),
+                                initializeVisualEditorValue10 = initializeVisualEditorValue9 ? {
+                                    title: 'CSS-свойства',
+                                    close: 'Закрыть',
+                                    hint: 'Изменения применяются сразу и попадут в HTML после сохранения.',
+                                    target: 'Выбранный узел',
+                                    invalid: 'Проверьте значение CSS',
+                                    reset: 'Сбросить',
+                                    layout: 'Разметка',
+                                    spacing: 'Отступы',
+                                    typography: 'Типографика',
+                                    surface: 'Оформление',
+                                    display: 'Display',
+                                    width: 'Ширина',
+                                    height: 'Высота',
+                                    margin: 'Margin',
+                                    padding: 'Padding',
+                                    gap: 'Gap',
+                                    fontSize: 'Размер шрифта',
+                                    fontWeight: 'Насыщенность',
+                                    lineHeight: 'Высота строки',
+                                    textAlign: 'Выравнивание',
+                                    color: 'Цвет текста',
+                                    backgroundColor: 'Фон',
+                                    borderRadius: 'Скругление'
+                                } : {
+                                    title: 'CSS properties',
+                                    close: 'Close',
+                                    hint: 'Changes apply immediately and are written to HTML when saved.',
+                                    target: 'Selected node',
+                                    invalid: 'Check the CSS value',
+                                    reset: 'Reset',
+                                    layout: 'Layout',
+                                    spacing: 'Spacing',
+                                    typography: 'Typography',
+                                    surface: 'Surface',
+                                    display: 'Display',
+                                    width: 'Width',
+                                    height: 'Height',
+                                    margin: 'Margin',
+                                    padding: 'Padding',
+                                    gap: 'Gap',
+                                    fontSize: 'Font size',
+                                    fontWeight: 'Font weight',
+                                    lineHeight: 'Line height',
+                                    textAlign: 'Text align',
+                                    color: 'Text color',
+                                    backgroundColor: 'Background',
+                                    borderRadius: 'Border radius'
+                                },
+                                initializeVisualEditorValue11 = function(initializeVisualEditorArgument1, initializeVisualEditorArgument2) {
+                                    var initializeVisualEditorValue12 = documentObject[createElementMethod]('label'),
+                                        initializeVisualEditorValue13 = documentObject[createElementMethod]('span'),
+                                        initializeVisualEditorValue14 = documentObject[createElementMethod](initializeVisualEditorArgument2 ? 'select' : 'input');
+                                    initializeVisualEditorValue13[textContentProperty] = initializeVisualEditorArgument1.label;
+                                    initializeVisualEditorValue14[setAttributeMethod]('data-myvibehtml-style-property', initializeVisualEditorArgument1.property);
+                                    initializeVisualEditorValue14[classNameProperty] = 'myvibehtml-style-field';
+                                    initializeVisualEditorValue14[setAttributeMethod]('aria-label', initializeVisualEditorArgument1.label);
+                                    if (!initializeVisualEditorArgument2) {
+                                        initializeVisualEditorValue14.type = 'text';
+                                        initializeVisualEditorValue14[setAttributeMethod]('spellcheck', 'false');
+                                    } else for (var initializeVisualEditorValue15 = 0, initializeVisualEditorValue16 = initializeVisualEditorArgument2[lengthProperty]; initializeVisualEditorValue15 < initializeVisualEditorValue16; initializeVisualEditorValue15++) {
+                                        var initializeVisualEditorValue17 = documentObject[createElementMethod]('option');
+                                        initializeVisualEditorValue17.value = initializeVisualEditorArgument2[initializeVisualEditorValue15];
+                                        initializeVisualEditorValue17[textContentProperty] = initializeVisualEditorArgument2[initializeVisualEditorValue15];
+                                        initializeVisualEditorValue14[appendChildMethod](initializeVisualEditorValue17)
+                                    }
+                                    initializeVisualEditorValue14[addEventListenerMethod](initializeVisualEditorArgument2 ? 'change' : inputEvent, function() {
+                                        applyStyleProperty.call(this)
+                                    });
+                                    initializeVisualEditorValue12[appendChildMethod](initializeVisualEditorValue13);
+                                    initializeVisualEditorValue12[appendChildMethod](initializeVisualEditorValue14);
+                                    return initializeVisualEditorValue12
+                                },
+                                initializeVisualEditorValue18 = [
+                                    {title: initializeVisualEditorValue10.layout, fields: [
+                                        {property: 'display', label: initializeVisualEditorValue10.display, options: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none']},
+                                        {property: 'width', label: initializeVisualEditorValue10.width},
+                                        {property: 'height', label: initializeVisualEditorValue10.height}
+                                    ]},
+                                    {title: initializeVisualEditorValue10.spacing, fields: [
+                                        {property: 'margin', label: initializeVisualEditorValue10.margin},
+                                        {property: 'padding', label: initializeVisualEditorValue10.padding},
+                                        {property: 'gap', label: initializeVisualEditorValue10.gap}
+                                    ]},
+                                    {title: initializeVisualEditorValue10.typography, fields: [
+                                        {property: 'font-size', label: initializeVisualEditorValue10.fontSize},
+                                        {property: 'font-weight', label: initializeVisualEditorValue10.fontWeight, options: ['400', '500', '600', '700']},
+                                        {property: 'line-height', label: initializeVisualEditorValue10.lineHeight},
+                                        {property: 'text-align', label: initializeVisualEditorValue10.textAlign, options: ['left', 'center', 'right', 'justify', 'start', 'end']}
+                                    ]},
+                                    {title: initializeVisualEditorValue10.surface, fields: [
+                                        {property: 'color', label: initializeVisualEditorValue10.color},
+                                        {property: 'background-color', label: initializeVisualEditorValue10.backgroundColor},
+                                        {property: 'border-radius', label: initializeVisualEditorValue10.borderRadius}
+                                    ]}
+                                ];
+                            styleInspector = documentObject[createElementMethod]('aside');
+                            styleInspector.id = 'myvibehtml-style-inspector';
+                            styleInspector[setAttributeMethod]('role', 'dialog');
+                            styleInspector[setAttributeMethod]('aria-modal', 'false');
+                            styleInspector[setAttributeMethod]('aria-hidden', 'true');
+                            styleInspector.hidden = true;
+                            var initializeVisualEditorValue19 = documentObject[createElementMethod]('div'),
+                                initializeVisualEditorValue20 = documentObject[createElementMethod]('div'),
+                                initializeVisualEditorValue21 = documentObject[createElementMethod]('h2'),
+                                initializeVisualEditorValue22 = documentObject[createElementMethod]('button'),
+                                initializeVisualEditorValue23 = documentObject[createElementMethod]('p'),
+                                initializeVisualEditorValue24 = documentObject[createElementMethod]('p'),
+                                initializeVisualEditorValue25 = documentObject[createElementMethod]('form'),
+                                initializeVisualEditorValue26 = documentObject[createElementMethod]('div'),
+                                initializeVisualEditorValue27 = documentObject[createElementMethod]('button');
+                            initializeVisualEditorValue19[classNameProperty] = 'myvibehtml-style-inspector-header';
+                            initializeVisualEditorValue20[classNameProperty] = 'myvibehtml-style-inspector-heading';
+                            initializeVisualEditorValue21.id = 'myvibehtml-style-inspector-title';
+                            initializeVisualEditorValue21[textContentProperty] = initializeVisualEditorValue10.title;
+                            initializeVisualEditorValue22.type = 'button';
+                            initializeVisualEditorValue22[textContentProperty] = initializeVisualEditorValue10.close;
+                            initializeVisualEditorValue22[classNameProperty] = 'myvibehtml-style-inspector-close';
+                            initializeVisualEditorValue22[addEventListenerMethod](clickEvent, closeStyleInspector);
+                            initializeVisualEditorValue23[classNameProperty] = 'myvibehtml-style-inspector-hint';
+                            initializeVisualEditorValue23[textContentProperty] = initializeVisualEditorValue10.hint;
+                            initializeVisualEditorValue24[classNameProperty] = 'myvibehtml-style-inspector-target';
+                            initializeVisualEditorValue24[setAttributeMethod]('data-myvibehtml-style-target', '');
+                            initializeVisualEditorValue25[setAttributeMethod]('novalidate', 'novalidate');
+                            for (var initializeVisualEditorValue28 = 0, initializeVisualEditorValue29 = initializeVisualEditorValue18[lengthProperty]; initializeVisualEditorValue28 < initializeVisualEditorValue29; initializeVisualEditorValue28++) {
+                                var initializeVisualEditorValue30 = documentObject[createElementMethod]('fieldset'),
+                                    initializeVisualEditorValue31 = documentObject[createElementMethod]('legend'),
+                                    initializeVisualEditorValue32 = documentObject[createElementMethod]('div');
+                                initializeVisualEditorValue31[textContentProperty] = initializeVisualEditorValue18[initializeVisualEditorValue28].title;
+                                initializeVisualEditorValue32[classNameProperty] = 'myvibehtml-style-grid';
+                                for (var initializeVisualEditorValue33 = 0, initializeVisualEditorValue34 = initializeVisualEditorValue18[initializeVisualEditorValue28].fields[lengthProperty]; initializeVisualEditorValue33 < initializeVisualEditorValue34; initializeVisualEditorValue33++) initializeVisualEditorValue32[appendChildMethod](initializeVisualEditorValue11(initializeVisualEditorValue18[initializeVisualEditorValue28].fields[initializeVisualEditorValue33], initializeVisualEditorValue18[initializeVisualEditorValue28].fields[initializeVisualEditorValue33].options));
+                                initializeVisualEditorValue30[appendChildMethod](initializeVisualEditorValue31);
+                                initializeVisualEditorValue30[appendChildMethod](initializeVisualEditorValue32);
+                                initializeVisualEditorValue25[appendChildMethod](initializeVisualEditorValue30)
+                            }
+                            styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
+                            styleInspectorError = documentObject[createElementMethod]('p');
+                            styleInspectorError[classNameProperty] = 'myvibehtml-style-inspector-error';
+                            styleInspectorError[textContentProperty] = initializeVisualEditorValue10.invalid;
+                            styleInspectorError.hidden = true;
+                            initializeVisualEditorValue26[classNameProperty] = 'myvibehtml-style-inspector-footer';
+                            initializeVisualEditorValue27.type = 'button';
+                            initializeVisualEditorValue27[textContentProperty] = initializeVisualEditorValue10.reset;
+                            initializeVisualEditorValue27[classNameProperty] = 'myvibehtml-style-inspector-reset';
+                            initializeVisualEditorValue27[addEventListenerMethod](clickEvent, resetStyleInspector);
+                            initializeVisualEditorValue20[appendChildMethod](initializeVisualEditorValue21);
+                            initializeVisualEditorValue19[appendChildMethod](initializeVisualEditorValue20);
+                            initializeVisualEditorValue19[appendChildMethod](initializeVisualEditorValue22);
+                            styleInspector[appendChildMethod](initializeVisualEditorValue19);
+                            styleInspector[appendChildMethod](initializeVisualEditorValue23);
+                            styleInspector[appendChildMethod](initializeVisualEditorValue24);
+                            styleInspector[appendChildMethod](initializeVisualEditorValue25);
+                            styleInspector[appendChildMethod](styleInspectorError);
+                            initializeVisualEditorValue26[appendChildMethod](initializeVisualEditorValue27);
+                            styleInspector[appendChildMethod](initializeVisualEditorValue26);
+                            documentObject.body[appendChildMethod](styleInspector);
+                            documentObject[addEventListenerMethod](keyDownEvent, function(initializeVisualEditorArgument12) {
+                                if (initializeVisualEditorArgument12[keyCodeProperty] == 27 && styleInspector && !styleInspector.hidden) closeStyleInspector()
+                            });
+                            return styleInspector
+                        },
+                        closeStyleInspector = function() {
+                            if (styleInspector) {
+                                styleInspector.hidden = true;
+                                styleInspector[setAttributeMethod]('aria-hidden', 'true')
+                            }
+                            styleInspectorTarget = null
+                        },
+                        getStyleSourceRange = function(initializeVisualEditorArgument2) {
+                            var initializeVisualEditorValue34 = callbackValue93(initializeVisualEditorArgument2),
+                                initializeVisualEditorValue35 = callbackValue94(initializeVisualEditorArgument2);
+                            if (typeof initializeVisualEditorValue34 == 'number' && serializedSource[initializeVisualEditorValue34] != '<') {
+                                var initializeVisualEditorValue36 = serializedSource[lastIndexOfMethod]('<', initializeVisualEditorValue34);
+                                if (initializeVisualEditorValue36 >= 0) initializeVisualEditorValue34 = initializeVisualEditorValue36
+                            }
+                            if (typeof initializeVisualEditorValue34 == 'number' && typeof initializeVisualEditorValue35 != 'number') {
+                                var initializeVisualEditorValue37 = initializeVisualEditorArgument2[tagNameProperty][toLowerCaseMethod()],
+                                    initializeVisualEditorValue38 = '</' + initializeVisualEditorValue37 + '>',
+                                    initializeVisualEditorValue39 = serializedSource[indexOfMethod](initializeVisualEditorValue38, initializeVisualEditorValue34);
+                                if (initializeVisualEditorValue39 >= initializeVisualEditorValue34) {
+                                    initializeVisualEditorValue35 = initializeVisualEditorValue39 + initializeVisualEditorValue38[lengthProperty]
+                                }
+                            }
+                            if (typeof initializeVisualEditorValue34 != 'number' || typeof initializeVisualEditorValue35 != 'number' || initializeVisualEditorValue35 <= initializeVisualEditorValue34) return null;
+                            return [initializeVisualEditorValue34, initializeVisualEditorValue35]
+                        },
+                        escapeStyleAttribute = function(initializeVisualEditorArgument3) {
+                            return initializeVisualEditorArgument3[splitMethod]('&')[joinMethod]('&amp;')[splitMethod]('"')[joinMethod]('&quot;')[splitMethod]('<')[joinMethod]('&lt;')[splitMethod]('>')[joinMethod]('&gt;')
+                        },
+                        findOpeningTagEnd = function(initializeVisualEditorArgument4) {
+                            for (var initializeVisualEditorValue36 = '', initializeVisualEditorValue37 = 0, initializeVisualEditorValue38 = initializeVisualEditorArgument4[lengthProperty]; initializeVisualEditorValue37 < initializeVisualEditorValue38; initializeVisualEditorValue37++) {
+                                var initializeVisualEditorValue39 = initializeVisualEditorArgument4[initializeVisualEditorValue37];
+                                if (initializeVisualEditorValue36) {
+                                    if (initializeVisualEditorValue39 == initializeVisualEditorValue36) initializeVisualEditorValue36 = ''
+                                } else if (initializeVisualEditorValue39 == '"' || initializeVisualEditorValue39 == "'") initializeVisualEditorValue36 = initializeVisualEditorValue39;
+                                else if (initializeVisualEditorValue39 == '>') return initializeVisualEditorValue37 + 1
+                            }
+                            return -1
+                        },
+                        syncStyleSource = function(initializeVisualEditorArgument5, initializeVisualEditorArgument6, initializeVisualEditorArgument7, initializeVisualEditorArgument8) {
+                            var initializeVisualEditorValue40 = serializedSource[sliceMethod](initializeVisualEditorArgument6, initializeVisualEditorArgument7),
+                                initializeVisualEditorValue41 = findOpeningTagEnd(initializeVisualEditorValue40);
+                            if (initializeVisualEditorValue41 < 0) return false;
+                            var initializeVisualEditorValue42 = initializeVisualEditorValue40[sliceMethod](0, initializeVisualEditorValue41),
+                                initializeVisualEditorValue43 = /\sstyle\s*=\s*(?:"([\s\S]*?)"|'([\s\S]*?)'|([^\s>]+))/i,
+                                initializeVisualEditorValue44 = initializeVisualEditorValue42[matchMethod](initializeVisualEditorValue43);
+                            if (initializeVisualEditorArgument8) {
+                                if (initializeVisualEditorValue44) initializeVisualEditorValue42 = initializeVisualEditorValue42[replaceMethod](initializeVisualEditorValue43, ' style="' + escapeStyleAttribute(initializeVisualEditorArgument8) + '"');
+                                else {
+                                    var initializeVisualEditorValue45 = initializeVisualEditorValue42[lengthProperty] - 1;
+                                    if (initializeVisualEditorValue42[initializeVisualEditorValue45 - 1] == '/') initializeVisualEditorValue45--;
+                                    initializeVisualEditorValue42 = initializeVisualEditorValue42[sliceMethod](0, initializeVisualEditorValue45) + ' style="' + escapeStyleAttribute(initializeVisualEditorArgument8) + '"' + initializeVisualEditorValue42[sliceMethod](initializeVisualEditorValue45)
+                                }
+                            } else if (initializeVisualEditorValue44) initializeVisualEditorValue42 = initializeVisualEditorValue42[replaceMethod](initializeVisualEditorValue43, '');
+                            serializedSource = serializedSource[sliceMethod](0, initializeVisualEditorArgument6) + initializeVisualEditorValue42 + initializeVisualEditorValue40[sliceMethod](initializeVisualEditorValue41) + serializedSource[sliceMethod](initializeVisualEditorArgument7);
+                            callbackValue11[innerHTMLProperty] = serializedSource;
+                            callbackValue4[disabledProperty] = false;
+                            return true
+                        },
+                        isValidStyleValue = function(initializeVisualEditorArgument9, initializeVisualEditorArgument10) {
+                            if (!initializeVisualEditorArgument10) return '';
+                            if (initializeVisualEditorArgument10[lengthProperty] > 180 || /[{}<>;]/.test(initializeVisualEditorArgument10) || /(?:javascript|expression|url)\s*\(/i.test(initializeVisualEditorArgument10)) return null;
+                            try {
+                                if (!windowObject.CSS || !windowObject.CSS.supports || !windowObject.CSS.supports(initializeVisualEditorArgument9, initializeVisualEditorArgument10)) return null
+                            } catch (initializeVisualEditorValue46) {
+                                return null
+                            }
+                            return initializeVisualEditorArgument10
+                        },
+                        applyStyleProperty = function() {
+                            if (!styleInspectorTarget) return;
+                            var initializeVisualEditorValue47 = this[getAttributeMethod]('data-myvibehtml-style-property'),
+                                initializeVisualEditorValue48 = isValidStyleValue(initializeVisualEditorValue47, this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''));
+                            if (initializeVisualEditorValue48 === null) {
+                                this[setAttributeMethod]('aria-invalid', 'true');
+                                styleInspectorError.hidden = false;
+                                return
+                            }
+                            var initializeVisualEditorValue49 = styleInspectorTarget[getAttributeMethod]('style'),
+                                initializeVisualEditorValue50 = getStyleSourceRange(styleInspectorTarget);
+                            if (!initializeVisualEditorValue50) return;
+                            if (initializeVisualEditorValue48) styleInspectorTarget[styleProperty].setProperty(initializeVisualEditorValue47, initializeVisualEditorValue48);
+                            else styleInspectorTarget[styleProperty].removeProperty(initializeVisualEditorValue47);
+                            var initializeVisualEditorValue51 = styleInspectorTarget[getAttributeMethod]('style') || '',
+                                initializeVisualEditorValue52 = syncStyleSource(styleInspectorTarget, initializeVisualEditorValue50[0], initializeVisualEditorValue50[1], initializeVisualEditorValue51);
+                            if (!initializeVisualEditorValue52) {
+                                if (initializeVisualEditorValue49 === null) styleInspectorTarget[removeAttributeMethod]('style');
+                                else styleInspectorTarget[setAttributeMethod]('style', initializeVisualEditorValue49);
+                                return
+                            }
+                            this[removeAttributeMethod]('aria-invalid');
+                            styleInspectorError.hidden = true
+                        },
+                        renderStyleInspector = function(initializeVisualEditorArgument11) {
+                            if (!initializeVisualEditorArgument11 || initializeVisualEditorArgument11 == callbackValue127.body) return;
+                            createStyleInspector();
+                            styleInspectorTarget = initializeVisualEditorArgument11;
+                            var initializeVisualEditorValue53 = callbackValue126[contentWindowProperty][getComputedStyleMethod](initializeVisualEditorArgument11),
+                                initializeVisualEditorValue54 = initializeVisualEditorArgument11[tagNameProperty][toLowerCaseMethod](),
+                                initializeVisualEditorValue55 = initializeVisualEditorArgument11.id ? '#' + initializeVisualEditorArgument11.id : '',
+                                initializeVisualEditorValue56 = initializeVisualEditorArgument11.className && typeof initializeVisualEditorArgument11.className == 'string' ? '.' + initializeVisualEditorArgument11.className[replaceMethod](/\s+/g, '.') : '';
+                            styleInspector[querySelectorMethod]('[data-myvibehtml-style-target]')[textContentProperty] = '<' + initializeVisualEditorValue54 + initializeVisualEditorValue55 + initializeVisualEditorValue56 + '>';
+                            for (var initializeVisualEditorValue57 = 0, initializeVisualEditorValue58 = styleInspectorFields[lengthProperty]; initializeVisualEditorValue57 < initializeVisualEditorValue58; initializeVisualEditorValue57++) {
+                                var initializeVisualEditorValue59 = styleInspectorFields[initializeVisualEditorValue57],
+                                    initializeVisualEditorValue60 = initializeVisualEditorValue59[getAttributeMethod]('data-myvibehtml-style-property'),
+                                initializeVisualEditorValue61 = initializeVisualEditorArgument11[styleProperty].getPropertyValue(initializeVisualEditorValue60) || initializeVisualEditorValue53.getPropertyValue(initializeVisualEditorValue60);
+                                initializeVisualEditorValue59[valueProperty] = initializeVisualEditorValue61;
+                                initializeVisualEditorValue59[removeAttributeMethod]('aria-invalid')
+                            }
+                            styleInspectorError.hidden = true;
+                            styleInspector.hidden = false;
+                            styleInspector[setAttributeMethod]('aria-hidden', 'false')
+                        },
+                        resetStyleInspector = function() {
+                            if (!styleInspectorTarget) return;
+                            var initializeVisualEditorValue62 = styleInspectorTarget[getAttributeMethod]('style'),
+                                initializeVisualEditorValue63 = getStyleSourceRange(styleInspectorTarget);
+                            if (!initializeVisualEditorValue63) return;
+                            styleInspectorTarget[removeAttributeMethod]('style');
+                            if (!syncStyleSource(styleInspectorTarget, initializeVisualEditorValue63[0], initializeVisualEditorValue63[1], '')) renderStyleInspector(styleInspectorTarget), styleInspectorTarget[setAttributeMethod]('style', initializeVisualEditorValue62 || '');
+                            else renderStyleInspector(styleInspectorTarget)
                         },
                         createContextMenu = function() {
                             if (contextMenu) return contextMenu;
@@ -707,7 +998,7 @@
                             var initializeVisualEditorValue12 = documentObject[createElementMethod]('div');
                             initializeVisualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](initializeVisualEditorValue12);
-                            var initializeVisualEditorValue13 = [['clone', callbackValue9[getAttributeMethod]('data-context-copy') || 'Clone', callbackValue89], ['up', callbackValue9[getAttributeMethod]('data-context-up') || 'Move up', callbackValue90], ['down', callbackValue9[getAttributeMethod]('data-context-down') || 'Move down', callbackValue91], ['delete', callbackValue9[getAttributeMethod]('data-context-delete') || 'Delete', callbackValue92]];
+                            var initializeVisualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(callbackValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['clone', callbackValue9[getAttributeMethod]('data-context-copy') || 'Clone', callbackValue89], ['up', callbackValue9[getAttributeMethod]('data-context-up') || 'Move up', callbackValue90], ['down', callbackValue9[getAttributeMethod]('data-context-down') || 'Move down', callbackValue91], ['delete', callbackValue9[getAttributeMethod]('data-context-delete') || 'Delete', callbackValue92]];
                             for (var initializeVisualEditorValue14 = 0, initializeVisualEditorValue15 = initializeVisualEditorValue13[lengthProperty]; initializeVisualEditorValue14 < initializeVisualEditorValue15; initializeVisualEditorValue14++) {
                                 var initializeVisualEditorValue16 = documentObject[createElementMethod]('button');
                                 initializeVisualEditorValue16.type = 'button';
@@ -717,6 +1008,13 @@
                                 initializeVisualEditorValue16.handler = initializeVisualEditorValue13[initializeVisualEditorValue14][2];
                                 initializeVisualEditorValue16[textContentProperty] = initializeVisualEditorValue13[initializeVisualEditorValue14][1];
                                 initializeVisualEditorValue16[addEventListenerMethod](clickEvent, function() {
+                                    if (this.action == 'style') {
+                                        var initializeVisualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
+                                        selectContextNode(initializeVisualEditorValue17, 'element');
+                                        renderStyleInspector(initializeVisualEditorValue17);
+                                        hideContextMenu();
+                                        return
+                                    }
                                     selectContextNode(contextTarget, 'element');
                                     if (this.handler) this.handler.call(this);
                                     hideContextMenu()
@@ -1367,6 +1665,7 @@
                                     serializedSource = serializedSource[sliceMethod](0, initializeVisualEditorValue146) + serializedSource[sliceMethod](initializeVisualEditorValue147);
                                     callbackValue83();
                                     initializeVisualEditorValue148[removeChildMethod](initializeVisualEditorValue145);
+                                    if (styleInspectorTarget == initializeVisualEditorValue145) closeStyleInspector();
                                     callbackValue74(initializeVisualEditorValue148)
                                 }
                             }

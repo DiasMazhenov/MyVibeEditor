@@ -1,6 +1,6 @@
 # Каталог функций MyVibeHTML
 
-Это каталог runtime-функций после деобфускации v0.20. Имена `callbackValue...` в JavaScript — технические локальные ссылки старого IIFE; ниже они описаны по назначению, чтобы документация не зависела от номеров локальных переменных.
+Это каталог runtime-функций после деобфускации v0.21. Имена `callbackValue...` в JavaScript — технические локальные ссылки старого IIFE; ниже они описаны по назначению, чтобы документация не зависела от номеров локальных переменных.
 
 ## PHP: вход, ответ и конфигурация
 
@@ -46,11 +46,13 @@
 
 `initializeVisualEditor()` подключает события iframe. `getContextNode()`, `getSectionNode()`, `getBlockNode()` вычисляют уровни DOM. `clearContextSelection()`, `selectContextNode()`, `createContextMenu()`, `showContextMenu()` и `hideContextMenu()` реализуют выделение и контекстное меню.
 
+CSS-инспектор используют `createStyleInspector()` и `renderStyleInspector()` для построения панели и заполнения inline/computed-значений. `applyStyleProperty()` валидирует allowlist CSS-свойств, применяет значение к live-узлу и вызывает `syncStyleSource()` для обновления исходного HTML. `getStyleSourceRange()` вычисляет границы реального opening/closing tag, включая служебную текстовую обёртку `<edit>`, а `resetStyleInspector()` удаляет inline-стиль с восстановлением источника. `closeStyleInspector()` закрывает панель по кнопке или Escape; `isValidStyleValue()` отклоняет опасные конструкции, внешние URL и неподдерживаемые значения.
+
 Существующие обработчики toolbar переиспользуются контекстным меню: clone (`callbackValue89`), move up (`callbackValue90`), move down (`callbackValue91`) и delete (`callbackValue92`). Это сохраняет одну бизнес-логику для нижней панели и правой кнопки мыши.
 
 `replaceFileListFragment()` принимает server response через `DOMParser`, удаляет неразрешённые теги/атрибуты и вставляет `DocumentFragment`. `openDirectory()`, `expandDirectory()` и обработчики file entry обновляют файловый список. `uploadFile()`, `deleteFile()`, `replaceFile()`, `recoverFile()` выполняют операции над файлами.
 
-Редактор исходного кода использует `innerHTML` намеренно для подсветки и восстановления пользовательского HTML. Это не server-response sink; статусные узлы редактора v0.20 используют `textContent`.
+Редактор исходного кода использует `innerHTML` намеренно для подсветки и восстановления пользовательского HTML. Это не server-response sink; статусные узлы редактора v0.21 используют `textContent`.
 
 ## Полный именной inventory PHP
 
@@ -73,6 +75,8 @@
 Авторизация: `togglePasswordVisibility`, `handleLoginKeydown`, `updateLoginButton`, `startLogin`, `hashPassword`, `submitLogin`.
 
 Редактор и выделение: `initializeVisualEditor`, `getContextNode`, `getSectionNode`, `getBlockNode`, `clearContextSelection`, `selectContextNode`, `createContextMenu`, `showContextMenu`, `hideContextMenu`, `handleEditorSelection`, `syncToolbarSpace`, `saveEditorContent`, `switchEditorMode`, `resetEditorFocus`.
+
+CSS-инспектор: `createStyleInspector`, `closeStyleInspector`, `getStyleSourceRange`, `syncStyleSource`, `isValidStyleValue`, `applyStyleProperty`, `renderStyleInspector`, `resetStyleInspector`.
 
 Структура/drag-and-drop: `clone`, `move up`, `move down`, `delete` реализованы существующими toolbar callbacks `callbackValue89`, `callbackValue90`, `callbackValue91`, `callbackValue92`; вспомогательные роли — `callbackValue93`–`callbackValue125` для вычисления границ, сериализации, drag/drop и script/style режима.
 
