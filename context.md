@@ -734,3 +734,14 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.38` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки и доменные запросы не добавлялись.
 - Проверки v0.38: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
 - Следующий функциональный номер — `0.39`: безопасная замена с diff и rollback.
+
+## Текущее исправление v0.39
+
+- В файловый менеджер добавлена безопасная массовая замена текста: режим `В содержимом` показывает поле нового текста, кнопку предпросмотра и откат последней применённой операции. Пустая замена разрешена как удаление совпадений.
+- `collectContentReplacementFiles()` работает только с разрешёнными расширениями, без скрытых файлов и symlink, ограничивает глубину 32, размер файла 2 MiB, максимум 100 файлов и 100 совпадений, пропускает бинарное содержимое и NUL-ввод.
+- `renderContentReplacementPreview()` возвращает snapshot SHA-256, число файлов/совпадений и экранируемый plain-text diff. Перед применением `applyContentReplacement()` заново собирает состояние и отклоняет устаревший snapshot при конкурентном изменении.
+- Применение сохраняет транзакционный backup в runtime-каталоге вне web-root, использует существующую атомарную запись каждого файла и восстанавливает backup при сообщённой ошибке. `rollbackContentReplacement()` доступен только для последнего CSRF-защищённого transaction id и удаляет точку отката после успешного восстановления.
+- Добавлены русские/английские строки, описания в README и `docs/function-catalog.md`; версия синхронно поднята до `0.39` в PHP, JS, runtime/source-map, fallback и HTTP regression.
+- HTTP regression дополнен проверкой протокола: preview/apply обязаны возвращать настоящие разделители строк для разбора snapshot и transaction id в JavaScript; пользовательские NUL-байты также отклоняются.
+- Проверки v0.39: PHP lint для `myvibehtml.php`/runtime/router, `node --check myvibehtml.js`, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Следующий функциональный номер — `0.40`: расширенный инспектор и структурное редактирование.

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.38 */
+<?php /* MyVibeHTML v0.39 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -345,7 +345,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['h'] = str_replace(
             '<div id="f">',
-            '<div id="f"><div class="myvibehtml-file-tools" data-file-tools><input type="search" data-file-search data-file-prompt="{file_name_prompt}" data-content-prompt="{search_content}" data-search-prompt="{search_files}" placeholder="{search_files}" aria-label="{search_files}"><button type="button" data-file-action="new-file">{new_file}</button><button type="button" data-file-action="new-folder">{new_folder}</button><button type="button" data-file-action="media" aria-pressed="false">{media_manager}</button><button type="button" data-file-action="content" aria-pressed="false">{content_search}</button></div><ul data-file-search-results hidden></ul>',
+            '<div id="f"><div class="myvibehtml-file-tools" data-file-tools data-replace-preview="{replace_preview}" data-replace-apply="{replace_apply}" data-replace-rollback="{replace_rollback}" data-replace-success="{replace_success}" data-replace-error="{replace_error}" data-replace-stale="{replace_stale}" data-replace-rollback-success="{replace_rollback_success}" data-replace-no-changes="{replace_no_changes}"><input type="search" data-file-search data-file-prompt="{file_name_prompt}" data-content-prompt="{search_content}" data-search-prompt="{search_files}" placeholder="{search_files}" aria-label="{search_files}"><input type="text" data-file-replacement data-replace-prompt="{replace_text}" placeholder="{replace_text}" aria-label="{replace_text}" hidden><button type="button" data-file-action="new-file">{new_file}</button><button type="button" data-file-action="new-folder">{new_folder}</button><button type="button" data-file-action="media" aria-pressed="false">{media_manager}</button><button type="button" data-file-action="content" aria-pressed="false">{content_search}</button><button type="button" data-file-action="replace" hidden>{replace_content}</button><button type="button" data-file-action="rollback" hidden>{replace_rollback}</button></div><ul data-file-search-results hidden></ul>',
             $this->templates['h']
         );
         $this->templates['n'] = str_replace('<i title="{add_file}"></i></li>', '<i title="{add_file}"></i><i title="{rename_file}"></i></li>', $this->templates['n']);
@@ -588,7 +588,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.38';
+    const VERSION = '0.39';
     private $config;
     private $request;
     private $response;
@@ -867,6 +867,21 @@ final class MyVibeHTMLController
             } else if (($dispatch32 = $this->request->getPost('content_search')) !== false && $dispatch32 !== '' && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $this->response->setBody($this->renderContentSearchResults(rawurldecode($dispatch32)));
+            } else if (($dispatch33 = $this->request->getPost('content_replace_preview')) !== false && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $replacePreview = $this->renderContentReplacementPreview($this->decodeContentReplacementValue($dispatch33), $this->decodeContentReplacementValue($this->request->getPost('replacement')));
+                if ($replacePreview === false) $this->response->setStatus(422, 'Unprocessable Entity'); else $this->response->setBody($replacePreview);
+            } else if (($dispatch34 = $this->request->getPost('content_replace_apply')) !== false && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $replaceResult = $this->applyContentReplacement($this->decodeContentReplacementValue($dispatch34), $this->decodeContentReplacementValue($this->request->getPost('replacement')), $this->decodeContentReplacementValue($this->request->getPost('snapshot')));
+                $this->response->setStatus($replaceResult['status'], $replaceResult['status'] >= 400 ? 'Content replacement failed' : 'OK');
+                $this->response->setBody($replaceResult['body']);
+            } else if (($dispatch35 = $this->request->getPost('content_replace_rollback')) !== false && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                if ($this->rollbackContentReplacement($this->decodeContentReplacementValue($dispatch35))) {
+                    $this->config->setSetting(SETTING_CACHE, '');
+                    $this->response->setBody('replace:rollback');
+                } else $this->response->setStatus(409, 'Content replacement rollback failed');
             } else if (($dispatch7 = $this->request->getPost('upload')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $dispatch7 = rawurldecode($dispatch7);
@@ -1379,6 +1394,196 @@ final class MyVibeHTMLController
             $searchOutput .= '<li><a data-cy="' . $this->escapeHtml($searchUrl) . '" title="' . $this->escapeHtml($searchRelative) . '">' . $this->escapeHtml($searchRelative) . '</a><span>line ' . $this->escapeHtml($searchEntry[2]) . '</span><code>' . $this->escapeHtml($searchEntry[3]) . '</code></li>';
         }
         return $searchOutput;
+    }
+
+    private function isValidContentReplacementInput($searchTerm, $replacement)
+    {
+        return is_string($searchTerm) && is_string($replacement) && trim($searchTerm) !== '' && strpos($searchTerm, "\0") === false && strpos($replacement, "\0") === false && strlen($searchTerm) <= 2000 && strlen($replacement) <= 2000;
+    }
+
+    private function decodeContentReplacementValue($replaceValue)
+    {
+        return is_string($replaceValue) ? rawurldecode($replaceValue) : false;
+    }
+
+    private function collectContentReplacementFiles($searchDirectory, $relativeDirectory, $searchTerm, $replacement, &$replaceFiles, &$replaceMatches, &$replaceOverflow, $replaceDepth = 0)
+    {
+        if ($replaceDepth > 32 || count($replaceFiles) >= 100 || $replaceOverflow || !($replaceHandle = @opendir($searchDirectory))) return;
+        while (($replaceName = readdir($replaceHandle)) !== false && count($replaceFiles) < 100 && !$replaceOverflow) {
+            if ($replaceName === '.' || $replaceName === '..' || $replaceName[0] === '.') continue;
+            $replacePath = $searchDirectory . $replaceName;
+            $replaceRelative = $relativeDirectory === '' ? $replaceName : $relativeDirectory . '/' . $replaceName;
+            if (is_link($replacePath)) continue;
+            if (is_dir($replacePath . '/')) {
+                $this->collectContentReplacementFiles($replacePath . '/', $replaceRelative, $searchTerm, $replacement, $replaceFiles, $replaceMatches, $replaceOverflow, $replaceDepth + 1);
+            } else if (is_file($replacePath) && $this->isAllowedExtension(strtolower(pathinfo($replaceName, PATHINFO_EXTENSION)))) {
+                $replaceSize = @filesize($replacePath);
+                if ($replaceSize === false || $replaceSize > 2097152) continue;
+                $replaceBefore = @file_get_contents($replacePath);
+                if ($replaceBefore === false || strpos($replaceBefore, "\0") !== false) continue;
+                $replaceCount = 0;
+                $replaceAfter = str_ireplace($searchTerm, $replacement, $replaceBefore, $replaceCount);
+                if ($replaceCount < 1 || $replaceAfter === $replaceBefore) continue;
+                if ($replaceMatches + $replaceCount > 100) {
+                    $replaceOverflow = true;
+                    break;
+                }
+                $replaceFiles[$replaceRelative] = ['path' => $replacePath, 'before' => $replaceBefore, 'after' => $replaceAfter, 'matches' => $replaceCount];
+                $replaceMatches += $replaceCount;
+            }
+        }
+        closedir($replaceHandle);
+    }
+
+    private function contentReplacementSnapshot($replaceFiles)
+    {
+        ksort($replaceFiles, SORT_STRING);
+        $replaceSnapshot = [];
+        foreach ($replaceFiles as $replaceRelative => $replaceFile) $replaceSnapshot[] = $replaceRelative . "\0" . hash('sha256', $replaceFile['before']);
+        return hash('sha256', implode("\0", $replaceSnapshot));
+    }
+
+    private function shortenContentReplacementLine($replaceLine)
+    {
+        $replaceLine = trim((string)$replaceLine);
+        return strlen($replaceLine) > 400 ? substr($replaceLine, 0, 397) . '...' : $replaceLine;
+    }
+
+    private function renderContentReplacementDiff($replaceFiles)
+    {
+        $replaceDiff = [];
+        foreach ($replaceFiles as $replaceRelative => $replaceFile) {
+            $replaceDiff[] = 'FILE ' . $replaceRelative . ' (' . $replaceFile['matches'] . ' matches)';
+            $replaceBeforeLines = explode("\n", str_replace("\r\n", "\n", $replaceFile['before']));
+            $replaceAfterLines = explode("\n", str_replace("\r\n", "\n", $replaceFile['after']));
+            $replaceLineCount = max(count($replaceBeforeLines), count($replaceAfterLines));
+            for ($replaceLineIndex = 0; $replaceLineIndex < $replaceLineCount; $replaceLineIndex++) {
+                $replaceOldLine = isset($replaceBeforeLines[$replaceLineIndex]) ? $replaceBeforeLines[$replaceLineIndex] : false;
+                $replaceNewLine = isset($replaceAfterLines[$replaceLineIndex]) ? $replaceAfterLines[$replaceLineIndex] : false;
+                if ($replaceOldLine === $replaceNewLine) continue;
+                if ($replaceOldLine !== false) $replaceDiff[] = '- ' . $this->shortenContentReplacementLine($replaceOldLine);
+                if ($replaceNewLine !== false) $replaceDiff[] = '+ ' . $this->shortenContentReplacementLine($replaceNewLine);
+                if (count($replaceDiff) >= 120) {
+                    $replaceDiff[] = '...';
+                    return implode("\n", $replaceDiff);
+                }
+            }
+        }
+        return implode("\n", $replaceDiff);
+    }
+
+    private function renderContentReplacementPreview($searchTerm, $replacement)
+    {
+        $searchTerm = trim((string)$searchTerm);
+        $replacement = (string)$replacement;
+        if (!$this->isValidContentReplacementInput($searchTerm, $replacement)) return false;
+        $replaceFiles = [];
+        $replaceMatches = 0;
+        $replaceOverflow = false;
+        $this->collectContentReplacementFiles(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $searchTerm, $replacement, $replaceFiles, $replaceMatches, $replaceOverflow);
+        if ($replaceOverflow) return false;
+        $replaceSnapshot = $this->contentReplacementSnapshot($replaceFiles);
+        $replaceDiff = count($replaceFiles) ? $this->renderContentReplacementDiff($replaceFiles) : 'NO_CHANGES';
+        return "replace:preview\nsnapshot=" . $replaceSnapshot . "\nfiles=" . count($replaceFiles) . "\nmatches=" . $replaceMatches . "\ndiff\n" . $replaceDiff;
+    }
+
+    private function getContentReplacementTransactionDirectory($replaceId, $replaceCreate = false)
+    {
+        if (!preg_match('~^[a-f0-9]{32}$~i', $replaceId) || !$this->config->getRuntimeDirectory()) return false;
+        $replaceDirectory = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/content-replace-' . strtolower($replaceId) . '/';
+        if ($replaceCreate && !is_dir($replaceDirectory) && !@mkdir($replaceDirectory, 0700, true)) return false;
+        return $this->isSafeRuntimePath($replaceDirectory, $replaceCreate) ? $replaceDirectory : false;
+    }
+
+    private function removeContentReplacementTree($replaceDirectory)
+    {
+        if (!$this->isSafeRuntimePath($replaceDirectory) || !is_dir($replaceDirectory) || is_link($replaceDirectory) || !($replaceHandle = @opendir($replaceDirectory))) return false;
+        $replaceSuccess = true;
+        while (($replaceName = readdir($replaceHandle)) !== false) {
+            if ($replaceName === '.' || $replaceName === '..') continue;
+            $replacePath = $replaceDirectory . $replaceName;
+            if (is_link($replacePath)) $replaceSuccess = false; else if (is_dir($replacePath)) {
+                if (!$this->removeContentReplacementTree($replacePath . '/')) $replaceSuccess = false;
+            } else if (!@unlink($replacePath)) $replaceSuccess = false;
+        }
+        closedir($replaceHandle);
+        return $replaceSuccess && @rmdir($replaceDirectory);
+    }
+
+    private function getLastContentReplacementId()
+    {
+        $replaceRuntime = $this->config->getRuntimeDirectory();
+        $replacePointer = $replaceRuntime ? rtrim($replaceRuntime, '/\\') . '/content-replace-last' : false;
+        if (!$replacePointer || !is_file($replacePointer) || is_link($replacePointer)) return false;
+        $replaceId = trim((string)@file_get_contents($replacePointer));
+        return preg_match('~^[a-f0-9]{32}$~i', $replaceId) ? strtolower($replaceId) : false;
+    }
+
+    private function setLastContentReplacementId($replaceId)
+    {
+        $replaceRuntime = $this->config->getRuntimeDirectory();
+        return $replaceRuntime && myvibehtml_atomic_write(rtrim($replaceRuntime, '/\\') . '/content-replace-last', $replaceId, 0600, '.content-replace-last.lock');
+    }
+
+    private function createContentReplacementTransaction($replaceFiles)
+    {
+        $replaceId = bin2hex(random_bytes(16));
+        $replaceDirectory = $this->getContentReplacementTransactionDirectory($replaceId, true);
+        $replaceFilesDirectory = $replaceDirectory ? $replaceDirectory . 'files/' : false;
+        if (!$replaceFilesDirectory || !@mkdir($replaceFilesDirectory, 0700)) {
+            if ($replaceDirectory) $this->removeContentReplacementTree($replaceDirectory);
+            return false;
+        }
+        foreach ($replaceFiles as $replaceRelative => $replaceFile) {
+            $replaceBackupPath = $replaceFilesDirectory . str_ireplace('/', '⁄', $replaceRelative);
+            if (!$this->copyFileAtomically($replaceFile['path'], $replaceBackupPath)) {
+                $this->removeContentReplacementTree($replaceDirectory);
+                return false;
+            }
+        }
+        return ['id' => $replaceId, 'directory' => $replaceDirectory, 'files' => $replaceFilesDirectory];
+    }
+
+    private function applyContentReplacement($searchTerm, $replacement, $snapshot)
+    {
+        $searchTerm = trim((string)$searchTerm);
+        $replacement = (string)$replacement;
+        if (!$this->isValidContentReplacementInput($searchTerm, $replacement)) return ['status' => 422, 'body' => 'replace:no-changes'];
+        $replaceFiles = [];
+        $replaceMatches = 0;
+        $replaceOverflow = false;
+        $this->collectContentReplacementFiles(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $searchTerm, $replacement, $replaceFiles, $replaceMatches, $replaceOverflow);
+        if ($replaceOverflow || !count($replaceFiles)) return ['status' => 422, 'body' => 'replace:no-changes'];
+        $replaceSnapshot = $this->contentReplacementSnapshot($replaceFiles);
+        if (!is_string($snapshot) || !preg_match('~^[a-f0-9]{64}$~i', $snapshot) || !hash_equals(strtolower($snapshot), $replaceSnapshot)) return ['status' => 409, 'body' => 'replace:stale'];
+        foreach ($replaceFiles as $replaceFile) if (is_link($replaceFile['path']) || @file_get_contents($replaceFile['path']) !== $replaceFile['before']) return ['status' => 409, 'body' => 'replace:stale'];
+        $replaceTransaction = $this->createContentReplacementTransaction($replaceFiles);
+        if (!$replaceTransaction) return ['status' => 500, 'body' => 'replace:error'];
+        $replacePreviousId = $this->getLastContentReplacementId();
+        foreach ($replaceFiles as $replaceFile) if (!$this->writeFileAtomically($replaceFile['path'], $replaceFile['after'])) {
+            if ($this->restoreBackupDirectory($replaceTransaction['files'])) $this->removeContentReplacementTree($replaceTransaction['directory']);
+            return ['status' => 500, 'body' => 'replace:error'];
+        }
+        if (!$this->setLastContentReplacementId($replaceTransaction['id'])) {
+            $replaceRestored = $this->restoreBackupDirectory($replaceTransaction['files']);
+            if ($replaceRestored) $this->removeContentReplacementTree($replaceTransaction['directory']);
+            return ['status' => 500, 'body' => 'replace:error'];
+        }
+        if ($replacePreviousId && $replacePreviousId !== $replaceTransaction['id']) {
+            $replacePreviousDirectory = $this->getContentReplacementTransactionDirectory($replacePreviousId);
+            if ($replacePreviousDirectory) $this->removeContentReplacementTree($replacePreviousDirectory);
+        }
+        return ['status' => 200, 'body' => "replace:applied\nid=" . $replaceTransaction['id'] . "\nfiles=" . count($replaceFiles) . "\nmatches=" . $replaceMatches];
+    }
+
+    private function rollbackContentReplacement($replaceId)
+    {
+        $replaceId = strtolower(trim((string)$replaceId));
+        if (!$replaceId || $this->getLastContentReplacementId() !== $replaceId) return false;
+        $replaceDirectory = $this->getContentReplacementTransactionDirectory($replaceId);
+        if (!$replaceDirectory || !$this->restoreBackupDirectory($replaceDirectory . 'files/')) return false;
+        @unlink(rtrim($this->config->getRuntimeDirectory(), '/\\') . '/content-replace-last');
+        return $this->removeContentReplacementTree($replaceDirectory);
     }
 
     private function renderPanel($renderpanel1)

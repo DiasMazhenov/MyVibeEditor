@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.38 */
+/* MyVibeHTML v0.39 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -669,32 +669,34 @@
                     try { windowObject.localStorage.removeItem(sourceDraftKey) } catch (sourceDraftError) {}
                 },
                 validationDialog = null,
-                validationDialogOpen = function(candidateSource, baselineSource, saveCallback) {
+                validationDialogOpen = function(candidateSource, baselineSource, saveCallback, validationOptions) {
                     var validationText = function(attribute, fallback) {
                             return pageValidateButton && pageValidateButton[getAttributeMethod]('data-' + attribute) || fallback
                         },
-                        validationDocument = new DOMParser()[parseFromStringMethod](candidateSource, 'text/html'),
-                        validationIssues = [],
+                        validationDocument = validationOptions && typeof validationOptions.diff == 'string' ? null : new DOMParser()[parseFromStringMethod](candidateSource, 'text/html'),
+                        validationIssues = validationOptions && validationOptions.issues ? validationOptions.issues : [],
                         validationIds = {},
-                        validationNodes = validationDocument[querySelectorAllMethod]('*'),
+                        validationNodes = validationDocument ? validationDocument[querySelectorAllMethod]('*') : [],
                         validationIndex = 0;
-                    if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:'Empty source'});
-                    for (; validationIndex < validationNodes[lengthProperty]; validationIndex++) {
-                        var validationNode = validationNodes[validationIndex],
-                            validationNodeId = validationNode[getAttributeMethod]('id'),
-                            validationNodeTag = validationNode[tagNameProperty][toLowerCaseMethod]();
-                        if (validationNodeId) {
-                            if (validationIds[validationNodeId]) validationIssues.push({level:'error',text:'Duplicate id: #' + validationNodeId});
-                            validationIds[validationNodeId] = true
+                    if (!validationOptions) {
+                        if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:'Empty source'});
+                        for (; validationIndex < validationNodes[lengthProperty]; validationIndex++) {
+                            var validationNode = validationNodes[validationIndex],
+                                validationNodeId = validationNode[getAttributeMethod]('id'),
+                                validationNodeTag = validationNode[tagNameProperty][toLowerCaseMethod]();
+                            if (validationNodeId) {
+                                if (validationIds[validationNodeId]) validationIssues.push({level:'error',text:'Duplicate id: #' + validationNodeId});
+                                validationIds[validationNodeId] = true
+                            }
+                            for (var validationAttributeIndex = 0; validationAttributeIndex < validationNode.attributes[lengthProperty]; validationAttributeIndex++) {
+                                var validationAttribute = validationNode.attributes[validationAttributeIndex];
+                                if ((validationAttribute.name == 'href' || validationAttribute.name == 'src' || validationAttribute.name == 'action') && /^(?:javascript|vbscript):/i.test(validationAttribute.value)) validationIssues.push({level:'error',text:'Unsafe URL in ' + validationNodeTag + '[' + validationAttribute.name + ']'});
+                            }
+                            if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:'Image without alt attribute'});
                         }
-                        for (var validationAttributeIndex = 0; validationAttributeIndex < validationNode.attributes[lengthProperty]; validationAttributeIndex++) {
-                            var validationAttribute = validationNode.attributes[validationAttributeIndex];
-                            if ((validationAttribute.name == 'href' || validationAttribute.name == 'src' || validationAttribute.name == 'action') && /^(?:javascript|vbscript):/i.test(validationAttribute.value)) validationIssues.push({level:'error',text:'Unsafe URL in ' + validationNodeTag + '[' + validationAttribute.name + ']'});
-                        }
-                        if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:'Image without alt attribute'});
+                        if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:'Missing html element'});
+                        if (!validationDocument.querySelector('title')) validationIssues.push({level:'warning',text:'Missing title element'});
                     }
-                    if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:'Missing html element'});
-                    if (!validationDocument.querySelector('title')) validationIssues.push({level:'warning',text:'Missing title element'});
                     if (!validationDialog) {
                         validationDialog = documentObject[createElementMethod]('aside');
                         validationDialog.id = 'myvibehtml-validation-dialog';
@@ -724,23 +726,25 @@
                         validationIssueList[appendChildMethod](validationIssueItem);
                         if (validationIssues[validationIndex].level == 'error') validationErrorCount++; else validationWarningCount++
                     }
-                    for (; validationLineIndex < validationLineCount && validationLines[lengthProperty] < 120; validationLineIndex++) {
-                        var validationOldLine = baselineLines[validationLineIndex], validationNewLine = candidateLines[validationLineIndex];
-                        if (validationOldLine === validationNewLine) validationLines.push('  ' + (validationNewLine || ''));
-                        else {
-                            if (typeof validationOldLine != 'undefined') validationLines.push('- ' + validationOldLine);
-                            if (typeof validationNewLine != 'undefined') validationLines.push('+ ' + validationNewLine)
+                    if (validationOptions && typeof validationOptions.diff == 'string') validationLines = validationOptions.diff.split('\n').slice(0, 120); else {
+                        for (; validationLineIndex < validationLineCount && validationLines[lengthProperty] < 120; validationLineIndex++) {
+                            var validationOldLine = baselineLines[validationLineIndex], validationNewLine = candidateLines[validationLineIndex];
+                            if (validationOldLine === validationNewLine) validationLines.push('  ' + (validationNewLine || ''));
+                            else {
+                                if (typeof validationOldLine != 'undefined') validationLines.push('- ' + validationOldLine);
+                                if (typeof validationNewLine != 'undefined') validationLines.push('+ ' + validationNewLine)
+                            }
                         }
+                        if (validationLineIndex < validationLineCount) validationLines.push('…');
                     }
-                    if (validationLineIndex < validationLineCount) validationLines.push('…');
-                    validationDialog[querySelectorMethod]('h2')[textContentProperty] = validationText('validation-dialog', 'Check before saving');
+                    validationDialog[querySelectorMethod]('h2')[textContentProperty] = validationOptions && validationOptions.title || validationText('validation-dialog', 'Check before saving');
                     validationDialog[querySelectorMethod]('h3')[textContentProperty] = validationText('validation-issues', 'Notes');
                     validationDialog[querySelectorMethod]('[data-validation-close]')[textContentProperty] = '×';
                     validationDialog[querySelectorMethod]('[data-validation-cancel]')[textContentProperty] = validationText('validation-close', 'Close');
-                    validationConfirm[textContentProperty] = validationText('validation-save', 'Save anyway');
+                    validationConfirm[textContentProperty] = validationOptions && validationOptions.confirm || validationText('validation-save', 'Save anyway');
                     validationConfirm.hidden = !saveCallback;
-                    validationSummary[textContentProperty] = validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found');
-                    validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationText('validation-no-changes', 'No changes');
+                    validationSummary[textContentProperty] = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
+                    validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationOptions && validationOptions.noChanges || validationText('validation-no-changes', 'No changes');
                     validationConfirm.onclick = saveCallback ? function() { validationDialog.hidden = true; saveCallback() } : null;
                     validationDialog.hidden = false;
                     validationDialog[querySelectorMethod]('[data-validation-close]')[focusEvent]()
@@ -3665,10 +3669,16 @@
                 runtimeValue170 = '',
                 fileManagerCurrentDirectory = runtimeValue168,
                 fileManagerSearchInput = runtimeValue164[querySelectorMethod]('[data-file-search]'),
+                fileManagerReplacementInput = runtimeValue164[querySelectorMethod]('[data-file-replacement]'),
                 fileManagerSearchResults = runtimeValue164[querySelectorMethod]('[data-file-search-results]'),
                 fileManagerSearchTimer = false,
                 fileManagerMediaMode = false,
-                fileManagerContentMode = false;
+                fileManagerContentMode = false,
+                fileManagerReplacePreviewButton = runtimeValue164[querySelectorMethod]('[data-file-action="replace"]'),
+                fileManagerRollbackButton = runtimeValue164[querySelectorMethod]('[data-file-action="rollback"]'),
+                fileManagerLastReplacementId = '';
+            try { fileManagerLastReplacementId = windowObject.sessionStorage.getItem('myvibehtml:last-replacement') || '' } catch (fileManagerStorageError) {}
+            if (fileManagerRollbackButton && fileManagerLastReplacementId) fileManagerRollbackButton[hiddenValue] = false;
             if (locationObject.pathname == runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl') && locationObject[searchMethod][indexOfMethod]('?q=') === 0) {
                 runtimeValue169 = runtimeValue168 + locationObject[searchMethod][sliceMethod](3);
                 runtimeValue170 = locationObject[searchMethod]
@@ -3747,7 +3757,63 @@
                 },
                 fileManagerReload = function() { locationObject.reload(true) },
                 fileManagerSubmit = function(fileManagerPayload, fileManagerSuccess) {
-                    ajaxRequest(fileManagerPayload + fileManagerToken(), fileManagerSuccess, function() { fileManagerStatus(runtimeValue165[getAttributeMethod](dataAttributePrefix + 'aj'), 'd') }, function() { fileManagerStatus(runtimeValue165[getAttributeMethod](dataAttributePrefix + 'al'), 'o') })
+                    ajaxRequest(fileManagerPayload + fileManagerToken(), fileManagerSuccess, function() { fileManagerStatus(runtimeValue165[getAttributeMethod](dataAttributePrefix + 'aj'), 'd') }, function() {
+                        var fileManagerErrorResponse = this && this.responseText || '';
+                        fileManagerStatus(fileManagerErrorResponse[indexOfMethod]('replace:stale') === 0 ? runtimeValue164[getAttributeMethod]('data-replace-stale') : runtimeValue165[getAttributeMethod](dataAttributePrefix + 'al'), 'o')
+                    })
+                },
+                fileManagerReplacePreview = function() {
+                    var fileManagerReplaceSearch = fileManagerSearchInput ? fileManagerSearchInput[valueProperty] : '',
+                        fileManagerReplaceValue = fileManagerReplacementInput ? fileManagerReplacementInput[valueProperty] : '';
+                    if (!fileManagerContentMode || !fileManagerReplaceSearch) return;
+                    fileManagerSubmit('content_replace_preview=' + windowObject[encodeURIComponentMethod](fileManagerReplaceSearch) + '&replacement=' + windowObject[encodeURIComponentMethod](fileManagerReplaceValue), function(fileManagerReplaceResponse) {
+                        if (fileManagerReplaceResponse[indexOfMethod]('replace:preview') !== 0) {
+                            fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-error'), 'd');
+                            return
+                        }
+                        var fileManagerReplaceLines = fileManagerReplaceResponse[splitMethod]('\n'),
+                            fileManagerReplaceSnapshot = '',
+                            fileManagerReplaceFiles = 0,
+                            fileManagerReplaceMatches = 0,
+                            fileManagerReplaceDiffStart = fileManagerReplaceResponse[indexOfMethod]('\ndiff\n'),
+                            fileManagerReplaceDiff = fileManagerReplaceDiffStart === -1 ? '' : fileManagerReplaceResponse[sliceMethod](fileManagerReplaceDiffStart + 6);
+                        for (var fileManagerReplaceLineIndex = 0; fileManagerReplaceLineIndex < fileManagerReplaceLines[lengthProperty]; fileManagerReplaceLineIndex++) {
+                            if (fileManagerReplaceLines[fileManagerReplaceLineIndex][indexOfMethod]('snapshot=') === 0) fileManagerReplaceSnapshot = fileManagerReplaceLines[fileManagerReplaceLineIndex][sliceMethod](9);
+                            else if (fileManagerReplaceLines[fileManagerReplaceLineIndex][indexOfMethod]('files=') === 0) fileManagerReplaceFiles = parseInt(fileManagerReplaceLines[fileManagerReplaceLineIndex][sliceMethod](6), 10) || 0;
+                            else if (fileManagerReplaceLines[fileManagerReplaceLineIndex][indexOfMethod]('matches=') === 0) fileManagerReplaceMatches = parseInt(fileManagerReplaceLines[fileManagerReplaceLineIndex][sliceMethod](8), 10) || 0
+                        }
+                        var fileManagerReplaceApply = function() {
+                            fileManagerSubmit('content_replace_apply=' + windowObject[encodeURIComponentMethod](fileManagerReplaceSearch) + '&replacement=' + windowObject[encodeURIComponentMethod](fileManagerReplaceValue) + '&snapshot=' + windowObject[encodeURIComponentMethod](fileManagerReplaceSnapshot), function(fileManagerApplyResponse) {
+                                var fileManagerReplacementId = /(?:^|\n)id=([a-f0-9]{32})/i.exec(fileManagerApplyResponse);
+                                if (!fileManagerReplacementId) {
+                                    fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-error'), 'd');
+                                    return
+                                }
+                                fileManagerLastReplacementId = fileManagerReplacementId[1];
+                                try { windowObject.sessionStorage.setItem('myvibehtml:last-replacement', fileManagerLastReplacementId) } catch (fileManagerStorageError) {}
+                                if (fileManagerRollbackButton) fileManagerRollbackButton[hiddenValue] = false;
+                                fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-success'), 'c');
+                                searchProject()
+                            })
+                        };
+                        validationDialogOpen('', '', fileManagerReplaceFiles && fileManagerReplaceMatches ? fileManagerReplaceApply : null, {
+                            title: runtimeValue164[getAttributeMethod]('data-replace-preview') || 'Replacement preview',
+                            summary: fileManagerReplaceFiles ? fileManagerReplaceFiles + ' file(s), ' + fileManagerReplaceMatches + ' match(es)' : runtimeValue164[getAttributeMethod]('data-replace-no-changes') || 'No matches to replace',
+                            diff: fileManagerReplaceDiff === 'NO_CHANGES' ? '' : fileManagerReplaceDiff,
+                            confirm: runtimeValue164[getAttributeMethod]('data-replace-apply') || 'Apply replacement',
+                            noChanges: runtimeValue164[getAttributeMethod]('data-replace-no-changes') || 'No matches to replace'
+                        })
+                    })
+                },
+                fileManagerRollback = function() {
+                    if (!fileManagerLastReplacementId) return;
+                    fileManagerSubmit('content_replace_rollback=' + windowObject[encodeURIComponentMethod](fileManagerLastReplacementId), function() {
+                        fileManagerLastReplacementId = '';
+                        try { windowObject.sessionStorage.removeItem('myvibehtml:last-replacement') } catch (fileManagerStorageError) {}
+                        if (fileManagerRollbackButton) fileManagerRollbackButton[hiddenValue] = true;
+                        fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-rollback-success'), 'c');
+                        searchProject()
+                    })
                 },
                 fileManagerCreate = function(fileManagerAction) {
                     var fileManagerName = windowObject.prompt(fileManagerSearchInput ? fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'file-prompt') : '', fileManagerAction == 'new_file' ? 'new-page.html' : 'new-folder');
@@ -4147,6 +4213,8 @@
                 fileManagerMediaMode = true;
                 fileManagerMediaButton.setAttribute('aria-pressed', 'true');
                 if (fileManagerContentButton) fileManagerContentButton.setAttribute('aria-pressed', 'false');
+                if (fileManagerReplacementInput) fileManagerReplacementInput[hiddenValue] = true;
+                if (fileManagerReplacePreviewButton) fileManagerReplacePreviewButton[hiddenValue] = true;
                 if (fileManagerSearchInput) fileManagerSearchInput[valueProperty] = '.';
                 searchProject()
             });
@@ -4155,6 +4223,8 @@
                 fileManagerMediaMode = false;
                 fileManagerContentButton.setAttribute('aria-pressed', fileManagerContentMode ? 'true' : 'false');
                 if (fileManagerMediaButton) fileManagerMediaButton.setAttribute('aria-pressed', 'false');
+                if (fileManagerReplacementInput) fileManagerReplacementInput[hiddenValue] = !fileManagerContentMode;
+                if (fileManagerReplacePreviewButton) fileManagerReplacePreviewButton[hiddenValue] = !fileManagerContentMode;
                 if (fileManagerSearchInput) {
                     fileManagerSearchInput[valueProperty] = '';
                     fileManagerSearchInput.placeholder = fileManagerContentMode ? fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'content-prompt') : fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'search-prompt');
@@ -4163,6 +4233,8 @@
                 fileManagerSearchResults[hiddenValue] = true;
                 fileManagerSearchResults[textContentProperty] = ''
             });
+            if (fileManagerReplacePreviewButton) fileManagerReplacePreviewButton[addEventListenerMethod](clickEvent, fileManagerReplacePreview);
+            if (fileManagerRollbackButton) fileManagerRollbackButton[addEventListenerMethod](clickEvent, fileManagerRollback);
             initializeFileEntry(runtimeValue167);
             runtimeValue166[addEventListenerMethod](mouseDownEvent, function() {
                 if (this[nextElementSiblingProperty][styleProperty][displayProperty] != blockValue) revealCurrentPath(runtimeValue167)

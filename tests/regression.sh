@@ -17,11 +17,16 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.38" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.38'" myvibehtml.php
+rg -q "MyVibeHTML v0\.39" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.39'" myvibehtml.php
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
 rg -q "content_search|renderContentSearchResults|collectContentSearch|data-file-action=\"content\"" myvibehtml.php myvibehtml.js lang.ini
+rg -q "content_replace_preview|content_replace_apply|content_replace_rollback|applyContentReplacement|rollbackContentReplacement|snapshot=" myvibehtml.php myvibehtml.js
+if rg -n -F "return 'replace:preview\\nsnapshot=" myvibehtml.php || rg -n -F "'body' => 'replace:applied\\nid=" myvibehtml.php; then
+    echo "regression: replacement protocol contains literal backslash-n separators" >&2
+    exit 1
+fi
 rg -q "fileManagerCreate|searchProject|renameFile" myvibehtml.js
 rg -q "data-source-action=\"redo\"" myvibehtml.php
 rg -q "myvibehtml:draft" myvibehtml.js
@@ -71,13 +76,13 @@ node --test tests/deobfuscation.test.js
 node --test tests/accessibility.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.38" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.38" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.38" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.39" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.39" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.39" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.38"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.39"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

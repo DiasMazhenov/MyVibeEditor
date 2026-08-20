@@ -36,6 +36,8 @@
 
 `renderFileList()`, `renderFileType()`, `renderLanguageList()`, `parseSize()`, `renderSiteStatus()`, `sortEntries()`, `getDirectorySize()`, `calculateDirectorySizes()` отвечают за файловый менеджер. `normalizeImageFilename()` нормализует имена изображений.
 
+`collectContentSearch()` и `renderContentSearchResults()` выполняют ограниченный read-only поиск по разрешённым текстовым файлам. `isValidContentReplacementInput()`, `collectContentReplacementFiles()`, `contentReplacementSnapshot()` и `renderContentReplacementPreview()` собирают изменения, считают совпадения и формируют diff без записи. `createContentReplacementTransaction()`, `applyContentReplacement()` и `rollbackContentReplacement()` сохраняют последнюю точку отката в runtime-каталоге вне web-root, проверяют snapshot на устаревание и используют существующие атомарные операции записи/восстановления.
+
 ## JavaScript: UI и авторизация
 
 `readCookie()`, `writeCookie()`, `removeCookie()`, `generateToken()`, `sha1()`, `base64Encode()` и `base64UrlEncode()` обслуживают cookie/CSRF-транспорт. Пароль передаётся по HTTPS для серверной проверки `password_verify()`, без клиентского SHA-1. `fadeIn()` и `fadeOut()` управляют состоянием сообщений и панелей.
@@ -50,7 +52,7 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 Существующие обработчики toolbar переиспользуются контекстным меню для clone, move up, move down и delete. Это сохраняет одну бизнес-логику для нижней панели и правой кнопки мыши.
 
-`replaceFileListFragment()` принимает server response через `DOMParser`, удаляет неразрешённые теги/атрибуты и вставляет `DocumentFragment`. `openDirectory()`, `expandDirectory()` и обработчики file entry обновляют файловый список. `uploadFile()`, `deleteFile()`, `replaceFile()`, `recoverFile()` выполняют операции над файлами.
+`replaceFileListFragment()` принимает server response через `DOMParser`, удаляет неразрешённые теги/атрибуты и вставляет `DocumentFragment`. `openDirectory()`, `expandDirectory()` и обработчики file entry обновляют файловый список. `uploadFile()`, `deleteFile()`, `replaceFile()`, `recoverFile()` выполняют операции над файлами. `fileManagerReplacePreview()` показывает серверный diff и передаёт snapshot в существующий диалог проверки, `fileManagerRollback()` восстанавливает последнюю подтверждённую замену через CSRF-защищённый endpoint.
 
 Редактор исходного кода использует `innerHTML` намеренно для подсветки и восстановления пользовательского HTML. Это не server-response sink; статусные узлы редактора v0.22 используют `textContent`.
 
@@ -66,7 +68,7 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 | Config | `__construct()`, `getConfigPath()`, `__destruct()`, `getLanguage()`, `getEditorDirectory()`, `getSiteUrlBase()`, `getSiteRoot()`, `getSiteUrl()`, `getBackupRoot()`, `getBackupUrl()`, `getParentDirectory()`, `getSetting()`, `setSetting()`, `save()`, `writeFileAtomically()`, `isWritable()`, `getTemplate()`, `replacePlaceholders()`, `localizeTemplate()`, `translate()` |
 | Controller: paths/security | `__construct()`, `normalizeRelativePath()`, `getPublicFileUrl()`, `getSiteRelativePath()`, `getSafeSitePath()`, `isSafeSitePath()`, `normalizeUploadFilename()`, `escapeHtml()`, `isAllowedExtension()`, `readHtmlFile()` |
 | Controller: auth/routing | `authenticate()`, `dispatch()`, `selectLanguage()`, `detectRewriteMode()`, `getQueryPrefix()`, `findDefaultFile()`, `ensureRewriteBase()`, `writeHtaccess()`, `createSession()`, `destroySession()`, `switchMode()` |
-| Controller: output/files | `renderVisualEditor()`, `renderSourceEditor()`, `renderErrorPage()`, `handleException()`, `renderPanel()`, `renderFileType()`, `renderLanguageList()`, `parseSize()`, `renderSiteStatus()`, `renderFileList()`, `sortEntries()`, `getDirectorySize()`, `calculateDirectorySizes()`, `createBackup()`, `pruneBackups()`, `normalizeImageFilename()`, `writeFileAtomically()`, `copyFileAtomically()` |
+| Controller: output/files | `renderVisualEditor()`, `renderSourceEditor()`, `renderErrorPage()`, `handleException()`, `renderPanel()`, `renderFileType()`, `renderLanguageList()`, `parseSize()`, `renderSiteStatus()`, `renderFileList()`, `sortEntries()`, `getDirectorySize()`, `calculateDirectorySizes()`, `collectContentSearch()`, `renderContentSearchResults()`, `isValidContentReplacementInput()`, `collectContentReplacementFiles()`, `contentReplacementSnapshot()`, `renderContentReplacementPreview()`, `createContentReplacementTransaction()`, `applyContentReplacement()`, `rollbackContentReplacement()`, `createBackup()`, `pruneBackups()`, `normalizeImageFilename()`, `writeFileAtomically()`, `copyFileAtomically()` |
 
 ## Полный список именованных JavaScript-ролей
 
@@ -80,6 +82,6 @@ CSS-инспектор: `createStyleInspector`, `closeStyleInspector`, `getStyle
 
 Структура/drag-and-drop: `clone`, `move up`, `move down`, `delete` реализованы существующими toolbar callbacks; вспомогательные локальные роли получили имена `runtimeValueN`/`visualEditorValueN` и отвечают за вычисление границ, сериализацию, drag/drop и script/style режим.
 
-Файлы: `openDirectory`, `collapseDirectory`, `expandDirectory`, `revealCurrentPath`, `initializeFileEntry`, `replaceFileListFragment`, `uploadFile`, `queueUploads`, `processUploadQueue`, `deleteFile`, `recoverBackup`, `renderFileSize`, `renderFileDate`.
+Файлы: `openDirectory`, `collapseDirectory`, `expandDirectory`, `revealCurrentPath`, `initializeFileEntry`, `replaceFileListFragment`, `fileManagerReplacePreview`, `fileManagerRollback`, `uploadFile`, `queueUploads`, `processUploadQueue`, `deleteFile`, `recoverBackup`, `renderFileSize`, `renderFileDate`.
 
 Настройки/система: `setMenuState`, `toggleSettingsSection`, `blurSettingsControls`, `submitSettings`, `applySavedSettings`, `restoreSettingsUi`, `restoreSettingsDefaults`, `initializeSettings`, `logout`.
