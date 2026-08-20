@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.45
+
+- Нижний CSS-инспектор теперь является flex-панелью с `max-height:min(60vh,560px)`: заголовок, выбранный узел и footer остаются закреплёнными, а область CSS-групп получает внутренний вертикальный scroll. На ширинах до 700px прокручивается вся панель, чтобы HTML/ARIA и CSS-поля не терялись.
+- Горизонтальный overflow сохранён закрытым: адаптивная grid-сетка из v0.44 использует `minmax(0,1fr)`, а form — `overflow-x:hidden`, `overflow-y:auto` и `scrollbar-gutter:stable`.
+- Версия синхронно поднята до `0.45` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Проверки: PHP/JS lint, `node --test tests/source-map.test.js tests/deobfuscation.test.js tests/accessibility.test.js tests/ui-contracts.test.js`, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Headless/browser runner в текущем окружении отсутствует; live-визуальная проверка скролла и финальный screenshot acceptance не выдаются за выполненные. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне commit.
+
 ## Текущее исправление v0.44
 
 - CSS/HTML/ARIA-инспектор больше не строит горизонтальную строку с `min-width:max-content`: нижняя fixed-панель использует адаптивную CSS Grid-сетку, `minmax(0,1fr)` и внутреннюю прокрутку без выезда полей за viewport; mobile-режим сохраняет вертикальную раскладку с 1–2 колонками.

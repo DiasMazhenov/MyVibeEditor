@@ -1,6 +1,6 @@
-# Архитектура v0.44
+# Архитектура v0.45
 
-v0.44 сохраняет безопасные модульные границы без добавления bundler/dependency и делает CSS-инспектор адаптивным, а его источник состояния — текущий выделенный DOM-узел:
+v0.45 сохраняет безопасные модульные границы без добавления bundler/dependency и делает нижнюю CSS-панель прокручиваемой по высоте, а её источник состояния — текущий выделенный DOM-узел:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
