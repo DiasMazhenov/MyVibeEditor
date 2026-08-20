@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.43 */
+/* MyVibeHTML v0.44 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -2169,7 +2169,8 @@
                                 this[classNameProperty] = 'l';
                                 this.d[setAttributeMethod](focusAttribute, true);
                                 runtimeValue82(this.d);
-                                runtimeValue85(runtimeValue66.d)
+                                runtimeValue85(runtimeValue66.d);
+                                if (styleInspector && !styleInspector.hidden) renderStyleInspector(this.d)
                             }
                         },
                         runtimeValue89 = function() {
@@ -2528,7 +2529,12 @@
                         },
                         runtimeValue106 = function() {
                             runtimeValue83();
-                            runtimeValue81(this)
+                            runtimeValue81(this);
+                            if (styleInspector && !styleInspector.hidden) {
+                                var visualEditorSelection = runtimeValue127[querySelectorMethod]('[' + focusAttribute + ']');
+                                if (visualEditorSelection && visualEditorSelection[tagNameProperty][toLowerCaseMethod]() == 'edit' && visualEditorSelection[firstElementChildProperty]) visualEditorSelection = visualEditorSelection[firstElementChildProperty];
+                                if (visualEditorSelection) renderStyleInspector(visualEditorSelection)
+                            }
                         },
                         runtimeValue107 = function(event) {
                             var visualEditorValue232 = event.target,

@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.44
+
+- CSS/HTML/ARIA-инспектор больше не строит горизонтальную строку с `min-width:max-content`: нижняя fixed-панель использует адаптивную CSS Grid-сетку, `minmax(0,1fr)` и внутреннюю прокрутку без выезда полей за viewport; mobile-режим сохраняет вертикальную раскладку с 1–2 колонками.
+- При выборе нового DOM-элемента обычным кликом visual editor теперь перечитывает CSS/HTML/ARIA-поля, если инспектор уже открыт. Переходы по breadcrumb также обновляют инспектор через тот же `renderStyleInspector`, а контекстное меню продолжает использовать существующий общий путь.
+- Корень дефекта: `form` и группы полей имели `min-width:max-content`/flex-геометрию, а `runtimeValue106()` менял только editor focus и не синхронизировал `styleInspectorTarget`.
+- Версия синхронно поднята до `0.44` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Проверки: PHP/JS lint, `node --test tests/source-map.test.js tests/deobfuscation.test.js tests/accessibility.test.js tests/ui-contracts.test.js`, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Headless/browser runner в текущем окружении отсутствует; поэтому live-клик и финальный screenshot acceptance не выдаются за выполненные. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне commit.
+
 ## Текущее исправление v0.43
 
 - Preview-переключатели теперь инициализируются независимо от наличия mobile menu; visual editor использует `#d iframe`, а `aria-pressed` синхронизируется с `data-myvibehtml-preview-size`.

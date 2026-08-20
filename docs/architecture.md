@@ -1,6 +1,6 @@
-# Архитектура v0.43
+# Архитектура v0.44
 
-v0.43 сохраняет безопасные модульные границы без добавления bundler/dependency и добавляет локальные Iconify SVG для preview-контролов:
+v0.44 сохраняет безопасные модульные границы без добавления bundler/dependency и делает CSS-инспектор адаптивным, а его источник состояния — текущий выделенный DOM-узел:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;

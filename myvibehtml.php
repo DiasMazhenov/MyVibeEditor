@@ -593,7 +593,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.43';
+    const VERSION = '0.44';
     private $config;
     private $request;
     private $response;

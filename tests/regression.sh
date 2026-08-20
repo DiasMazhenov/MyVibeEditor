@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.43" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.43'" myvibehtml.php
+rg -q "MyVibeHTML v0\.44" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.44'" myvibehtml.php
 rg -q "myvibehtml-ui-contracts\.js|MyVibeHTMLUIContracts" myvibehtml.php myvibehtml.js myvibehtml-ui-contracts.js
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
@@ -50,6 +50,12 @@ fi
 rg -Fq "return \$this->state['f'] ? \$this->state['f'] . 'backup/' : false" myvibehtml.php
 rg -q "location ~\* /backup" nginx.conf.example
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "visualEditorSelection|renderStyleInspector\(this\.d\)" myvibehtml.js
+rg -q "grid-template-columns:repeat\(auto-fit,minmax\(280px,1fr\)\)|form>fieldset:first-of-type" myvibehtml-theme.css myvibehtml-fallback.css
+if rg -n '#myvibehtml-style-inspector form\{.*min-width:max-content' myvibehtml-theme.css myvibehtml-fallback.css; then
+    echo "regression: CSS inspector can force horizontal overflow" >&2
+    exit 1
+fi
 rg -q "data-myvibehtml-markup-property|syncMarkupSource|HTML / ARIA" myvibehtml.js myvibehtml.php
 rg -q "data-preview-controls|data-preview-size|myvibehtml-preview-size" myvibehtml.php myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "data-block-library|saveBlockPreset|insertBlockPreset|data-file-action=\"media\"|fileManagerMediaMode" myvibehtml.php myvibehtml.js
@@ -80,16 +86,16 @@ node --test tests/accessibility.test.js
 node --test tests/ui-contracts.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.43" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.43" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.43" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.43" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.43" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.44" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.44" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.44" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.44" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.44" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.44" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.43"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.44"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 for icon in device-desktop device-tablet device-mobile layout-grid; do
     test -s "myvibehtml-icons/$icon.svg"
