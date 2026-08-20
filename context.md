@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.46
+
+- Исправлена геометрия scroll: scrollbar перенесён с `form` CSS-групп на весь `#myvibehtml-style-inspector`. HTML/ARIA, CSS-группы, сообщение об ошибке и footer теперь находятся в одном потоке прокрутки; вложенного scrollbar больше нет.
+- Панель сохраняет ограничение `max-height:min(60vh,560px)`, блокирует горизонтальный overflow и на мобильных использует тот же единый вертикальный scroll.
+- Версия синхронно поднята до `0.46` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Проверки: PHP/JS lint, `node --test tests/source-map.test.js tests/deobfuscation.test.js tests/accessibility.test.js tests/ui-contracts.test.js`, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Headless/browser runner в текущем окружении отсутствует; live-визуальная проверка единого scrollbar и финальный screenshot acceptance не выдаются за выполненные. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне commit.
+
 ## Текущее исправление v0.45
 
 - Нижний CSS-инспектор теперь является flex-панелью с `max-height:min(60vh,560px)`: заголовок, выбранный узел и footer остаются закреплёнными, а область CSS-групп получает внутренний вертикальный scroll. На ширинах до 700px прокручивается вся панель, чтобы HTML/ARIA и CSS-поля не терялись.
