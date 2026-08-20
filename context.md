@@ -578,6 +578,15 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Проверки v0.22: `node --check myvibehtml.js`, `php -l myvibehtml.php`, `git diff --check`, `security-smoke.sh`, HTTP `tests/regression.sh` против `127.0.0.1:8080` — PASS. Headless Chromium smoke в статическом fixture: CSS-поля совпали с computed style; desktop/mobile geometry, SVG sanitizer/replacement, Save enablement, IMG file picker, context menu и отсутствие page errors — PASS. Финальные desktop/mobile screenshots просмотрены визуально.
 - Functional commit: `206b4ffff9c91f41b5aac31237bd1bdcade9b98d` (`2026-08-19T21:53:46+05:00`, `Add CSS values and media replacement inspector`). Graphify после стабилизации обновлён локально: `210` узлов, `412` связей; multigraph diagnostics — без missing/dangling/self-loop/duplicate edges. Следующий функциональный номер — `0.23`.
 
+## Текущее исправление v0.23
+
+- Backup больше не создаётся в каталоге редактора: `MyVibeHTMLConfig::getBackupRoot()` использует изолированный runtime-каталог `.myvibehtml-<hash>/backup/` рядом с document root. При невозможности создать runtime backup операция изменения завершается ошибкой, а не откатывается к публичной папке.
+- Recovery принимает только внутренний `myvibehtml://backup/`-идентификатор и проверяет его containment внутри runtime-каталога; публичный URL backup не формируется.
+- Nginx rule исправлена с `^/backup` на `/backup`, поэтому закрывает backup и при установке плагина во вложенный `/myvibe`. Apache и локальный router уже блокируют вложенные backup/dotfiles/INI/log paths.
+- Версия runtime/cache-busting поднята до `0.23`; `test-page.html` и локальный lock-файл пользователя не изменялись.
+- Проверки v0.23: `php -l myvibehtml.php`, `node --check myvibehtml.js`, `sh security-smoke.sh`, `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh`, `git diff --check` — PASS. Regression отдельно проверяет `/myvibe/backup/...` → `403`.
+- Следующий функциональный номер — `0.24`; commit создаётся после фиксации этого context-состояния.
+
 ## Архив предыдущего исправления v0.20
 
 - Добавлено расширенное контекстное меню visual editor: после выбора element/section/block доступны `Клонировать`, `Переместить вверх`, `Переместить вниз`, `Удалить`. Контекстное меню переиспользует callbacks нижней toolbar, поэтому бизнес-логика не дублируется.

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.22 */
+<?php /* MyVibeHTML v0.23 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -148,6 +148,7 @@ define('CLOSING_BODY_TAG', '</body>');
 define('UPDATE_MARKER_OPEN', '<!--~~?');
 define('UPDATE_MARKER_CLOSE', '?~~-->');
 define('COOKIE_PREFIX', 'myvibehtml_');
+define('BACKUP_URL_PREFIX', 'myvibehtml://backup/');
 
 final class MyVibeHTMLRequest
 {
@@ -436,6 +437,7 @@ final class MyVibeHTMLConfig
         $this->state['c'] = str_ireplace($this->state['b'], '', $this->state['a']);
         $this->state['d'] = $this->getParentDirectory($ConstructValue1);
         $this->state['e'] = $this->getParentDirectory($this->state['c']);
+        $this->state['f'] = myvibehtml_runtime_directory($ConstructValue2);
     }
 
     private function getConfigPath($GetConfigPathValue1, $GetConfigPathValue2)
@@ -485,19 +487,44 @@ final class MyVibeHTMLConfig
         return $this->state['e'];
     }
 
+    public function getRuntimeDirectory()
+    {
+        return $this->state['f'];
+    }
+
     public function getBackupRoot()
     {
-        return $this->state['a'] . 'backup/';
+        return $this->state['f'] ? $this->state['f'] . 'backup/' : false;
     }
 
     public function getBackupUrl()
     {
-        return $this->state['c'] . 'backup/';
+        return BACKUP_URL_PREFIX;
     }
 
     public function getParentDirectory($GetParentDirectoryValue1)
     {
         if (substr_count($GetParentDirectoryValue1, '/') > 2) return dirname($GetParentDirectoryValue1) . '/'; else return '/';
+    }
+
+    public function getBackupRelativePath($GetBackupRelativePathValue1)
+    {
+        if (!is_string($GetBackupRelativePathValue1) || strpos($GetBackupRelativePathValue1, BACKUP_URL_PREFIX) !== 0) return false;
+        $GetBackupRelativePathValue2 = substr($GetBackupRelativePathValue1, strlen(BACKUP_URL_PREFIX));
+        if ($GetBackupRelativePathValue2 === '') return '';
+        $GetBackupRelativePathValue3 = [];
+        foreach (explode('/', $GetBackupRelativePathValue2) as $GetBackupRelativePathValue4) {
+            $GetBackupRelativePathValue4 = rawurldecode($GetBackupRelativePathValue4);
+            if ($GetBackupRelativePathValue4 === '' || $GetBackupRelativePathValue4 === '.' || $GetBackupRelativePathValue4 === '..' || strpos($GetBackupRelativePathValue4, "\0") !== false || strpos($GetBackupRelativePathValue4, '/') !== false || strpos($GetBackupRelativePathValue4, '\\') !== false) return false;
+            $GetBackupRelativePathValue3[] = $GetBackupRelativePathValue4;
+        }
+        return implode('/', $GetBackupRelativePathValue3);
+    }
+
+    public function getBackupUrlForPath($GetBackupUrlForPathValue1)
+    {
+        if (!is_string($GetBackupUrlForPathValue1) || $GetBackupUrlForPathValue1 === '') return BACKUP_URL_PREFIX;
+        return BACKUP_URL_PREFIX . implode('/', array_map('rawurlencode', explode('/', trim($GetBackupUrlForPathValue1, '/'))));
     }
 
     public function getSetting($GetSettingValue1, $GetSettingValue2 = false)
@@ -573,7 +600,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.22';
+    const VERSION = '0.23';
     private $config;
     private $request;
     private $response;
@@ -671,6 +698,22 @@ final class MyVibeHTMLController
         if ($IsSafeSitePathValue4 === '') $IsSafeSitePathValue4 = '/';
         if ($IsSafeSitePathValue4 !== $IsSafeSitePathValue3 && strpos($IsSafeSitePathValue4 . '/', $IsSafeSitePathValue3 . '/') !== 0) return false;
         return $IsSafeSitePathValue1;
+    }
+
+    private function isSafeRuntimePath($IsSafeRuntimePathValue1, $IsSafeRuntimePathValue2 = false)
+    {
+        $IsSafeRuntimePathValue3 = $this->config->getRuntimeDirectory();
+        if (!$IsSafeRuntimePathValue3 || is_link($IsSafeRuntimePathValue1)) return false;
+        $IsSafeRuntimePathValue3 = rtrim(str_replace('\\', '/', realpath($IsSafeRuntimePathValue3)), '/');
+        $IsSafeRuntimePathValue4 = realpath($IsSafeRuntimePathValue1);
+        if ($IsSafeRuntimePathValue4 === false) {
+            if (!$IsSafeRuntimePathValue2) return false;
+            $IsSafeRuntimePathValue4 = realpath(dirname($IsSafeRuntimePathValue1));
+        }
+        if ($IsSafeRuntimePathValue4 === false) return false;
+        $IsSafeRuntimePathValue4 = rtrim(str_replace('\\', '/', $IsSafeRuntimePathValue4), '/');
+        if ($IsSafeRuntimePathValue4 !== $IsSafeRuntimePathValue3 && strpos($IsSafeRuntimePathValue4 . '/', $IsSafeRuntimePathValue3 . '/') !== 0) return false;
+        return $IsSafeRuntimePathValue1;
     }
 
     private function normalizeUploadFilename($NormalizeUploadFilenameValue1)
@@ -882,10 +925,9 @@ final class MyVibeHTMLController
             } else if (($DispatchValue7 = $this->request->getPost('recovery')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue7 = rawurldecode($DispatchValue7);
-                $recoveryRelative = $this->getSiteRelativePath($DispatchValue7);
-                $DispatchValue8 = $recoveryRelative === false ? false : $this->getSafeSitePath($recoveryRelative);
-                if ($DispatchValue8) $DispatchValue8 = rtrim($DispatchValue8, '/') . '/';
-                if ($DispatchValue8 && is_dir($DispatchValue8) && is_writable($this->config->getBackupRoot()) && $DispatchValue26 = opendir($DispatchValue8)) {
+                $backupRelative = $this->config->getBackupRelativePath($DispatchValue7);
+                $DispatchValue8 = $backupRelative === false || !$this->config->getBackupRoot() ? false : rtrim($this->config->getBackupRoot() . ($backupRelative === '' ? '' : $backupRelative . '/'), '/') . '/';
+                if ($DispatchValue8 && $this->isSafeRuntimePath($DispatchValue8) && is_dir($DispatchValue8) && $DispatchValue26 = opendir($DispatchValue8)) {
                     while (($DispatchValue27 = readdir($DispatchValue26)) !== false) {
                         if ($DispatchValue27 != '.' && $DispatchValue27 != '..' && is_file($DispatchValue8 . $DispatchValue27) && !is_link($DispatchValue8 . $DispatchValue27)) {
                             $DispatchValue27 = str_ireplace('ꜜ', '[~]', $DispatchValue27);
@@ -1395,10 +1437,10 @@ final class MyVibeHTMLController
         $CreateBackupValue2 = $this->config->getSetting(SETTING_RECOVERY_POINTS);
         if ($CreateBackupValue2 && $CreateBackupValue2 > 0) {
             $CreateBackupValue3 = $this->config->getBackupRoot();
-            if ($this->isSafeSitePath($CreateBackupValue3, true) && (is_dir($CreateBackupValue3) || is_writable($this->config->getEditorDirectory()) && mkdir($CreateBackupValue3))) {
+            if ($CreateBackupValue3 && ($this->isSafeRuntimePath($CreateBackupValue3, true) || (!file_exists($CreateBackupValue3) && is_dir($this->config->getRuntimeDirectory()) && is_writable($this->config->getRuntimeDirectory()) && @mkdir($CreateBackupValue3, 0700, true)))) {
                 $CreateBackupValue4 = date('y.m.d.H.i', $this->config->getSetting(SETTING_AUTH_TIME));
                 $CreateBackupValue5 = $CreateBackupValue3 . $CreateBackupValue4 . '/';
-                if ($this->isSafeSitePath($CreateBackupValue5, true) && (is_dir($CreateBackupValue5) || is_writable($CreateBackupValue3) && mkdir($CreateBackupValue5))) {
+                if (($this->isSafeRuntimePath($CreateBackupValue5, true) || (!file_exists($CreateBackupValue5) && is_dir($CreateBackupValue3) && is_writable($CreateBackupValue3) && @mkdir($CreateBackupValue5, 0700, true)))) {
                     $this->pruneBackups($CreateBackupValue3, $CreateBackupValue2);
                     if ($CreateBackupValue6 = opendir($CreateBackupValue5)) {
                         $CreateBackupValue7 = $CreateBackupValue5 . str_ireplace('/', '⁄', $CreateBackupValue1);

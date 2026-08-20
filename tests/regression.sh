@@ -17,8 +17,10 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.22" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml-fallback.css
-rg -q "const VERSION = '0\.22'" myvibehtml.php
+rg -q "MyVibeHTML v0\.23" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml-fallback.css
+rg -q "const VERSION = '0\.23'" myvibehtml.php
+rg -q "return \$this->state\['f'\] \? \$this->state\['f'\] \. 'backup/' : false" myvibehtml.php
+rg -q "location ~\* /backup" nginx.conf.example
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
 rg -q "position:fixed;right:0;bottom:0;left:0" myvibehtml-theme.css myvibehtml-fallback.css
@@ -36,12 +38,13 @@ php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.22" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.22" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.23" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.23" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.22"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.23"
+expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2
     exit 1

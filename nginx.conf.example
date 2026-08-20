@@ -8,7 +8,7 @@ index myvibehtml.php;
 client_max_body_size 32m;
 
 # Never serve editor runtime files, backups, lock files, or dotfiles.
-location ~* ^/backup(?:/|$) {
+location ~* /backup(?:/|$) {
     deny all;
     access_log off;
     log_not_found off;
