@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.25 */
+<?php /* MyVibeHTML v0.26 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -379,9 +379,15 @@ final class MyVibeHTMLConfig
     private $templates;
     private $dirty;
     private $configPath;
+    private $lockHandle;
 
     public function __construct($ConstructValue1, $ConstructValue2)
     {
+        $this->dirty = false;
+        $this->state['f'] = myvibehtml_runtime_directory($ConstructValue2);
+        $configLockPath = $this->state['f'] ? $this->state['f'] . 'config-state.lock' : $ConstructValue1 . self::CONFIG_FILE . '.state-lock';
+        $this->lockHandle = @fopen($configLockPath, 'c');
+        if (!$this->lockHandle || !flock($this->lockHandle, LOCK_EX)) throw new RuntimeException('Unable to lock MyVibeHTML configuration');
         $this->translations = parse_ini_file($ConstructValue1 . self::LANGUAGE_FILE, true);
         $this->configPath = $this->getConfigPath($ConstructValue1, $ConstructValue2);
         $this->settings = parse_ini_file($this->configPath, true);
@@ -453,7 +459,6 @@ final class MyVibeHTMLConfig
         $this->state['c'] = str_ireplace($this->state['b'], '', $this->state['a']);
         $this->state['d'] = $this->getParentDirectory($ConstructValue1);
         $this->state['e'] = $this->getParentDirectory($this->state['c']);
-        $this->state['f'] = myvibehtml_runtime_directory($ConstructValue2);
     }
 
     private function getConfigPath($GetConfigPathValue1, $GetConfigPathValue2)
@@ -475,7 +480,11 @@ final class MyVibeHTMLConfig
 
     public function __destruct()
     {
-        if ($this->dirty) $this->save();
+        $this->commit();
+        if ($this->lockHandle) {
+            flock($this->lockHandle, LOCK_UN);
+            fclose($this->lockHandle);
+        }
     }
 
     public function getLanguage()
@@ -563,18 +572,31 @@ final class MyVibeHTMLConfig
         }
     }
 
+    private function encodeIniValue($value)
+    {
+        return '"' . str_replace(['\\', '"', "\r", "\n"], ['\\\\', '\\"', '\\r', '\\n'], (string)$value) . '"';
+    }
+
+    public function commit()
+    {
+        if (!$this->dirty) return true;
+        return $this->save();
+    }
+
     private function save()
     {
         $SaveValue1 = [];
-        foreach ($this->settings as $SaveValue2 => $SaveValue3) if (!is_array($SaveValue3)) $SaveValue1[] = $SaveValue2 . ' = ' . $SaveValue3 . self::LINE_SEPARATOR . self::LINE_SEPARATOR;
+        foreach ($this->settings as $SaveValue2 => $SaveValue3) if (!is_array($SaveValue3)) $SaveValue1[] = $SaveValue2 . ' = ' . $this->encodeIniValue($SaveValue3) . self::LINE_SEPARATOR . self::LINE_SEPARATOR;
         foreach ($this->settings as $SaveValue2 => $SaveValue3) {
             if (is_array($SaveValue3)) {
                 $SaveValue1[] = '[' . $SaveValue2 . ']' . self::LINE_SEPARATOR . self::LINE_SEPARATOR;
-                foreach ($SaveValue3 as $SaveValue4 => $SaveValue5) $SaveValue1[] = "\t" . $SaveValue4 . ' = ' . $SaveValue5 . self::LINE_SEPARATOR;
+                foreach ($SaveValue3 as $SaveValue4 => $SaveValue5) $SaveValue1[] = "\t" . $SaveValue4 . ' = ' . $this->encodeIniValue($SaveValue5) . self::LINE_SEPARATOR;
                 $SaveValue1[] = self::LINE_SEPARATOR;
             }
         }
-        $this->writeFileAtomically($this->configPath, implode('', $SaveValue1), 0600);
+        $saved = $this->writeFileAtomically($this->configPath, implode('', $SaveValue1), 0600);
+        if ($saved) $this->dirty = false;
+        return $saved;
     }
 
     private function writeFileAtomically($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3 = 0600)
@@ -616,7 +638,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.25';
+    const VERSION = '0.26';
     private $config;
     private $request;
     private $response;
@@ -630,6 +652,11 @@ final class MyVibeHTMLController
         $this->config = $ConstructValue3;
         $this->language = $this->selectLanguage();
         $this->rewriteMode = $this->detectRewriteMode();
+    }
+
+    public function commit()
+    {
+        return $this->config->commit();
     }
 
     private function normalizeRelativePath($NormalizeRelativePathValue1)
@@ -954,28 +981,8 @@ final class MyVibeHTMLController
                 $DispatchValue7 = rawurldecode($DispatchValue7);
                 $backupRelative = $this->config->getBackupRelativePath($DispatchValue7);
                 $DispatchValue8 = $backupRelative === false || !$this->config->getBackupRoot() ? false : rtrim($this->config->getBackupRoot() . ($backupRelative === '' ? '' : $backupRelative . '/'), '/') . '/';
-                if ($DispatchValue8 && $this->isSafeRuntimePath($DispatchValue8) && is_dir($DispatchValue8) && $DispatchValue26 = opendir($DispatchValue8)) {
-                    while (($DispatchValue27 = readdir($DispatchValue26)) !== false) {
-                        if ($DispatchValue27 != '.' && $DispatchValue27 != '..' && is_file($DispatchValue8 . $DispatchValue27) && !is_link($DispatchValue8 . $DispatchValue27)) {
-                            $DispatchValue27 = str_ireplace('ꜜ', '[~]', $DispatchValue27);
-                            if (substr($DispatchValue27, 0, 3) == '[~]') {
-                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', substr($DispatchValue27, 3)));
-                                $DispatchValue2 = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
-                                if ($DispatchValue2 && file_exists($DispatchValue2)) if (!unlink($DispatchValue2)) $DispatchValue28 = true;
-                            } else {
-                                $restoreRelative = $this->normalizeRelativePath(str_ireplace('⁄', '/', $DispatchValue27));
-                                $DispatchValue2 = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
-                                if (!$DispatchValue2 || !copy($DispatchValue8 . $DispatchValue27, $DispatchValue2)) $DispatchValue28 = true;
-                            }
-                            if (!unlink($DispatchValue8 . str_ireplace('[~]', 'ꜜ', $DispatchValue27))) $DispatchValue28 = true;
-                        }
-                    }
-                    closedir($DispatchValue26);
-                    $this->config->setSetting(SETTING_CACHE, '');
-                    if (!isset($DispatchValue28)) {
-                        if (!rmdir($DispatchValue8)) $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
-                    } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
-                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+                if ($DispatchValue8 && $this->restoreBackupDirectory($DispatchValue8)) $this->config->setSetting(SETTING_CACHE, '');
+                else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
             } else if (($DispatchValue29 = $this->request->getPost('scripts')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 if ($this->config->getSetting(SETTING_SITE_SCRIPTS) !== null) $this->config->setSetting(SETTING_SITE_SCRIPTS, '0'); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
@@ -1149,6 +1156,85 @@ final class MyVibeHTMLController
     private function writeFileAtomically($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3 = 0644)
     {
         return myvibehtml_atomic_write($WriteFileAtomicallyValue1, $WriteFileAtomicallyValue2, $WriteFileAtomicallyValue3, '.' . basename($WriteFileAtomicallyValue1) . '.myvibehtml.lock');
+    }
+
+    private function restoreBackupDirectory($backupDirectory)
+    {
+        if (!$this->isSafeRuntimePath($backupDirectory) || !is_dir($backupDirectory) || !($directoryHandle = @opendir($backupDirectory))) return false;
+        $entries = [];
+        $targets = [];
+        while (($backupName = readdir($directoryHandle)) !== false) {
+            if ($backupName === '.' || $backupName === '..') continue;
+            $backupSource = $backupDirectory . $backupName;
+            if (!is_file($backupSource) || is_link($backupSource)) {
+                closedir($directoryHandle);
+                return false;
+            }
+            $isDeletion = substr($backupName, 0, 3) === 'ꜜ';
+            $encodedName = $isDeletion ? substr($backupName, 3) : $backupName;
+            $restoreRelative = $this->normalizeRelativePath(str_replace('⁄', '/', $encodedName));
+            $restoreTarget = $restoreRelative === false ? false : $this->getSafeSitePath($restoreRelative, true);
+            if (!$restoreTarget || isset($targets[$restoreRelative]) || is_link($restoreTarget) || (file_exists($restoreTarget) && !is_file($restoreTarget))) {
+                closedir($directoryHandle);
+                return false;
+            }
+            $targets[$restoreRelative] = true;
+            $entry = ['source' => $backupSource, 'target' => $restoreTarget, 'stage' => false, 'rollback' => false, 'delete' => $isDeletion];
+            if (!$isDeletion) {
+                $entry['stage'] = tempnam(dirname($restoreTarget), '.myvibehtml-restore-');
+                if (!$entry['stage'] || !$this->copyFileAtomically($backupSource, $entry['stage'])) {
+                    if ($entry['stage']) @unlink($entry['stage']);
+                    closedir($directoryHandle);
+                    foreach ($entries as $stagedEntry) if ($stagedEntry['stage']) @unlink($stagedEntry['stage']);
+                    return false;
+                }
+            }
+            if (file_exists($restoreTarget)) {
+                $entry['rollback'] = tempnam(dirname($restoreTarget), '.myvibehtml-rollback-');
+                if (!$entry['rollback'] || !$this->copyFileAtomically($restoreTarget, $entry['rollback'])) {
+                    if ($entry['stage']) @unlink($entry['stage']);
+                    if ($entry['rollback']) @unlink($entry['rollback']);
+                    closedir($directoryHandle);
+                    foreach ($entries as $stagedEntry) {
+                        if ($stagedEntry['stage']) @unlink($stagedEntry['stage']);
+                        if ($stagedEntry['rollback']) @unlink($stagedEntry['rollback']);
+                    }
+                    return false;
+                }
+            }
+            $entries[] = $entry;
+        }
+        closedir($directoryHandle);
+        if (!count($entries)) return false;
+        $appliedEntries = [];
+        foreach ($entries as $entry) {
+            if ($entry['delete']) {
+                $appliedEntries[] = $entry;
+                if (file_exists($entry['target']) && !@unlink($entry['target'])) $restoreFailed = true;
+            } else if (@rename($entry['stage'], $entry['target'])) {
+                $appliedEntries[] = $entry;
+            } else $restoreFailed = true;
+            if (isset($restoreFailed)) break;
+        }
+        if (isset($restoreFailed)) {
+            foreach (array_reverse($appliedEntries) as $appliedEntry) {
+                if ($appliedEntry['rollback']) {
+                    @unlink($appliedEntry['target']);
+                    @rename($appliedEntry['rollback'], $appliedEntry['target']);
+                } else if (file_exists($appliedEntry['target'])) @unlink($appliedEntry['target']);
+            }
+            foreach ($entries as $entry) {
+                if ($entry['stage']) @unlink($entry['stage']);
+                if ($entry['rollback']) @unlink($entry['rollback']);
+            }
+            return false;
+        }
+        foreach ($entries as $entry) {
+            if ($entry['rollback']) @unlink($entry['rollback']);
+            @unlink($entry['source']);
+        }
+        @rmdir($backupDirectory);
+        return true;
     }
 
     private function copyFileAtomically($CopyFileAtomicallyValue1, $CopyFileAtomicallyValue2)
@@ -1553,4 +1639,5 @@ try {
 } catch (Exception$GlobalValue1) {
     $controller->handleException($GlobalValue1);
 }
+if (!$controller->commit()) $response->setStatus(500, 'Internal Server Error');
 $response->send(); ?>

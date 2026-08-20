@@ -25,7 +25,7 @@ CLI-команда не показывает web `DOCUMENT_ROOT`; это нор�
 
 ```sh
 apachectl -t
-curl -I https://example.test/myvibehtml.js?v=0.25
+curl -I https://example.test/myvibehtml.js?v=0.26
 curl -I https://example.test/index.html
 ```
 
@@ -44,7 +44,7 @@ curl -I https://example.test/index.html
 
 ```sh
 nginx -t
-curl -I https://example.test/myvibehtml.js?v=0.25
+curl -I https://example.test/myvibehtml.js?v=0.26
 curl -I https://example.test/myvibehtml.php
 ```
 

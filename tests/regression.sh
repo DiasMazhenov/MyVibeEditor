@@ -17,9 +17,10 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.25" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.25'" myvibehtml.php
+rg -q "MyVibeHTML v0\.26" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.26'" myvibehtml.php
 rg -q 'password_hash|password_verify|random_bytes|hash_equals' myvibehtml.php
+rg -q 'function commit|encodeIniValue|config-state.lock|restoreBackupDirectory' myvibehtml.php
 if rg -n 'hashPassword|hashSettingsPassword|sha1\(time\(\)|mt_rand\(\)' myvibehtml.php myvibehtml.js; then
     echo "regression: legacy password/session generation is still active" >&2
     exit 1
@@ -48,12 +49,12 @@ php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.25" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.25" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.26" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.26" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.25"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.26"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

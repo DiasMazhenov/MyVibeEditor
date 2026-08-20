@@ -24,7 +24,7 @@
 
 ### `MyVibeHTMLConfig`
 
-`getConfigPath()`, `getLanguage()`, `getEditorDirectory()`, `getSiteRoot()`, `getSiteUrlBase()`, `getSiteUrl()`, `getBackupRoot()`, `getBackupUrl()`, `getParentDirectory()` вычисляют расположение и URL. `getSetting()`/`setSetting()` читают и меняют параметры. `getTemplate()`, `replacePlaceholders()`, `localizeTemplate()` и `translate()` формируют локализованный HTML. `save()`, `writeFileAtomically()` и `isWritable()` отвечают за безопасное сохранение состояния.
+`getConfigPath()`, `getLanguage()`, `getEditorDirectory()`, `getSiteRoot()`, `getSiteUrlBase()`, `getSiteUrl()`, `getBackupRoot()`, `getBackupUrl()`, `getParentDirectory()` вычисляют расположение и URL. `getSetting()`/`setSetting()` читают и меняют параметры. `getTemplate()`, `replacePlaceholders()`, `localizeTemplate()` и `translate()` формируют локализованный HTML. `commit()`, `save()`, `encodeIniValue()`, `writeFileAtomically()` и `isWritable()` отвечают за синхронное и безопасное сохранение состояния.
 
 ## PHP: контроллер
 
@@ -32,7 +32,7 @@
 
 `normalizeRelativePath()`, `getPublicFileUrl()`, `getSiteRelativePath()`, `getSafeSitePath()`, `isSafeSitePath()`, `normalizeUploadFilename()`, `escapeHtml()` и `isAllowedExtension()` образуют path/HTML trust boundary. `readHtmlFile()` читает разрешённый HTML.
 
-`detectRewriteMode()`, `getQueryPrefix()`, `findDefaultFile()`, `ensureRewriteBase()`, `writeHtaccess()` поддерживают маршрутизацию. `createSession()`, `destroySession()` и `switchMode()` управляют сессией и режимом редактора. `copyFileAtomically()`, `createBackup()`, `pruneBackups()` обеспечивают backup/recovery.
+`detectRewriteMode()`, `getQueryPrefix()`, `findDefaultFile()`, `ensureRewriteBase()`, `writeHtaccess()` поддерживают маршрутизацию. `createSession()`, `destroySession()` и `switchMode()` управляют сессией и режимом редактора. `copyFileAtomically()`, `createBackup()`, `restoreBackupDirectory()` и `pruneBackups()` обеспечивают staged backup/recovery с rollback.
 
 `renderFileList()`, `renderFileType()`, `renderLanguageList()`, `parseSize()`, `renderSiteStatus()`, `sortEntries()`, `getDirectorySize()`, `calculateDirectorySizes()` отвечают за файловый менеджер. `normalizeImageFilename()` нормализует имена изображений.
 
