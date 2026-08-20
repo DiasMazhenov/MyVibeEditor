@@ -4,6 +4,7 @@ const test = require('node:test');
 
 const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const editor = fs.readFileSync('myvibehtml.js', 'utf8');
+const shell = fs.readFileSync('myvibehtml-shell-controls.js', 'utf8');
 
 test('Time Machine keeps one persistent timeline for visual and source drafts', () => {
     assert.match(editor, /editorTimelineKey = 'myvibehtml:timeline:/);
@@ -32,4 +33,23 @@ test('Design Tokens are editable through the CSS inspector and source', () => {
     assert.match(editor, /data-myvibehtml-token-apply/);
     assert.match(editor, /runtimeValue127\.documentElement\[styleProperty\]\.setProperty/);
     assert.match(editor, /:root\\s\*\\\{/);
+});
+
+test('Page navigation and Responsive Preview Studio reuse shell controls', () => {
+    assert.match(shell, /data-site-map/);
+    assert.match(shell, /siteMapButton/);
+    assert.match(shell, /new URL\(href, window\.location\.href\)/);
+    assert.match(shell, /data-preview-preset/);
+    assert.match(shell, /tablet-landscape/);
+    assert.match(php, /data-site-map/);
+    assert.match(php, /preview_tablet_landscape/);
+});
+
+test('Page Health adds local SEO, structure and resource checks', () => {
+    assert.match(editor, /validationDescription/);
+    assert.match(editor, /validationResourceCount/);
+    assert.match(editor, /validation-missing-lang/);
+    assert.match(editor, /validation-h1/);
+    assert.match(php, /data-validation-description/);
+    assert.match(php, /data-validation-heavy/);
 });

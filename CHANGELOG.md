@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.60
+
+- добавлена локальная навигация по внутренним ссылкам текущей страницы с безопасным открытием в новой вкладке;
+- command palette получила команду навигации по страницам;
+- Responsive Preview Studio получил профили desktop, tablet, tablet landscape, mobile и mobile landscape без внешних зависимостей;
+- Page Health расширен проверками `lang`, `title`, `meta description`, `meta viewport`, единственного `h1`, ссылок без `href` и тяжёлых страниц.
+
 ## 0.59
 
 - в CSS-инспектор добавлен блок `Дизайн-токены` с текущими CSS custom properties выбранной страницы;

@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.60
+
+- Зафиксирован новый рабочий состав killer-фич 4–6: навигация по страницам, Page Health и Responsive Preview Studio.
+- В shell-модуль добавлен `data-site-map`: он сканирует same-origin `a[href]` текущего iframe, удаляет дубли/внешние URL, показывает доступный диалог и открывает ссылки в новой вкладке без серверного API.
+- Существующий `validationDialogOpen()` расширен локальными проверками `lang`, `title`, `meta description`, `meta viewport`, количества `h1`, ссылок без `href` и лимита ресурсов/строк; сохранение и исходник не меняются автоматически.
+- Существующие preview-кнопки дополнены профилями `desktop`, `tablet`, `tablet-landscape`, `mobile`, `mobile-landscape`; ширина iframe меняется без перезагрузки, desktop сбрасывает inline-геометрию.
+- Обновлены `lang.ini`, PHP-шаблоны, theme/fallback CSS, README, architecture, function catalog, CHANGELOG, CI и regression version markers до `0.60`.
+- Пройдены `node --check`, PHP lint, feature/module contracts, `tests/ci-contract.sh`, `git diff --check` и полный `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS. Live URL `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.60` открыт во встроенном браузере; API открытия вкладки не предоставляет программных click/screenshot-команд, поэтому ручное прокликивание навигации, Page Health и всех viewport-профилей ещё не объявляется выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. После этой записи нужно закоммитить и отправить v0.60, затем продолжить v0.61/v0.62.
+
 ## Текущее исправление v0.59
 
 - В CSS-инспектор добавлен блок `Дизайн-токены`: `getDesignTokenNames()` находит custom properties в source, `renderDesignTokens()` показывает актуальные значения, `syncDesignTokenSource()` обновляет существующий `:root` или добавляет style перед `</head>`.

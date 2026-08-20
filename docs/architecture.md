@@ -1,6 +1,6 @@
-# Архитектура v0.59
+# Архитектура v0.60
 
-v0.59 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.60 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -8,7 +8,7 @@ v0.59 сохраняет безопасные модульные границы 
 - `myvibehtml-ui-contracts.js` — независимые browser transport/UI contracts, сейчас генератор CSRF-токенов;
 - `myvibehtml-transport.js` — cookies, совместимый SHA-1/Base64 слой и AJAX-транспорт; модуль сохраняет существующий протокол без доступа к editor closure;
 - `myvibehtml-auth.js` — отдельный DOM/AJAX-flow авторизации, загружается только на auth-странице после transport;
-- `myvibehtml-shell-controls.js` — изолированные command palette, preview-кнопки и mobile menu, работающие только через публичные DOM-контролы панели;
+- `myvibehtml-shell-controls.js` — изолированные навигация по внутренним ссылкам, command palette, Responsive Preview Studio и mobile menu, работающие только через публичные DOM-контролы панели;
 - `myvibehtml.js` — оркестрация visual/source editor, files, settings и общей локальной timeline-истории без auth-flow;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, module-boundary, security, regression, CI contract и optional authenticated E2E.
@@ -24,6 +24,12 @@ v0.59 сохраняет безопасные модульные границы 
 ## Design Tokens
 
 `getDesignTokenNames()` извлекает имена custom properties из текущего source, `renderDesignTokens()` заполняет поля CSS-инспектора, а `syncDesignTokenSource()` обновляет существующий `:root` или добавляет безопасный `<style>` перед `</head>`. Значение одновременно применяется к live `documentElement`, попадает в source/draft и сохраняется обычной кнопкой `Сохранить`.
+
+## Killer features 4–6
+
+- **Навигация по страницам**: shell-модуль сканирует `a[href]` в same-origin iframe, убирает дубли/внешние URL и строит доступный диалог с открытием страниц в новой вкладке.
+- **Page Health**: существующий `validationDialogOpen()` дополнен локальными SEO, структурными, ссылочными и ресурсными предупреждениями; сервер и внешние сервисы не вызываются.
+- **Responsive Preview Studio**: существующий `data-preview-size` расширен профилями с альбомной ориентацией и точной шириной iframe через inline style, с возвратом всех inline-стилей при desktop.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.59 shell controls: command palette and responsive controls */
+/* MyVibeHTML v0.60 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -16,7 +16,7 @@
                 return source && source.getAttribute('data-' + attribute) || fallback
             },
             getLabel = function(element, fallback) {
-                return element && (element.getAttribute('data-preview-label') || element.getAttribute('data-block-label') || element.textContent.replace(/^\s+|\s+$/g, '')) || fallback
+                return element && (element.getAttribute('data-preview-label') || element.getAttribute('data-block-label') || element.getAttribute('data-site-map-label') || element.textContent.replace(/^\s+|\s+$/g, '')) || fallback
             },
             dispatch = function(element) {
                 if (!element) return;
@@ -36,6 +36,7 @@
                     redoButton = panel.querySelector('[data-source-action="redo"]'),
                     previewButtons = panel.querySelectorAll('[data-preview-size]'),
                     blockButton = panel.querySelector('[data-block-library]'),
+                    siteMapButton = panel.querySelector('[data-site-map]'),
                     index;
                 if (modes[0]) addCommand(list, getLabel(modes[0], 'HTML'), 'Ctrl/⌘+1', function() { dispatch(modes[0]) });
                 if (modes[1]) addCommand(list, getLabel(modes[1], 'Text'), 'Ctrl/⌘+2', function() { dispatch(modes[1]) });
@@ -46,6 +47,7 @@
                 if (undoButton) addCommand(list, getLabel(undoButton, 'Undo'), 'Ctrl/⌘+Z', function() { undoButton.click() });
                 if (redoButton) addCommand(list, getLabel(redoButton, 'Redo'), 'Ctrl/⌘+Y', function() { redoButton.click() });
                 if (blockButton) addCommand(list, getLabel(blockButton, 'Blocks'), '', function() { blockButton.click() });
+                if (siteMapButton) addCommand(list, getLabel(siteMapButton, 'Page navigation'), '', function() { siteMapButton.click() });
                 for (index = 0; index < previewButtons.length; index++) (function(previewButton) {
                     addCommand(list, getLabel(previewButton, previewButton.getAttribute('data-preview-size')), '', function() { previewButton.click() })
                 })(previewButtons[index]);
@@ -154,12 +156,28 @@
         previewFrame = document.querySelector('#d iframe');
         if (previewControls && previewFrame && document.documentElement.id == 'd') {
             var previewButtons = previewControls.querySelectorAll('[data-preview-size]'),
-                setPreviewSize = function(previewSize) {
-                    if (previewSize != 'tablet' && previewSize != 'mobile') previewSize = 'desktop';
-                    document.documentElement.setAttribute('data-myvibehtml-preview-size', previewSize);
-                    for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == previewSize ? 'true' : 'false')
+                previewPreset = previewControls.querySelector('[data-preview-preset]'),
+                previewPresets = {desktop:{size:'desktop',width:null},tablet:{size:'tablet',width:768},'tablet-landscape':{size:'tablet',width:1024},mobile:{size:'mobile',width:390},'mobile-landscape':{size:'mobile',width:812}},
+                setPreviewSize = function(previewPresetName) {
+                    var preset = previewPresets[previewPresetName] || previewPresets.desktop;
+                    document.documentElement.setAttribute('data-myvibehtml-preview-size', preset.size);
+                    document.documentElement.setAttribute('data-myvibehtml-preview-preset', previewPresets[previewPresetName] ? previewPresetName : 'desktop');
+                    if (preset.width) {
+                        previewFrame.style.width = 'min(' + preset.width + 'px, calc(100% - 24px))';
+                        previewFrame.style.left = '50%';
+                        previewFrame.style.right = 'auto';
+                        previewFrame.style.transform = 'translateX(-50%)'
+                    } else {
+                        previewFrame.style.width = '';
+                        previewFrame.style.left = '';
+                        previewFrame.style.right = '';
+                        previewFrame.style.transform = ''
+                    }
+                    if (previewPreset) previewPreset.value = previewPresets[previewPresetName] ? previewPresetName : 'desktop';
+                    for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == preset.size ? 'true' : 'false')
                 };
             for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].addEventListener('click', function() { setPreviewSize(this.getAttribute('data-preview-size')) });
+            if (previewPreset) previewPreset.addEventListener('change', function() { setPreviewSize(this.value) });
             setPreviewSize('desktop')
         }
 
@@ -200,5 +218,86 @@
                 menuToggle.focus()
             }
         })
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var panel = document.querySelector('#e'), siteMapButton, siteMap = null, siteMapList = null, iframe;
+        if (!panel) return;
+        siteMapButton = panel.querySelector('[data-site-map]');
+        iframe = document.querySelector('#d iframe');
+        if (!siteMapButton || !iframe) return;
+        var text = function(attribute, fallback) {
+                var source = panel.querySelector('[data-page-validate]');
+                return source && source.getAttribute('data-' + attribute) || fallback
+            },
+            siteMapText = function(attribute, fallback) { return siteMapButton.getAttribute('data-site-map-' + attribute) || fallback },
+            close = function() {
+                if (siteMap) {
+                    siteMap.hidden = true;
+                    siteMap.setAttribute('aria-hidden', 'true')
+                }
+            },
+            render = function() {
+                if (!siteMapList) return;
+                siteMapList.textContent = '';
+                var frameDocument;
+                try { frameDocument = iframe.contentDocument } catch (error) { frameDocument = null }
+                var links = [], seen = {}, anchors = frameDocument ? frameDocument.querySelectorAll('a[href]') : [], index;
+                for (index = 0; index < anchors.length; index++) {
+                    var href = anchors[index].getAttribute('href'), url;
+                    try { url = new URL(href, window.location.href) } catch (error) { url = null }
+                    if (!url || url.origin != window.location.origin || (url.hash && url.pathname == window.location.pathname) || seen[url.href]) continue;
+                    seen[url.href] = true;
+                    links.push({href:url.href,label:(anchors[index].textContent || '').replace(/^\s+|\s+$/g, '') || url.pathname})
+                }
+                if (!links.length) {
+                    var empty = document.createElement('p');
+                    empty.className = 'myvibehtml-site-map-empty';
+                    empty.textContent = siteMapText('empty', 'No internal links found on this page');
+                    siteMapList.appendChild(empty);
+                    return
+                }
+                for (index = 0; index < links.length; index++) {
+                    var item = document.createElement('li'), label = document.createElement('span'), openLink = document.createElement('a');
+                    label.textContent = links[index].label;
+                    openLink.href = links[index].href;
+                    openLink.target = '_blank';
+                    openLink.rel = 'noopener';
+                    openLink.textContent = siteMapText('open', 'Open');
+                    item.appendChild(label);
+                    item.appendChild(openLink);
+                    siteMapList.appendChild(item)
+                }
+            },
+            open = function() {
+                if (!siteMap) {
+                    siteMap = document.createElement('aside');
+                    siteMap.id = 'myvibehtml-site-map';
+                    siteMap.setAttribute('role', 'dialog');
+                    siteMap.setAttribute('aria-modal', 'true');
+                    siteMap.setAttribute('aria-hidden', 'true');
+                    var header = document.createElement('div'), title = document.createElement('h2'), closeButton = document.createElement('button');
+                    header.className = 'myvibehtml-site-map-header';
+                    title.textContent = siteMapButton.getAttribute('data-site-map-label') || 'Page navigation';
+                    closeButton.type = 'button';
+                    closeButton.setAttribute('aria-label', text('close', 'Close'));
+                    closeButton.textContent = '×';
+                    closeButton.addEventListener('click', close);
+                    header.appendChild(title);
+                    header.appendChild(closeButton);
+                    siteMap.appendChild(header);
+                    siteMapList = document.createElement('ul');
+                    siteMap.appendChild(siteMapList);
+                    document.body.appendChild(siteMap);
+                    siteMap.addEventListener('click', function(event) { if (event.target == siteMap) close() })
+                }
+                render();
+                siteMap.hidden = false;
+                siteMap.setAttribute('aria-hidden', 'false');
+                siteMap.querySelector('button').focus()
+            };
+        siteMapButton.addEventListener('click', open);
+        iframe.addEventListener('load', function() { if (siteMap && !siteMap.hidden) render() });
+        document.addEventListener('keydown', function(event) { if (event.key == 'Escape' && siteMap && !siteMap.hidden) close() })
     })
 }());

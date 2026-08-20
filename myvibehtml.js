@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.59 */
+/* MyVibeHTML v0.60 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -398,7 +398,8 @@
                         validationIssues = validationOptions && validationOptions.issues ? validationOptions.issues : [],
                         validationIds = {},
                         validationNodes = validationDocument ? validationDocument[querySelectorAllMethod]('*') : [],
-                        validationIndex = 0;
+                        validationIndex = 0,
+                        validationMessage = function(attribute, russian, english) { return validationText(attribute, documentObject.documentElement.lang == 'ru' ? russian : english) };
                     if (!validationOptions) {
                         if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:'Empty source'});
                         for (; validationIndex < validationNodes[lengthProperty]; validationIndex++) {
@@ -415,8 +416,22 @@
                             }
                             if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:'Image without alt attribute'});
                         }
-                        if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:'Missing html element'});
-                        if (!validationDocument.querySelector('title')) validationIssues.push({level:'warning',text:'Missing title element'});
+                        if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:validationMessage('validation-html', 'Отсутствует элемент html', 'Missing html element')});
+                        var validationHtml = validationDocument.querySelector('html'),
+                            validationTitle = validationDocument.querySelector('title'),
+                            validationDescription = validationDocument.querySelector('meta[name="description"]'),
+                            validationViewport = validationDocument.querySelector('meta[name="viewport"]'),
+                            validationHeadings = validationDocument.querySelectorAll('h1'),
+                            validationLinks = validationDocument.querySelectorAll('a'),
+                            validationResourceCount = validationDocument.querySelectorAll('img,script,link,iframe,video,audio').length;
+                        if (!validationTitle) validationIssues.push({level:'warning',text:validationMessage('validation-title', 'Отсутствует элемент title', 'Missing title element')});
+                        else if (!(validationTitle.textContent || '').replace(/^\s+|\s+$/g, '')) validationIssues.push({level:'warning',text:validationMessage('validation-empty-title', 'Заголовок title пустой', 'Title is empty')});
+                        if (!validationHtml || !validationHtml.getAttribute('lang')) validationIssues.push({level:'warning',text:validationMessage('validation-missing-lang', 'Отсутствует атрибут lang', 'Missing lang attribute')});
+                        if (!validationDescription) validationIssues.push({level:'warning',text:validationMessage('validation-description', 'Отсутствует meta description', 'Missing meta description')});
+                        if (!validationViewport) validationIssues.push({level:'warning',text:validationMessage('validation-viewport', 'Отсутствует meta viewport', 'Missing meta viewport')});
+                        if (validationHeadings.length != 1) validationIssues.push({level:'warning',text:validationMessage('validation-h1', 'Страница должна содержать один h1', 'The page should contain one h1')});
+                        for (validationIndex = 0; validationIndex < validationLinks.length; validationIndex++) if (!validationLinks[validationIndex].hasAttribute('href')) validationIssues.push({level:'warning',text:validationMessage('validation-links', 'Внутренняя ссылка без href', 'Internal link has no href')});
+                        if (validationResourceCount > 40 || String(candidateSource || '').split('\n').length > 1000) validationIssues.push({level:'warning',text:validationMessage('validation-heavy', 'Страница содержит слишком много ресурсов или строк', 'The page contains too many resources or lines')});
                     }
                     if (!validationDialog) {
                         validationDialog = documentObject[createElementMethod]('aside');
