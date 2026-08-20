@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.42
+
+- контекстное меню получило полноценную клавиатурную навигацию, Home/End и возврат фокуса к исходному элементу;
+- theme и fallback используют один владелец design tokens, а fallback остаётся самостоятельным критическим слоем;
+- accessibility и regression checks дополнены проверкой focus/keyboard contract.
+
 ## 0.41
 
 - генерация CSRF-токенов вынесена в локальный UI-contract module без внешних зависимостей;

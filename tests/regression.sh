@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.41" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.41'" myvibehtml.php
+rg -q "MyVibeHTML v0\.42" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.42'" myvibehtml.php
 rg -q "myvibehtml-ui-contracts\.js|MyVibeHTMLUIContracts" myvibehtml.php myvibehtml.js myvibehtml-ui-contracts.js
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
@@ -80,14 +80,16 @@ node --test tests/accessibility.test.js
 node --test tests/ui-contracts.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.41" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.41" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.41" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.41" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.42" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.41"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.42"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

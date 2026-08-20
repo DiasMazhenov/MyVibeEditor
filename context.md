@@ -1,5 +1,16 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.42
+
+- Контекстное меню стало keyboard-accessible: `ArrowUp`/`ArrowDown` перемещают фокус только по видимым действиям, `Home`/`End` переходят к началу/концу, `Enter`/`Space` активируют пункт, `Escape` закрывает меню.
+- При закрытии меню фокус возвращается на элемент, с которого меню было открыто; это исправляет потерю фокуса после действия и сохраняет клавиатурный workflow.
+- CSS consolidation завершён для design tokens: palette variables объявлены один раз в fallback-слое, theme их переиспользует. Fallback остаётся самодостаточным критическим слоем.
+- Performance baseline сохранён: файловая сортировка остаётся `usort()` из v0.30, а keyboard handler перебирает только ограниченный список кнопок текущего context menu; новых глобальных observers или polling не добавлено.
+- Accessibility documentation и tests обновлены; regression теперь загружает оба CSS-слоя и все три локальных JS-модуля с cache-busting `0.42`.
+- Версия синхронно поднята до `0.42` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG и HTTP regression.
+- Проверки v0.42: PHP lint, JS syntax, source-map/deobfuscation/accessibility/UI-contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении недоступен, поэтому визуальный screenshot acceptance не заявляется.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. План v0.23–v0.42 закрыт; отдельный следующий этап — полноценный browser/axe acceptance и дальнейшее физическое разбиение `myvibehtml.js` после стабилизации DOM contract.
+
 ## Текущее исправление v0.41
 
 - Вынесен общий генератор CSRF-токенов из основного IIFE в локальный `myvibehtml-ui-contracts.js`; модуль загружается между source-map и `myvibehtml.js`, не использует внешние библиотеки или домены.

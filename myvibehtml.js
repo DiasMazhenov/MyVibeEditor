@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.41 */
+/* MyVibeHTML v0.42 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -759,6 +759,7 @@
                         runtimeValue71 = 'input,button,textarea,select,iframe,svg,canvas,object,video,audio',
                         contextMenu = null,
                         contextTarget = null,
+                        contextMenuPreviousFocus = null,
                         styleInspector = null,
                         styleInspectorTarget = null,
                         styleInspectorFields = null,
@@ -806,7 +807,9 @@
                         hideContextMenu = function() {
                             if (contextMenu) {
                                 contextMenu[styleProperty][displayProperty] = noneValue;
-                                contextMenu[setAttributeMethod]('aria-hidden', 'true')
+                                contextMenu[setAttributeMethod]('aria-hidden', 'true');
+                                if (contextMenuPreviousFocus && contextMenuPreviousFocus[focusEvent]) contextMenuPreviousFocus[focusEvent]();
+                                contextMenuPreviousFocus = null
                             }
                         },
                         getMediaTarget = function(initializeVisualEditorArgument6) {
@@ -1620,6 +1623,38 @@
                             }
                             contextMenu[styleProperty][displayProperty] = noneValue;
                             documentObject.body[appendChildMethod](contextMenu);
+                            contextMenu[addEventListenerMethod](keyDownEvent, function(event) {
+                                var contextButtons = contextMenu[querySelectorAllMethod]('button'),
+                                    visibleContextButtons = [],
+                                    contextButtonIndex = -1;
+                                for (var contextButtonCursor = 0; contextButtonCursor < contextButtons[lengthProperty]; contextButtonCursor++) if (contextButtons[contextButtonCursor][styleProperty][displayProperty] != noneValue) {
+                                    visibleContextButtons[visibleContextButtons[lengthProperty]] = contextButtons[contextButtonCursor];
+                                    if (contextButtons[contextButtonCursor] == documentObject[activeElementProperty]) contextButtonIndex = visibleContextButtons[lengthProperty] - 1
+                                }
+                                if (event[keyCodeProperty] == 27) {
+                                    event[preventDefaultMethod]();
+                                    hideContextMenu();
+                                    return
+                                }
+                                if (event[keyCodeProperty] == 38 || event[keyCodeProperty] == 40) {
+                                    event[preventDefaultMethod]();
+                                    event[stopPropagationMethod]();
+                                    if (!visibleContextButtons[lengthProperty]) return;
+                                    contextButtonIndex = (contextButtonIndex + (event[keyCodeProperty] == 38 ? visibleContextButtons[lengthProperty] - 1 : 1)) % visibleContextButtons[lengthProperty];
+                                    visibleContextButtons[contextButtonIndex][focusEvent]();
+                                    return
+                                }
+                                if (event[keyCodeProperty] == 36 || event[keyCodeProperty] == 35) {
+                                    event[preventDefaultMethod]();
+                                    event[stopPropagationMethod]();
+                                    if (visibleContextButtons[lengthProperty]) visibleContextButtons[event[keyCodeProperty] == 36 ? 0 : visibleContextButtons[lengthProperty] - 1][focusEvent]();
+                                    return
+                                }
+                                if (event[keyCodeProperty] == 13 || event[keyCodeProperty] == 32) {
+                                    event[preventDefaultMethod]();
+                                    if (documentObject[activeElementProperty] && documentObject[activeElementProperty][clickEvent]) documentObject[activeElementProperty][clickEvent]()
+                                }
+                            });
                             documentObject[addEventListenerMethod](clickEvent, function(event) {
                                 if (event.target != contextMenu && !contextMenu.contains(event.target)) hideContextMenu()
                             });
@@ -1639,6 +1674,7 @@
                             if (visualEditorValue17) visualEditorValue17[styleProperty][displayProperty] = isMediaTarget(contextTarget) ? blockValue : noneValue;
                             var visualEditorValue18 = visualEditorValue13[querySelectorMethod]('[data-myvibehtml-structural-child]');
                             if (visualEditorValue18) visualEditorValue18[styleProperty][displayProperty] = structuralVoidTags[indexOfMethod]('|' + contextTarget[tagNameProperty][toLowerCaseMethod]() + '|') === -1 ? blockValue : noneValue;
+                            if (visualEditorValue13[styleProperty][displayProperty] != blockValue) contextMenuPreviousFocus = documentObject[activeElementProperty];
                             visualEditorValue13[styleProperty][displayProperty] = blockValue;
                             visualEditorValue13[setAttributeMethod]('aria-hidden', 'false');
                             visualEditorValue15 = Math.max(8, Math.min(visualEditorValue15, windowObject.innerWidth - visualEditorValue13.offsetWidth - 8));

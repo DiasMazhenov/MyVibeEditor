@@ -21,3 +21,12 @@ test('focus and contrast rules are present in both CSS layers', () => {
     }
     assert.doesNotMatch(theme, /@media\(max-width:700px\)\{#d #e/);
 });
+
+test('context menu supports roving keyboard focus and shared theme tokens', () => {
+    assert.match(js, /contextMenuPreviousFocus/);
+    assert.match(js, /keyCodeProperty\] == 38 \|\| event\[keyCodeProperty\] == 40/);
+    assert.match(js, /keyCodeProperty\] == 36 \|\| event\[keyCodeProperty\] == 35/);
+    assert.match(js, /visibleContextButtons/);
+    assert.doesNotMatch(theme, /--mv-bg:/);
+    assert.match(fallback, /--mv-bg:/);
+});
