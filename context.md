@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.55
+
+- На мобильных ширинах до 900px `data-preview-controls` скрыты: переключатели desktop/tablet/mobile не занимают место и не перекрывают шапку.
+- Бургер `#myvibehtml-mobile-menu-toggle` принудительно видим в мобильной шапке; существующее меню сохраняет `aria-expanded`/`aria-hidden` и DOM-обработчики `myvibehtml-shell-controls.js`.
+- Auth-flow вынесен в `myvibehtml-auth.js`; auth-шаблон загружает `ui-contracts → transport → auth`, а editor-шаблон продолжает загружать `source-map → ui-contracts → transport → editor → shell`.
+- Версия синхронно поднята до `0.55` в PHP, JS-модулях, CSS, README, CHANGELOG, документации и regression-контрактах.
+- Перед коммитом открыть `?q=myvibe/test-page.html&rev=0.55` во встроенном браузере и проверить мобильную шапку; API окна не предоставляет программных click/screenshot-команд, поэтому ручной click-through не объявляется автоматически выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.54
 
 - Версия отображается рядом с названием MyVibeHTML на странице авторизации и не скрывается в мобильной шапке редактора.

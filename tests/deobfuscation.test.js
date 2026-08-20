@@ -7,6 +7,7 @@ const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const runtime = fs.readFileSync('myvibehtml-runtime.php', 'utf8');
 const js = fs.readFileSync('myvibehtml.js', 'utf8');
 const transport = fs.readFileSync('myvibehtml-transport.js', 'utf8');
+const auth = fs.readFileSync('myvibehtml-auth.js', 'utf8');
 
 test('semantic runtime names replace generated local prefixes', () => {
     assert.doesNotMatch(php + runtime, /\$[A-Za-z_][A-Za-z0-9_]*Value\d+/);
@@ -16,6 +17,10 @@ test('semantic runtime names replace generated local prefixes', () => {
     assert.match(transport, /function base64UrlEncode/);
     assert.doesNotMatch(js, /function (?:sha1|base64Decode|ajaxRequest)|base64UrlEncode\s*=\s*function/);
     assert.match(js, /animateValue\s*=|fadeIn\s*=/);
+    assert.match(auth, /function bootAuthentication/);
+    assert.match(auth, /function submitLogin/);
+    assert.doesNotMatch(auth, /\b(?:callbackValue|callbackArgument)\d+\b/);
+    assert.match(php, /myvibehtml-auth\.js/);
 });
 
 test('transport keeps legacy hash and encoding contracts', () => {

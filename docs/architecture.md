@@ -1,14 +1,15 @@
-# Архитектура v0.54
+# Архитектура v0.55
 
-v0.54 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит shell-контролы и transport-примитивы в отдельные модули:
+v0.55 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
 - `myvibehtml-source-map.js` — DOM ↔ HTML source-map;
 - `myvibehtml-ui-contracts.js` — независимые browser transport/UI contracts, сейчас генератор CSRF-токенов;
 - `myvibehtml-transport.js` — cookies, совместимый SHA-1/Base64 слой и AJAX-транспорт; модуль сохраняет существующий протокол без доступа к editor closure;
+- `myvibehtml-auth.js` — отдельный DOM/AJAX-flow авторизации, загружается только на auth-странице после transport;
 - `myvibehtml-shell-controls.js` — изолированные command palette, preview-кнопки и mobile menu, работающие только через публичные DOM-контролы панели;
-- `myvibehtml.js` — оркестрация auth/visual-source editor/files/settings; крупный closure и сама auth-логика остаются следующими extraction seams, потому что их части используют общий editor state;
+- `myvibehtml.js` — оркестрация visual/source editor, files и settings без auth-flow;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, security, regression, CI contract и optional authenticated E2E.
 
