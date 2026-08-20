@@ -17,9 +17,14 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.23" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml-fallback.css
-rg -q "const VERSION = '0\.23'" myvibehtml.php
-rg -q "return \$this->state\['f'\] \? \$this->state\['f'\] \. 'backup/' : false" myvibehtml.php
+rg -q "MyVibeHTML v0\.24" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml-fallback.css
+rg -q "const VERSION = '0\.24'" myvibehtml.php
+rg -q 'data-encoding="base64"' myvibehtml.php myvibehtml.js
+if rg -n 'str_replace\(SCRIPT_TAG|str_replace\(CLOSING_SCRIPT_TAG' myvibehtml.php; then
+    echo "regression: raw script-tag placeholder escaping is still active" >&2
+    exit 1
+fi
+rg -Fq "return \$this->state['f'] ? \$this->state['f'] . 'backup/' : false" myvibehtml.php
 rg -q "location ~\* /backup" nginx.conf.example
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
@@ -38,12 +43,12 @@ php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.23" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.23" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.24" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.24" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.23"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.24"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

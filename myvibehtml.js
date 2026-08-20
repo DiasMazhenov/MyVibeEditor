@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.23 */
+/* MyVibeHTML v0.24 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -8,6 +8,7 @@
         clearIntervalMethod = 'clearInterval',
         clearTimeoutMethod = 'clearTimeout',
         encodeURIComponentMethod = 'encodeURIComponent',
+        decodeURIComponentMethod = 'decodeURIComponent',
         getComputedStyleMethod = 'getComputedStyle',
         addEventListenerMethod = 'addEventListener',
         removeEventListenerMethod = 'removeEventListener',
@@ -450,6 +451,20 @@
                 return String.fromCharCode('0x' + base64EncodeArgument2)
             }))
         },
+        base64Decode = function(callbackArgument29) {
+            try {
+                callbackArgument29 = callbackArgument29[replaceMethod](/-/g, '+')[replaceMethod](/_/g, '/');
+                while (callbackArgument29[lengthProperty] % 4) callbackArgument29 += '=';
+                return windowObject[decodeURIComponentMethod](Array.prototype.map.call(atob(callbackArgument29), function(base64DecodeValue1) {
+                    return '%' + ('00' + base64DecodeValue1.charCodeAt(0).toString(16)).slice(-2)
+                }).join(''))
+            } catch (base64DecodeError) {
+                return ''
+            }
+        },
+        base64UrlEncode = function(callbackArgument30) {
+            return base64Encode(callbackArgument30)[replaceMethod](/\+/g, '-')[replaceMethod](/\//g, '_')[replaceMethod](/=+$/, '')
+        },
         ajaxRequest = function(callbackArgument30, callbackArgument31, callbackArgument32, callbackArgument33, callbackArgument34, callbackArgument35) {
             var callbackValue51 = new XMLHttpRequest();
             if (callbackArgument35) {
@@ -633,7 +648,7 @@
                 callbackValue9 = callbackValue1[querySelectorMethod]('div>div+ul+p samp'),
                 callbackValue10 = callbackValue1[querySelectorAllMethod]('div>ol+ul>li>a'),
                 callbackValue11 = documentObject[querySelectorMethod]('#j'),
-                serializedSource = callbackValue11[innerHTMLProperty],
+                serializedSource = callbackValue11[getAttributeMethod]('data-encoding') == 'base64' ? base64Decode(callbackValue11[textContentProperty]) : callbackValue11[innerHTMLProperty],
                 initializeVisualEditor = function() {
                     var callbackValue18 = callbackValue1[querySelectorMethod]('div>ul+div'),
                         callbackValue19 = callbackValue18[firstElementChildProperty],
@@ -3077,7 +3092,7 @@
                     fadeIn(callbackValue9);
                     callbackValue4[disabledProperty] = true;
                     resetEditorFocus();
-                    ajaxRequest('save=' + windowObject[encodeURIComponentMethod](base64Encode(callbackArgument51)[splitMethod]('a')[joinMethod]('_')) + tokenParameter + callbackValue151, function() {
+                    ajaxRequest('save=' + windowObject[encodeURIComponentMethod](base64UrlEncode(callbackArgument51)) + tokenParameter + callbackValue151, function() {
                         var saveEditorContentValue1 = locationObject.href[replaceMethod](locationObject.hash, '')[replaceMethod](callbackValue9[getAttributeMethod](dataAttributePrefix + 'cl')[sliceMethod](callbackValue9[getAttributeMethod](dataAttributePrefix + 'cl')[sliceMethod](0, -1)[lastIndexOfMethod]('/') + 1), '');
                         if (!saveEditorContentValue1[matchMethod](new RegExp('\.php$', 'gi'))) {
                             var saveEditorContentValue2 = documentObject[createElementMethod](iframeTagName);
@@ -3123,7 +3138,7 @@
                         var callbackValue154 = documentObject[createElementMethod](textareaTagName),
                             callbackValue155 = documentObject[createElementMethod](inputEvent);
                         callbackValue154.name = 'source';
-                        callbackValue154[valueProperty] = base64Encode(callbackArgument52)[splitMethod]('a')[joinMethod]('_');
+                        callbackValue154[valueProperty] = base64UrlEncode(callbackArgument52);
                         callbackValue155.name = 'token';
                         callbackValue155[valueProperty] = generateToken();
                         writeCookie(tokenCookieSuffix, callbackValue155[valueProperty]);

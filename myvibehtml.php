@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.23 */
+<?php /* MyVibeHTML v0.24 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -149,6 +149,15 @@ define('UPDATE_MARKER_OPEN', '<!--~~?');
 define('UPDATE_MARKER_CLOSE', '?~~-->');
 define('COOKIE_PREFIX', 'myvibehtml_');
 define('BACKUP_URL_PREFIX', 'myvibehtml://backup/');
+
+function myvibehtml_base64_decode($value)
+{
+    if (!is_string($value) || !preg_match('~^[A-Za-z0-9+/_-]*={0,2}$~', $value)) return false;
+    $value = strtr($value, '-_', '+/');
+    $padding = strlen($value) % 4;
+    if ($padding) $value .= str_repeat('=', 4 - $padding);
+    return base64_decode($value, true);
+}
 
 final class MyVibeHTMLRequest
 {
@@ -376,14 +385,19 @@ final class MyVibeHTMLConfig
         $this->translations = parse_ini_file($ConstructValue1 . self::LANGUAGE_FILE, true);
         $this->configPath = $this->getConfigPath($ConstructValue1, $ConstructValue2);
         $this->settings = parse_ini_file($this->configPath, true);
+        if (!is_array($this->settings)) $this->settings = [];
+        if (!array_key_exists(SETTING_SITE_SCRIPTS, $this->settings)) {
+            $this->settings[SETTING_SITE_SCRIPTS] = '0';
+            $this->dirty = true;
+        }
         $this->templates = [
             'j' => '<ol><li title="{source_editor}">{type}</li><li title="{visual_editor}">text</li></ol>',
             'i' => '<ol><li>{type}</li></ol>',
             'h' => '<div id="e"><div><div><h1><a href="{site_preview_url}">MyVibeHTML</a> v{version}</h1><p>{extended}</p></div>{mode}<ul><li><a title="{files}">{files}</a><div id="f"><ol><li>{file_name}</li><li>{file_size}</li><li>{file_changed}</li><li>{file_menu}</li></ol><ul>{filelist}</ul></div></li><li><a title="{settings}">{settings}</a><div id="g"><fieldset><legend>{auth}</legend><dl><dt title="{new_password}">{new_password}:</dt><dd><input type="password" maxlength="14"><a></a></dd><dt title="{auth_error_limit_desc}">{login_attempts}:</dt><dd data-aa="5"><input type="text" maxlength="2" value="{auth_error_limit}"></dd><dt title="{auth_lockout_duration_desc}">{lockout_duration}:</dt><dd data-aa="1"><input type="text" maxlength="7" value="{auth_lockout_duration}"></dd><dt title="{auth_session_reset_desc}">{session_autoreset}:</dt><dd data-aa="60"><input type="text" maxlength="7" value="{auth_session_reset}"></dd><dd title="{logout_to_site_desc}" data-aa="0"><label>{logout_to_site_checkbox}<em></em>{redirect_to_site}</label></dd></dl></fieldset><fieldset><legend>{visual_editor}</legend><dl><dd title="{site_scripts_desc}" data-aa="1"><label>{site_scripts_checkbox}<em></em>{enable_scripts}</label></dd><dd title="{site_styles_desc}" data-aa="1"><label>{site_styles_checkbox}<em></em>{enable_styles}</label></dd><dd title="{link_replacing_desc}" data-aa="1"><label>{link_replacing_checkbox}<em></em>{change_links}</label></dd><dd title="{name_correction_desc}" data-aa="1"><label>{name_correction_checkbox}<em></em>{remove_symbols}</label></dd><dd title="{image_rewriting_desc}" data-aa="0"><label>{image_rewriting_checkbox}<em></em>{rewrite_file}</label></dd></dl></fieldset><fieldset><legend>{source_editor}</legend><dl><dt title="{code_redraw_delay_desc}">{redraw_delay}:</dt><dd data-aa="200"><input type="text" maxlength="7" value="{code_redraw_delay}"></dd><dt title="{code_undo_limit_desc}">{steps_for_undo}:</dt><dd data-aa="50"><input type="text" maxlength="3" value="{code_undo_limit}"></dd><dd title="{code_highlighting_desc}" data-aa="1"><label>{code_highlighting_checkbox}<em></em>{enable_highlighting}</label></dd></dl></fieldset><fieldset><legend>{file_manager}</legend><dl><dd title="{folder_size_desc}" data-aa="1"><label>{folder_size_checkbox}<em></em>{display_catalog_size}</label></dd></dl></fieldset><fieldset><legend>{system}</legend><dl><dt title="{default_file_desc}">{main_page_or_file}:</dt><dd data-aa="index.html"><input type="text" maxlength="30" value="{default_file}"></dd><dt title="{recovery_points_desc}">{number_of_recovery_point}:</dt><dd data-aa="5"><input type="text" maxlength="2" value="{recovery_points}"></dd><dd title="{new_version_notify}" data-aa="1" data-myvibehtml-local-only="1"><label>{update_final_checkbox}<em></em>{new_version_notify}</label></dd><dd title="{beta_version_notify}" data-aa="0" data-myvibehtml-local-only="1"><label>{update_beta_checkbox}<em></em>{beta_version_notify}</label></dd><dt title="{language}">{language}:</dt><dd><ul>{language_list}</ul></dd></dl></fieldset><p><input type="button" value="{save}" disabled><a title="{restore_settings}"></a></p></div></li></ul><div><ul data-ab="<li>{tagname}<i><i></i></i></li>"></ul><p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p><div><fieldset><legend>{attributes}</legend><dl><script type="text/template"><dt><input type="text" value="{name}" disabled></dt><dd><input type="text" value="{value}"></dd></script></dl></fieldset></div></div><ul><li><input type="button" value="{save}" title="{save}" disabled></li><li><input type="button" value="{logout}" title="{logout}" disabled data-ac="{not_save}"></li></ul><p><samp data-ad="{saving}" data-ae="{saved}" data-af="{not_saved}" data-ag="{reset_session}" data-ah="{access_closed}" data-ai="{login_again}" data-aj="{request_rejected}" data-ak="{request_blocked}" data-al="{no_response}" data-am="{not_writable}" data-an="{old_browser}" data-ao="{new_version}" data-ap="{need_update}" data-aq="{install}" data-ar="{not_install}" data-as="{download_installer}" data-at="{system_update}" data-au="{update_error}" data-av="{install_complete}" data-aw="{activation_complete}" data-ax="{attachment_domain}" data-ay="{no_connect}" data-az="{password_hashing}" data-bb="{pass_complexity}" data-bc="{uploading}" data-bd="{uploading_complete}" data-be="{uploading_error}" data-bf="{extension_error}" data-bg="{count_limit}" data-bh="{size_limit}" data-bi="{file_deletion}" data-bj="{file_deleted}" data-bk="{deletion_error}" data-bl="{file_recovery}" data-bm="{recovery_success}" data-bn="{recovery_error}" data-bo="{backup_error}" data-bp="{file_replacing}" data-bq="{incorrect_link}" data-br="{unknown_relation}" data-bs="{element_busy}" data-bt="{disable_script}" data-bu="{disable}" data-bv="{disabling_scripts}" data-bw="{scripts_disabled}" data-bx="{show_password}" data-by="{hide_password}" data-bz="{post_max_size}" data-bA="{upload_max_filesize}" data-cc="{max_file_uploads}" data-cd="{editable_attributes}" data-ce="{auth_session_reset}" data-cf="{link_replacing}" data-cg="{site_scripts}" data-ch="{site_styles}" data-ci="{logout_to_site}" data-cj="{ip}" data-ck="{sip}" data-cl="{system_url}" data-cm="{version}" data-cn="{update_final}" data-co="{update_beta}"></samp><noscript><samp>{requires_javascript}</samp></noscript><i></i></p></div></div><script src="{system_url}myvibehtml.js?v={version}"></script>',
             'a' => '<!doctype html><html id="a"><head><title>{auth} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><fieldset><legend>{auth}</legend><ol data-cp="{error_limit}" data-cq="{error_count}"><li></li></ol><p><samp data-az="{password_hashing}" data-cr="{password_checking}" data-cs="{access_granted}" data-ct="{access_denied}" data-al="{no_response}" data-am="{not_writable}" data-cl="{system_url}">{document_root_error}</samp><noscript><samp>{requires_javascript}</samp></noscript><i></i></p><p><span>{password}:</span><input type="password" data-bb="{pass_complexity}" maxlength="14"><a data-bx="{show_password}" data-by="{hide_password}"></a></p><p><input type="button" value="{login}" disabled></p></fieldset><script src="{system_url}myvibehtml.js?v={version}"></script></body></html>',
             'e' => '<!doctype html><html id="b"><head><title>{code} - {{code}} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><samp><span>{code}</span>{{code}}</samp>{panel}</body></html>',
-            'c' => '<!doctype html><html id="d"><head><title>{title} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><iframe>{no_frames}</iframe>{panel}<script type="text/template" id="h"><base href="{base}"></script><script type="text/template" id="i">@keyframes myvibehtml-drop{0%{opacity:0.6;}49%{opacity:0.6;}50%{opacity:1;}99%{opacity:1;}}[data-myvibehtml-string]{outline:none;font-style:inherit;cursor:text}[data-myvibehtml-focus]{outline:4px solid #f2ca00 !important;outline-offset:8px}[data-myvibehtml-disabled]{outline-color:#f00 !important}[data-myvibehtml-dragover]{outline:4px solid #adc8fe;outline-offset:-4px}[data-myvibehtml-drop]{animation:myvibehtml-drop 70ms infinite linear}[data-myvibehtml-object]{display:block;position:relative;background-color:#fff;opacity:0;z-index:1}</script><script type="text/template" id="j" data-cu="{is_edited}">{source}</script></body></html>',
-            'd' => '<!doctype html><html id="c"><head><title>{title} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><div><ol data-ab="<li style=height:0px></li>"></ol><pre contenteditable data-cv="{redraw_delay}" data-cw="{code_highlighting}" data-cx="{code_undo_limit}"></pre></div>{panel}<script type="text/template" id="j" data-cu="{is_edited}">{source}</script></body></html>',
+            'c' => '<!doctype html><html id="d"><head><title>{title} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><iframe>{no_frames}</iframe>{panel}<script type="text/template" id="h"><base href="{base}"></script><script type="text/template" id="i">@keyframes myvibehtml-drop{0%{opacity:0.6;}49%{opacity:0.6;}50%{opacity:1;}99%{opacity:1;}}[data-myvibehtml-string]{outline:none;font-style:inherit;cursor:text}[data-myvibehtml-focus]{outline:4px solid #f2ca00 !important;outline-offset:8px}[data-myvibehtml-disabled]{outline-color:#f00 !important}[data-myvibehtml-dragover]{outline:4px solid #adc8fe;outline-offset:-4px}[data-myvibehtml-drop]{animation:myvibehtml-drop 70ms infinite linear}[data-myvibehtml-object]{display:block;position:relative;background-color:#fff;opacity:0;z-index:1}</script><script type="text/template" id="j" data-cu="{is_edited}" data-encoding="base64">{source}</script></body></html>',
+            'd' => '<!doctype html><html id="c"><head><title>{title} - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{system_url}myvibehtml.css?v={version}"></head><body><div><ol data-ab="<li style=height:0px></li>"></ol><pre contenteditable data-cv="{redraw_delay}" data-cw="{code_highlighting}" data-cx="{code_undo_limit}"></pre></div>{panel}<script type="text/template" id="j" data-cu="{is_edited}" data-encoding="base64">{source}</script></body></html>',
             'o' => '<li><ol class="u"><li><a data-cy="{url}">{name}</a></li><li data-cz="{size}"></li><li>{date}</li><li><i title="{recover_backup}"></i><i title="{recovery_confirm}"></i><i title="{recovery_cancel}"></i></li></ol><ul>{list}</ul></li>',
             'n' => '<li><ol class="s"><li><a data-cy="{url}">{name}</a></li><li data-cz="{size}"></li><li>{date}</li><li><i title="{add_file}"></i></li></ol><ul></ul></li>',
             'b' => '<li><ol class="v"><li><a data-cy="{url}">{name}</a></li><li data-cz="{size}"></li><li>{date}</li><li><i title="{delete_file}"></i><i title="{deletion_confirm}"></i><i title="{deletion_cancel}"></i></li></ol></li>',
@@ -600,7 +614,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.23';
+    const VERSION = '0.24';
     private $config;
     private $request;
     private $response;
@@ -802,8 +816,7 @@ final class MyVibeHTMLController
         if ($this->request->getServer(REQUEST_AJAX_HEADER)) {
             if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($DispatchValue5 = $this->request->getPost('save')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
-                $DispatchValue5 = str_replace(SAFE_CLOSING_SCRIPT_TAG, CLOSING_SCRIPT_TAG, base64_decode(str_replace('_', 'a', $DispatchValue5)));
-                $DispatchValue5 = str_replace(SAFE_SCRIPT_TAG, SCRIPT_TAG, $DispatchValue5);
+                $DispatchValue5 = myvibehtml_base64_decode($DispatchValue5);
                 if ($DispatchValue2 && $this->isAllowedExtension(strtolower(substr($DispatchValue2, strripos($DispatchValue2, '.') + 1)))) {
                     if ($this->createBackup($DispatchValue1)) {
                         if ($this->writeFileAtomically($DispatchValue2, $DispatchValue5)) {
@@ -994,7 +1007,7 @@ final class MyVibeHTMLController
             $RenderVisualEditorValue2[POST_SOURCE] = $this->readHtmlFile($RenderVisualEditorValue1);
             $RenderVisualEditorValue2[PLACEHOLDER_IS_EDITED] = '';
         } else$RenderVisualEditorValue2[PLACEHOLDER_IS_EDITED] = '1';
-        $RenderVisualEditorValue2[POST_SOURCE] = str_replace('{', '!~!', $RenderVisualEditorValue2[POST_SOURCE]);
+        $RenderVisualEditorValue2[POST_SOURCE] = base64_encode($RenderVisualEditorValue2[POST_SOURCE]);
         $RenderVisualEditorValue5 = $this->config->getTemplate('c');
         $RenderVisualEditorValue5 = $this->config->replacePlaceholders($RenderVisualEditorValue5, $RenderVisualEditorValue2);
         $RenderVisualEditorValue5 = $this->config->localizeTemplate($RenderVisualEditorValue5, $this->language);
@@ -1016,7 +1029,7 @@ final class MyVibeHTMLController
             $RenderSourceEditorValue2[POST_SOURCE] = $this->readHtmlFile($RenderSourceEditorValue1);
             $RenderSourceEditorValue2[PLACEHOLDER_IS_EDITED] = '';
         } else$RenderSourceEditorValue2[PLACEHOLDER_IS_EDITED] = '1';
-        $RenderSourceEditorValue2[POST_SOURCE] = str_replace('{', '!~!', $RenderSourceEditorValue2[POST_SOURCE]);
+        $RenderSourceEditorValue2[POST_SOURCE] = base64_encode($RenderSourceEditorValue2[POST_SOURCE]);
         $RenderSourceEditorValue3 = $this->config->getTemplate('d');
         $RenderSourceEditorValue3 = $this->config->replacePlaceholders($RenderSourceEditorValue3, $RenderSourceEditorValue2);
         $RenderSourceEditorValue3 = str_replace('!~!', '{', $RenderSourceEditorValue3);
@@ -1173,7 +1186,7 @@ final class MyVibeHTMLController
         if (is_numeric($SwitchModeValue1)) {
             $SwitchModeValue2 = $this->request->getPost(POST_SOURCE);
             if ($SwitchModeValue2 && ($SwitchModeValue3 = $this->request->getPost(POST_TOKEN)) && $SwitchModeValue3 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN)) {
-                $SwitchModeValue2 = base64_decode(str_replace('_', 'a', $SwitchModeValue2));
+                $SwitchModeValue2 = myvibehtml_base64_decode($SwitchModeValue2);
                 $this->response->addHeader('X-f:0');
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 return $SwitchModeValue2;
@@ -1190,8 +1203,7 @@ final class MyVibeHTMLController
             $ReadHtmlFileValue2 = preg_replace('~(<meta[^>]+)windows-1251~i', '$1utf-8', $ReadHtmlFileValue2);
             $ReadHtmlFileValue2 = iconv('Windows-1251', 'UTF-8', $ReadHtmlFileValue2);
         }
-        $ReadHtmlFileValue2 = str_replace(CLOSING_SCRIPT_TAG, SAFE_CLOSING_SCRIPT_TAG, $ReadHtmlFileValue2);
-        return str_replace(SCRIPT_TAG, SAFE_SCRIPT_TAG, $ReadHtmlFileValue2);
+        return $ReadHtmlFileValue2;
     }
 
     private function isAllowedExtension($IsAllowedExtensionValue1)

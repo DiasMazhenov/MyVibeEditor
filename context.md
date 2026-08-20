@@ -587,6 +587,15 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Проверки v0.23: `php -l myvibehtml.php`, `node --check myvibehtml.js`, `sh security-smoke.sh`, `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh`, `git diff --check` — PASS. Regression отдельно проверяет `/myvibe/backup/...` → `403`.
 - Следующий функциональный номер — `0.24`; commit создаётся после фиксации этого context-состояния.
 
+## Текущее исправление v0.24
+
+- Исходник HTML больше не помещается в `script-template` как обычный текст и не защищается регистрозависимой заменой `<script>`. PHP передаёт его как Base64 с маркером `data-encoding="base64"`, а JS декодирует через `textContent`; смешанный регистр и literal `</SCRIPT>` больше не создают template-breakout.
+- Сохранение и переключение `html/text` используют URL-safe Base64 (`+`/`/`/`=` нормализуются без подмены букв исходника), а сервер валидирует алфавит и декодирует строгим `base64_decode(..., true)`. Старые `str_replace`-восстановления script-тегов удалены из write/switch путей.
+- `site_scripts` по умолчанию получает `0` при отсутствии настройки. Существующее явное значение сохраняется для обратной совместимости; русское и английское описание предупреждают о same-origin риске включения скриптов сайта.
+- Версия runtime/cache-busting поднята до `0.24`; пользовательский `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Проверки v0.24: `php -l myvibehtml.php`, `node --check myvibehtml.js`, `sh security-smoke.sh`, `git diff --check` — PASS; полный HTTP regression через локальный `127.0.0.1:8080` — `regression: PASS`.
+- Следующий функциональный номер — `0.25`: password_hash/random_bytes/hash_equals и миграция старой авторизации.
+
 ## Архив предыдущего исправления v0.20
 
 - Добавлено расширенное контекстное меню visual editor: после выбора element/section/block доступны `Клонировать`, `Переместить вверх`, `Переместить вниз`, `Удалить`. Контекстное меню переиспользует callbacks нижней toolbar, поэтому бизнес-логика не дублируется.
