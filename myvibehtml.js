@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.29 */
+/* MyVibeHTML v0.30 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -538,11 +538,13 @@
                     if (this[classNameProperty]) {
                         passwordInput.type = 'password';
                         this[classNameProperty] = '';
-                        this.title = this[getAttributeMethod](dataAttributePrefix + 'bx')
+                        this.title = this[getAttributeMethod](dataAttributePrefix + 'bx');
+                        this[setAttributeMethod]('aria-label', this[getAttributeMethod](dataAttributePrefix + 'bx'))
                     } else {
                         passwordInput.type = 'text';
                         this[classNameProperty] = 'e';
-                        this.title = this[getAttributeMethod](dataAttributePrefix + 'by')
+                        this.title = this[getAttributeMethod](dataAttributePrefix + 'by');
+                        this[setAttributeMethod]('aria-label', this[getAttributeMethod](dataAttributePrefix + 'by'))
                     }
                 },
                 handleLoginKeydown = function(event) {
@@ -618,6 +620,12 @@
             passwordInput[focusEvent]();
             passwordToggle.title = passwordToggle[getAttributeMethod](dataAttributePrefix + 'bx');
             passwordToggle[addEventListenerMethod](mouseDownEvent, togglePasswordVisibility);
+            passwordToggle[addEventListenerMethod](keyDownEvent, function(event) {
+                if (event[keyCodeProperty] == 13 || event[keyCodeProperty] == 32) {
+                    event[preventDefaultMethod]();
+                    togglePasswordVisibility.call(this)
+                }
+            });
             loginButton[addEventListenerMethod](clickEvent, startLogin);
             passwordInput[addEventListenerMethod](inputEvent, updateLoginButton);
             passwordInput[addEventListenerMethod](keyDownEvent, handleLoginKeydown)
@@ -626,6 +634,14 @@
     documentObject[addEventListenerMethod](domContentLoadedEvent, function() {
         var runtimeValue1 = documentObject[querySelectorMethod]('#e');
         if (runtimeValue1) {
+            runtimeValue1[addEventListenerMethod](keyDownEvent, function(event) {
+                var target = event.target,
+                    role = target && target[getAttributeMethod]('role');
+                if ((event[keyCodeProperty] == 13 || event[keyCodeProperty] == 32) && (role == 'button' || role == 'tab')) {
+                    event[preventDefaultMethod]();
+                    if (target[clickEvent]) target[clickEvent]()
+                }
+            });
             var runtimeValue2 = runtimeValue1[querySelectorMethod]('div>div+ol li:first-child'),
                 runtimeValue3 = runtimeValue1[querySelectorMethod]('div>div+ol li+li'),
                 runtimeValue4 = runtimeValue1[querySelectorMethod]('div>div+ul li:first-child input'),
@@ -3274,7 +3290,7 @@
                     var runtimeValue177 = new DOMParser().parseFromString(runtimeInput54, 'text/html'),
                         runtimeValue178 = documentObject.createDocumentFragment(),
                         runtimeValue179 = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1},
-                        runtimeValue180 = {CLASS: 1, 'DATA-CY': 1, 'DATA-CZ': 1, TITLE: 1, TYPE: 1, NAME: 1, VALUE: 1, CHECKED: 1},
+                        runtimeValue180 = {CLASS: 1, 'DATA-CY': 1, 'DATA-CZ': 1, TITLE: 1, ROLE: 1, TABINDEX: 1, 'ARIA-LABEL': 1, TYPE: 1, NAME: 1, VALUE: 1, CHECKED: 1},
                         runtimeValue181 = function(replaceFileListFragmentArgument1) {
                             if (replaceFileListFragmentArgument1.nodeType != 1) return true;
                             if (!runtimeValue179[replaceFileListFragmentArgument1.nodeName]) {

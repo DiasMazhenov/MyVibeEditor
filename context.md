@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.30
+
+- CSS consolidation: удалён дублирующий mobile panel cascade `max-width:700px` из theme-слоя; fallback сохраняет только критические правила. Добавлены единые focus-visible, `prefers-contrast: more` и `prefers-reduced-motion` правила в theme/fallback.
+- Accessibility skill применён к auth/panel journeys: icon/file/settings/toolbar controls получили ARIA role/label и tabindex, tabs активируются Enter/Space, password toggle доступен с клавиатуры, file-list sanitizer сохраняет accessibility attributes.
+- Performance: `sortEntries()` переведён с O(n²) ручного сопоставления на `usort()` с natural case-insensitive comparison. Минимальная поддерживаемая PHP-версия закреплена как 7.4; устаревшие PHP 5.2/7.0/7.3 compatibility branches удалены.
+- Добавлены [`docs/accessibility.md`](docs/accessibility.md), [`SECURITY.md`](SECURITY.md), [`CHANGELOG.md`](CHANGELOG.md) и `tests/accessibility.test.js`; README дополнен ссылками на актуальную архитектуру, безопасность и доступность.
+- Версия runtime/cache-busting поднята до `0.30`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне коммита.
+- Проверки v0.30: PHP lint для `myvibehtml-runtime.php`/`myvibehtml.php`/`dev-router.php`, JS syntax, source-map/deobfuscation/accessibility tests, `sh security-smoke.sh`, `git diff --check`, `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS. По accessibility skill: static/manual checklist подготовлен; axe, screen-reader и визуальный screenshot acceptance в текущем окружении не выполнялись.
+- Roadmap v0.23–v0.30 реализован; следующий шаг — отдельный реальный browser/axe acceptance, когда в окружении будет доступен headless/browser-инструмент.
+
 ## Текущее исправление v0.29
 
 - PHP runtime разделён без изменения публичного входа: `myvibehtml-runtime.php` содержит runtime-directory, atomic-write, legacy unserialize и Base64 decode helpers; `myvibehtml.php` подключает его через `require_once` и оставляет request/response/config/controller.

@@ -18,6 +18,7 @@ jobs:
           node --check myvibehtml-source-map.js
           node --test tests/source-map.test.js
           node --test tests/deobfuscation.test.js
+          node --test tests/accessibility.test.js
           sh security-smoke.sh
       - name: HTTP regression
         run: |

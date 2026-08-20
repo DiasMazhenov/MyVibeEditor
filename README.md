@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.29**.
+Текущая версия: **0.30**.
 
 ## Возможности
 
@@ -37,7 +37,7 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 
 ## Требования
 
-- PHP 7.4+ рекомендуется; версия проекта проверена на PHP 8.5;
+- PHP 7.4+ — минимальная версия; проект проверен на PHP 8.5;
 - Apache с `mod_rewrite` или Nginx с PHP-FPM;
 - доступ PHP к записи runtime-каталога и конфигурации;
 - JavaScript и cookies в браузере.
@@ -199,3 +199,5 @@ git diff --check
 Runtime-библиотеки отсутствуют. Единственные внешние источники относятся к заранее скачанным SVG-иконкам Tabler через Iconify; ссылки и MIT-лицензия перечислены в [`myvibehtml-icons/README.md`](myvibehtml-icons/README.md). При работе редактора запросы к Iconify, Flaticon и `textolite.ru` не выполняются.
 
 Границы модулей и CI описаны в [`docs/architecture.md`](docs/architecture.md); production-параметры — в [`docs/deployment.md`](docs/deployment.md).
+
+Безопасность и модель доверия: [`SECURITY.md`](SECURITY.md). Доступность: [`docs/accessibility.md`](docs/accessibility.md). История изменений: [`CHANGELOG.md`](CHANGELOG.md).

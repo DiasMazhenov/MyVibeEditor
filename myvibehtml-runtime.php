@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.29 runtime module */
+<?php /* MyVibeHTML v0.30 runtime module */
 
 function myvibehtml_runtime_directory($documentRoot = false)
 {
@@ -49,8 +49,7 @@ function myvibehtml_atomic_write($targetPath, $contents, $mode, $lockName)
 
 function myvibehtml_unserialize_array($serializedValue)
 {
-    if (version_compare(PHP_VERSION, '7.0', '>=')) return @unserialize($serializedValue, ['allowed_classes' => false]);
-    return @unserialize($serializedValue);
+    return @unserialize($serializedValue, ['allowed_classes' => false]);
 }
 
 function myvibehtml_base64_decode($value)

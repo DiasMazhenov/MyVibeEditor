@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.29 */
+<?php /* MyVibeHTML v0.30 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -7,7 +7,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', $myvibehtmlRuntimeDirectory ? $myvibehtmlRuntimeDirectory . 'error.log' : dirname(__FILE__) . '/error.log');
 unset($myvibehtmlRuntimeDirectory);
-version_compare(PHP_VERSION, '5.2', '>=') || exit('PHP ' . PHP_VERSION . ' is not supported');
+version_compare(PHP_VERSION, '7.4', '>=') || exit('PHP ' . PHP_VERSION . ' is not supported');
 define('REQUEST_DOCUMENT_ROOT', 'document_root');
 define('REQUEST_QUERY_STRING', 'query_string');
 define('REQUEST_URI', 'request_uri');
@@ -286,8 +286,7 @@ final class MyVibeHTMLResponse
         if (isset($this->cookies)) foreach ($this->cookies as $send2) {
             $send3 = $send2['g'] || (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' && $_SERVER['HTTPS'] !== '');
             $send4 = $send2['e'] ? $send2['e'] : '/';
-            if (version_compare(PHP_VERSION, '7.3', '>=')) setcookie($send2['a'], $send2['b'], ['expires' => $send2['d'], 'path' => $send4, 'domain' => $send2['f'] ? $send2['f'] : '', 'secure' => (bool)$send3, 'httponly' => (bool)$send2['c'], 'samesite' => 'Lax']);
-            else setcookie($send2['a'], $send2['b'], $send2['d'], $send4, $send2['f'], $send3, $send2['c']);
+            setcookie($send2['a'], $send2['b'], ['expires' => $send2['d'], 'path' => $send4, 'domain' => $send2['f'] ? $send2['f'] : '', 'secure' => (bool)$send3, 'httponly' => (bool)$send2['c'], 'samesite' => 'Lax']);
         }
         if (isset($this->body)) print $this->body;
     }
@@ -344,6 +343,11 @@ final class MyVibeHTMLConfig
             '<div class="myvibehtml-panel-brand"><h1><a href="{site_preview_url}">MyVibeHTML</a> <span>v{version}</span></h1><p>{extended}</p><a id="myvibehtml-site-preview" href="{site_preview_url}" target="_blank" rel="noopener" title="{view_site}" aria-label="{view_site}"><span class="myvibehtml-local-icon myvibehtml-icon-eye" aria-hidden="true"></span></a></div>',
             $this->templates['h']
         );
+        $this->templates['h'] = str_replace('<a title="{files}">', '<a role="button" tabindex="0" aria-expanded="false" title="{files}">', $this->templates['h']);
+        $this->templates['h'] = str_replace('<a title="{settings}">', '<a role="button" tabindex="0" aria-expanded="false" title="{settings}">', $this->templates['h']);
+        $this->templates['h'] = str_replace('<a></a>', '<a role="button" tabindex="0" aria-label="{show_password}"></a>', $this->templates['h']);
+        $this->templates['h'] = str_replace('<input type="password" maxlength="14">', '<input type="password" aria-label="{new_password}" maxlength="14">', $this->templates['h']);
+        $this->templates['h'] = str_replace('<a title="{restore_settings}"></a>', '<a role="button" tabindex="0" aria-label="{restore_settings}" title="{restore_settings}"></a>', $this->templates['h']);
         $this->templates['h'] = str_replace(
             '</span></a></div>',
             '</span></a><button id="myvibehtml-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="myvibehtml-mobile-menu" title="{mobile_menu}" aria-label="{mobile_menu}"><span class="myvibehtml-local-icon myvibehtml-icon-menu" aria-hidden="true"></span></button><div id="myvibehtml-mobile-menu" role="menu" aria-hidden="true"><button type="button" role="menuitem" data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li:first-child>a">{files}</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li+li>a">{settings}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:first-child input">{save}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:last-child input">{logout}</button></div></div>',
@@ -366,9 +370,10 @@ final class MyVibeHTMLConfig
         );
         $this->templates['a'] = str_replace(
             '<p><span>{password}:</span><input type="password" data-bb=',
-            '<p class="myvibehtml-password-row"><label for="myvibehtml-password">{password}</label><input id="myvibehtml-password" type="password" autocomplete="current-password" maxlength="128" aria-describedby="myvibehtml-auth-status" data-bb=',
+            '<p class="myvibehtml-password-row"><label for="myvibehtml-password">{password}</label><input id="myvibehtml-password" type="password" aria-label="{password}" autocomplete="current-password" maxlength="128" aria-describedby="myvibehtml-auth-status" data-bb=',
             $this->templates['a']
         );
+        $this->templates['a'] = str_replace('<a data-bx="{show_password}" data-by="{hide_password}"></a>', '<a role="button" tabindex="0" aria-label="{show_password}" data-bx="{show_password}" data-by="{hide_password}"></a>', $this->templates['a']);
         $this->templates['a'] = str_replace(
             '<p><input type="button" value="{login}" disabled></p>',
             '<p class="myvibehtml-login-row"><input type="button" value="{login}" aria-label="{login}" disabled></p><p class="myvibehtml-auth-hint">{auth_hint}</p>',
@@ -378,7 +383,12 @@ final class MyVibeHTMLConfig
         $this->templates['h'] = str_replace('type="password" maxlength="14"', 'type="password" maxlength="128"', $this->templates['h']);
         $this->templates['a'] = str_replace('data-bb="{pass_complexity}" maxlength="14"', 'data-bb="{pass_complexity}" maxlength="128"', $this->templates['a']);
         $this->templates['h'] = str_replace('<script src="{system_url}myvibehtml.js?v={version}"></script>', '<script src="{system_url}myvibehtml-source-map.js?v={version}"></script><script src="{system_url}myvibehtml.js?v={version}"></script>', $this->templates['h']);
-        $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i title="{attributes}"></i></p>', $this->templates['h']);
+        $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i role="button" tabindex="0" aria-label="{clone_block}" title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{move_up_block}" title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{move_down_block}" title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{delete_block}" title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{attributes}" title="{attributes}"></i></p>', $this->templates['h']);
+        $this->templates['o'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['o']);
+        $this->templates['n'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['n']);
+        $this->templates['b'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['b']);
+        $this->templates['j'] = str_replace('<li title=', '<li role="tab" tabindex="0" aria-selected="false" title=', $this->templates['j']);
+        $this->templates['i'] = str_replace('<li title=', '<li role="tab" tabindex="0" aria-selected="false" title=', $this->templates['i']);
         $this->state['a'] = $construct1;
         $this->state['b'] = $this->getSetting(REQUEST_DOCUMENT_ROOT);
         //if (__LINE__ != 1) exit;
@@ -565,7 +575,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.29';
+    const VERSION = '0.30';
     private $config;
     private $request;
     private $response;
@@ -1423,12 +1433,10 @@ final class MyVibeHTMLController
 
     private function sortEntries($sortentries1)
     {
-        $sortentries2 = [];
-        $sortentries3 = [];
-        foreach ($sortentries1 as $sortentries4) $sortentries2[] = $sortentries4[FILE_NAME];
-        asort($sortentries2);
-        foreach ($sortentries2 as $sortentries5) foreach ($sortentries1 as $sortentries4) if ($sortentries5 == $sortentries4[FILE_NAME]) $sortentries3[] = $sortentries4;
-        return $sortentries3;
+        usort($sortentries1, function ($leftEntry, $rightEntry) {
+            return strnatcasecmp((string)$leftEntry[FILE_NAME], (string)$rightEntry[FILE_NAME]);
+        });
+        return $sortentries1;
     }
 
     private function getDirectorySize($getdirectorysize1)

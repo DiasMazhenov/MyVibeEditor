@@ -17,8 +17,10 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.29" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.29'" myvibehtml.php
+rg -q "MyVibeHTML v0\.30" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.30'" myvibehtml.php
+rg -q "version_compare\(PHP_VERSION, '7\.4'" myvibehtml.php
+rg -q "myvibehtml-runtime\.php" myvibehtml.php
 rg -q 'MyVibeHTMLSourceMap|restoreBackupDirectory' myvibehtml.php myvibehtml.js myvibehtml-source-map.js
 rg -q 'password_hash|password_verify|random_bytes|hash_equals' myvibehtml.php
 rg -q 'function commit|encodeIniValue|config-state.lock|restoreBackupDirectory' myvibehtml.php
@@ -54,15 +56,16 @@ php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 node --test tests/source-map.test.js
 node --test tests/deobfuscation.test.js
+node --test tests/accessibility.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.29" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.29" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.29" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.30" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.30" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.30" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.29"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.30"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2
