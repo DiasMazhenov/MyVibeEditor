@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.35 */
+/* MyVibeHTML v0.36 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -646,6 +646,7 @@
                 runtimeValue3 = runtimeValue1[querySelectorMethod]('div>div+ol li+li'),
                 runtimeValue4 = runtimeValue1[querySelectorMethod]('div>div+ul li:first-child input'),
                 runtimeValue7 = runtimeValue1[querySelectorMethod]('div>div+ul li:last-child input'),
+                pageValidateButton = runtimeValue1[querySelectorMethod]('[data-page-validate]'),
                 runtimeValue9 = runtimeValue1[querySelectorMethod]('div>div+ul+p samp'),
                 runtimeValue10 = runtimeValue1[querySelectorAllMethod]('div>ol+ul>li>a'),
                 runtimeValue11 = documentObject[querySelectorMethod]('#j'),
@@ -666,6 +667,83 @@
                 },
                 clearSourceDraft = function() {
                     try { windowObject.localStorage.removeItem(sourceDraftKey) } catch (sourceDraftError) {}
+                },
+                validationDialog = null,
+                validationDialogOpen = function(candidateSource, baselineSource, saveCallback) {
+                    var validationText = function(attribute, fallback) {
+                            return pageValidateButton && pageValidateButton[getAttributeMethod]('data-' + attribute) || fallback
+                        },
+                        validationDocument = new DOMParser()[parseFromStringMethod](candidateSource, 'text/html'),
+                        validationIssues = [],
+                        validationIds = {},
+                        validationNodes = validationDocument[querySelectorAllMethod]('*'),
+                        validationIndex = 0;
+                    if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:'Empty source'});
+                    for (; validationIndex < validationNodes[lengthProperty]; validationIndex++) {
+                        var validationNode = validationNodes[validationIndex],
+                            validationNodeId = validationNode[getAttributeMethod]('id'),
+                            validationNodeTag = validationNode[tagNameProperty][toLowerCaseMethod]();
+                        if (validationNodeId) {
+                            if (validationIds[validationNodeId]) validationIssues.push({level:'error',text:'Duplicate id: #' + validationNodeId});
+                            validationIds[validationNodeId] = true
+                        }
+                        for (var validationAttributeIndex = 0; validationAttributeIndex < validationNode.attributes[lengthProperty]; validationAttributeIndex++) {
+                            var validationAttribute = validationNode.attributes[validationAttributeIndex];
+                            if ((validationAttribute.name == 'href' || validationAttribute.name == 'src' || validationAttribute.name == 'action') && /^(?:javascript|vbscript):/i.test(validationAttribute.value)) validationIssues.push({level:'error',text:'Unsafe URL in ' + validationNodeTag + '[' + validationAttribute.name + ']'});
+                        }
+                        if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:'Image without alt attribute'});
+                    }
+                    if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:'Missing html element'});
+                    if (!validationDocument.querySelector('title')) validationIssues.push({level:'warning',text:'Missing title element'});
+                    if (!validationDialog) {
+                        validationDialog = documentObject[createElementMethod]('aside');
+                        validationDialog.id = 'myvibehtml-validation-dialog';
+                        validationDialog.setAttribute('role', 'dialog');
+                        validationDialog.setAttribute('aria-modal', 'true');
+                        validationDialog[innerHTMLProperty] = '<div class="myvibehtml-validation-header"><h2></h2><button type="button" data-validation-close></button></div><p data-validation-summary></p><ul data-validation-issues></ul><h3></h3><pre data-validation-diff></pre><div class="myvibehtml-validation-footer"><button type="button" data-validation-cancel></button><button type="button" data-validation-confirm></button></div>';
+                        documentObject.body[appendChildMethod](validationDialog);
+                        validationDialog[querySelectorMethod]('[data-validation-close]')[addEventListenerMethod](clickEvent, function() { validationDialog.hidden = true });
+                        validationDialog[querySelectorMethod]('[data-validation-cancel]')[addEventListenerMethod](clickEvent, function() { validationDialog.hidden = true });
+                    }
+                    var validationErrorCount = 0,
+                        validationWarningCount = 0,
+                        validationIssueList = validationDialog[querySelectorMethod]('[data-validation-issues]'),
+                        validationSummary = validationDialog[querySelectorMethod]('[data-validation-summary]'),
+                        validationDiff = validationDialog[querySelectorMethod]('[data-validation-diff]'),
+                        validationLines = [],
+                        baselineLines = String(baselineSource || '').split('\n'),
+                        candidateLines = String(candidateSource || '').split('\n'),
+                        validationLineCount = Math.max(baselineLines[lengthProperty], candidateLines[lengthProperty]),
+                        validationLineIndex = 0,
+                        validationConfirm = validationDialog[querySelectorMethod]('[data-validation-confirm]');
+                    validationIssueList[innerHTMLProperty] = '';
+                    for (validationIndex = 0; validationIndex < validationIssues[lengthProperty]; validationIndex++) {
+                        var validationIssueItem = documentObject[createElementMethod]('li');
+                        validationIssueItem[textContentProperty] = validationIssues[validationIndex].text;
+                        validationIssueItem.setAttribute('data-level', validationIssues[validationIndex].level);
+                        validationIssueList[appendChildMethod](validationIssueItem);
+                        if (validationIssues[validationIndex].level == 'error') validationErrorCount++; else validationWarningCount++
+                    }
+                    for (; validationLineIndex < validationLineCount && validationLines[lengthProperty] < 120; validationLineIndex++) {
+                        var validationOldLine = baselineLines[validationLineIndex], validationNewLine = candidateLines[validationLineIndex];
+                        if (validationOldLine === validationNewLine) validationLines.push('  ' + (validationNewLine || ''));
+                        else {
+                            if (typeof validationOldLine != 'undefined') validationLines.push('- ' + validationOldLine);
+                            if (typeof validationNewLine != 'undefined') validationLines.push('+ ' + validationNewLine)
+                        }
+                    }
+                    if (validationLineIndex < validationLineCount) validationLines.push('…');
+                    validationDialog[querySelectorMethod]('h2')[textContentProperty] = validationText('validation-dialog', 'Check before saving');
+                    validationDialog[querySelectorMethod]('h3')[textContentProperty] = validationText('validation-issues', 'Notes');
+                    validationDialog[querySelectorMethod]('[data-validation-close]')[textContentProperty] = '×';
+                    validationDialog[querySelectorMethod]('[data-validation-cancel]')[textContentProperty] = validationText('validation-close', 'Close');
+                    validationConfirm[textContentProperty] = validationText('validation-save', 'Save anyway');
+                    validationConfirm.hidden = !saveCallback;
+                    validationSummary[textContentProperty] = validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found');
+                    validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationText('validation-no-changes', 'No changes');
+                    validationConfirm.onclick = saveCallback ? function() { validationDialog.hidden = true; saveCallback() } : null;
+                    validationDialog.hidden = false;
+                    validationDialog[querySelectorMethod]('[data-validation-close]')[focusEvent]()
                 },
                 initializeVisualEditor = function() {
                     var runtimeValue18 = runtimeValue1[querySelectorMethod]('div>ul+div'),
@@ -3076,8 +3154,12 @@
                         runtimeValue115()
                     });
                     runtimeValue4[addEventListenerMethod](clickEvent, function() {
-                        if (!runtimeValue4[disabledProperty]) saveEditorContent(runtimeValue79())
+                        if (!runtimeValue4[disabledProperty]) {
+                            var visualCandidateSource = runtimeValue79();
+                            validationDialogOpen(visualCandidateSource, runtimeValue128, function() { saveEditorContent(visualCandidateSource) })
+                        }
                     });
+                    if (pageValidateButton) pageValidateButton[addEventListenerMethod](clickEvent, function() { validationDialogOpen(runtimeValue79(), runtimeValue128, null) });
                     if (windowObject.opera) {
                         var runtimeValue130 = documentObject[createElementMethod]('span');
                         runtimeValue130[styleProperty][cssFloatProperty] = 'right';
@@ -3260,7 +3342,10 @@
                             } else if (event[keyCodeProperty] == 83 && runtimeValue145.i) {
                                 event[preventDefaultMethod]();
                                 runtimeValue147();
-                                if (!runtimeValue4[disabledProperty]) saveEditorContent(runtimeValue142())
+                                if (!runtimeValue4[disabledProperty]) {
+                                    var sourceCandidateOnShortcut = runtimeValue142();
+                                    validationDialogOpen(sourceCandidateOnShortcut, sourceHistory.baseline, function() { saveEditorContent(sourceCandidateOnShortcut) })
+                                }
                             }
                         },
                         runtimeValue146 = function(event) {
@@ -3411,10 +3496,14 @@
                     runtimeValue131[focusEvent]();
                     runtimeValue4[addEventListenerMethod](clickEvent, function() {
                         if (!runtimeValue4[disabledProperty]) {
-                            runtimeValue147();
-                            saveEditorContent(runtimeValue142())
+                            var sourceCandidateOnSave = runtimeValue142();
+                            validationDialogOpen(sourceCandidateOnSave, sourceHistory.baseline, function() {
+                                runtimeValue147();
+                                saveEditorContent(sourceCandidateOnSave)
+                            })
                         }
-                    })
+                    });
+                    if (pageValidateButton) pageValidateButton[addEventListenerMethod](clickEvent, function() { validationDialogOpen(runtimeValue142(), sourceHistory.baseline, null) })
                 },
                 saveEditorContent = function(runtimeInput51) {
                     var runtimeValue151 = generateToken();

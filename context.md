@@ -708,3 +708,11 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.35` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись.
 - Проверки v0.35: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
 - Следующий функциональный номер — `0.36`: проверка страницы и diff перед сохранением.
+
+## Текущее исправление v0.36
+
+- Перед сохранением добавлено локальное HTML-ревью: дублирующиеся `id`, `javascript:`/`vbscript:` URL, изображения без `alt`, отсутствие `html`/`title` отмечаются до записи. Исходник не исполняется и не вставляется через `innerHTML` в диалог: проблемы и diff выводятся через `textContent`.
+- Добавлен построчный diff baseline → candidate с ограничением отображения до 120 строк. Кнопка `Проверить` только показывает отчёт, а `Сохранить` и Ctrl/Cmd+S требуют явного подтверждения `Сохранить всё равно`; подключены оба режима — визуальный и текстовый.
+- Версия синхронно поднята до `0.36` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись. Остаточные v0.35 version markers в runtime/source-map/theme из предыдущего незакоммиченного состояния включены в этот release commit.
+- Проверки v0.36: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. HTTP regression сначала поймал 500 из-за потерянного третьего аргумента `str_replace` в шаблоне; исправление повторно прошло полный прогон. Browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance отдельно не заявляется.
+- Следующий функциональный номер — `0.37`: горячие клавиши и command palette.
