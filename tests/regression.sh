@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.47" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.47'" myvibehtml.php
+rg -q "MyVibeHTML v0\.48" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.48'" myvibehtml.php
 rg -q "myvibehtml-ui-contracts\.js|MyVibeHTMLUIContracts" myvibehtml.php myvibehtml.js myvibehtml-ui-contracts.js
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
@@ -50,6 +50,9 @@ fi
 rg -Fq "return \$this->state['f'] ? \$this->state['f'] . 'backup/' : false" myvibehtml.php
 rg -q "location ~\* /backup" nginx.conf.example
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "styleInspectorResizeHandle|startStyleInspectorResize|setStyleInspectorWidth" myvibehtml.js
+rg -q "myvibehtml-style-inspector-resize|right:0;bottom:0;left:auto" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "role.*separator|aria-orientation.*vertical" myvibehtml.js
 rg -q "visualEditorSelection|renderStyleInspector\(this\.d\)" myvibehtml.js
 rg -q "grid-template-columns:repeat\(auto-fit,minmax\(280px,1fr\)\)|form>fieldset:first-of-type" myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "max-height:min\(60vh,560px\)|overflow-y:auto|scrollbar-gutter:stable" myvibehtml-theme.css myvibehtml-fallback.css
@@ -77,7 +80,7 @@ if rg -n 'checkForUpdates|handleUpdateResult|installUpdate|checkInstallation|SET
     echo "regression: removed update/legacy alias code is still present" >&2
     exit 1
 fi
-rg -q "position:fixed;right:0;bottom:0;left:0" myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "position:fixed;top:0;right:0;bottom:0;left:auto" myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "documentObject\.body\[appendChildMethod\]\(styleInspector\)" myvibehtml.js
 rg -q "visualEditorValue45 - 1" myvibehtml.js
 rg -q "REQUEST_DOCUMENT_ROOT => 'filterDocumentRoot'" myvibehtml.php
@@ -97,16 +100,16 @@ node --test tests/accessibility.test.js
 node --test tests/ui-contracts.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.47" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.47" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.47" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.47" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.47" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.47" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.48" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.48" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.48" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.48" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.48" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.48" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.47"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.48"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 for icon in device-desktop device-tablet device-mobile layout-grid; do
     test -s "myvibehtml-icons/$icon.svg"

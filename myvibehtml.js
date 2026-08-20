@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.47 */
+/* MyVibeHTML v0.48 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -765,6 +765,8 @@
                         styleInspectorFields = null,
                         markupInspectorFields = null,
                         styleInspectorError = null,
+                        styleInspectorResizeHandle = null,
+                        styleInspectorResizeState = null,
                         mediaPicker = null,
                         mediaPickerTarget = null,
                         blockLibraryPanel = null,
@@ -1037,6 +1039,42 @@
                                 blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true')
                             }
                         },
+                        setStyleInspectorWidth = function(width) {
+                            if (!styleInspector || windowObject.innerWidth <= 700) return;
+                            var minWidth = 320,
+                                maxWidth = Math.min(720, Math.max(minWidth, windowObject.innerWidth - 40));
+                            styleInspector.style.width = Math.round(Math.max(minWidth, Math.min(maxWidth, width))) + 'px'
+                        },
+                        resizeStyleInspector = function(event) {
+                            if (styleInspectorResizeState) setStyleInspectorWidth(styleInspectorResizeState.startWidth + styleInspectorResizeState.startX - event.clientX)
+                        },
+                        stopStyleInspectorResize = function() {
+                            if (!styleInspectorResizeState) return;
+                            documentObject[removeEventListenerMethod](mouseMoveEvent, resizeStyleInspector);
+                            documentObject[removeEventListenerMethod](mouseUpEvent, stopStyleInspectorResize);
+                            styleInspectorResizeState = null;
+                            if (styleInspectorResizeHandle) styleInspectorResizeHandle[removeAttributeMethod]('data-active')
+                        },
+                        startStyleInspectorResize = function(event) {
+                            if (!styleInspector || windowObject.innerWidth <= 700) return;
+                            styleInspectorResizeState = {startX: event.clientX, startWidth: styleInspector.offsetWidth};
+                            styleInspectorResizeHandle[setAttributeMethod]('data-active', 'true');
+                            documentObject[addEventListenerMethod](mouseMoveEvent, resizeStyleInspector);
+                            documentObject[addEventListenerMethod](mouseUpEvent, stopStyleInspectorResize);
+                            event[preventDefaultMethod]();
+                            event[stopPropagationMethod]()
+                        },
+                        handleStyleInspectorResizeKeydown = function(event) {
+                            if (!styleInspector || windowObject.innerWidth <= 700) return;
+                            var width = styleInspector.offsetWidth;
+                            if (event[keyCodeProperty] == 37) width += 16;
+                            else if (event[keyCodeProperty] == 39) width -= 16;
+                            else if (event[keyCodeProperty] == 36) width = 320;
+                            else if (event[keyCodeProperty] == 35) width = windowObject.innerWidth - 40;
+                            else return;
+                            event[preventDefaultMethod]();
+                            setStyleInspectorWidth(width)
+                        },
                         createStyleInspector = function() {
                             if (styleInspector) return styleInspector;
                             var visualEditorValue8 = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '',
@@ -1174,7 +1212,17 @@
                             styleInspector[setAttributeMethod]('role', 'dialog');
                             styleInspector[setAttributeMethod]('aria-modal', 'false');
                             styleInspector[setAttributeMethod]('aria-hidden', 'true');
+                            styleInspector[setAttributeMethod]('aria-labelledby', 'myvibehtml-style-inspector-title');
                             styleInspector.hidden = true;
+                            styleInspectorResizeHandle = documentObject[createElementMethod]('div');
+                            styleInspectorResizeHandle[classNameProperty] = 'myvibehtml-style-inspector-resize';
+                            styleInspectorResizeHandle[setAttributeMethod]('role', 'separator');
+                            styleInspectorResizeHandle[setAttributeMethod]('aria-orientation', 'vertical');
+                            styleInspectorResizeHandle[setAttributeMethod]('aria-label', visualEditorValue9 ? 'Изменить ширину панели CSS-свойств' : 'Resize CSS properties panel');
+                            styleInspectorResizeHandle[setAttributeMethod]('title', visualEditorValue9 ? 'Потяните для изменения ширины' : 'Drag to resize');
+                            styleInspectorResizeHandle[setAttributeMethod]('tabindex', '0');
+                            styleInspectorResizeHandle[addEventListenerMethod](mouseDownEvent, startStyleInspectorResize);
+                            styleInspectorResizeHandle[addEventListenerMethod](keyDownEvent, handleStyleInspectorResizeKeydown);
                             var visualEditorValue19 = documentObject[createElementMethod]('div'),
                                 visualEditorValue20 = documentObject[createElementMethod]('div'),
                                 visualEditorValue21 = documentObject[createElementMethod]('h2'),
@@ -1229,6 +1277,7 @@
                             visualEditorValue19[appendChildMethod](visualEditorValue20);
                             visualEditorValue19[appendChildMethod](visualEditorValue22);
                             styleInspector[appendChildMethod](visualEditorValue19);
+                            styleInspector[appendChildMethod](styleInspectorResizeHandle);
                             styleInspector[appendChildMethod](visualEditorValue23);
                             styleInspector[appendChildMethod](visualEditorValue24);
                             styleInspector[appendChildMethod](markupInspectorFieldset);

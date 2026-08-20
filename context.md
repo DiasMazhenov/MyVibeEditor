@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.48
+
+- CSS-инспектор на desktop перенесён в правую боковую панель на всю высоту окна; ширина ограничена безопасным диапазоном `320px`–`min(720px, 80vw)`.
+- На левой границе панели добавлена resize-зона: мышь расширяет панель при движении влево, а клавиши `ArrowLeft`/`ArrowRight`, `Home`/`End` управляют шириной с клавиатуры.
+- На мобильных до `700px` сохранён нижний адаптивный sheet, resize-зона скрыта; единый вертикальный scrollbar и нормальный поток fieldset из v0.47 сохранены.
+- Версия синхронно поднята до `0.48` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Проверки v0.48: PHP/JS lint, unit/accessibility/UI-contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS. Browser runner в текущем окружении отсутствует, поэтому визуальный screenshot acceptance не заявляется.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне commit.
+
 ## Текущее исправление v0.47
 
 - Устранено наложение HTML/ARIA на «Разметку»: причиной было flex-сжатие прямого `fieldset` после переноса scrollbar на весь инспектор. `#myvibehtml-style-inspector` теперь обычный потоковый scroll-контейнер, поэтому все fieldset сохраняют естественную высоту.
