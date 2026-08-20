@@ -1,5 +1,12 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.62
+
+- Responsive Preview Studio сохраняет выбранный профиль (`desktop`, `tablet`, `tablet-landscape`, `mobile`, `mobile-landscape`) в localStorage по нормализованному пути текущего файла; параметр `rev` исключён из ключа.
+- При смене профиля ширина/геометрия iframe обновляется без перезагрузки, а desktop очищает inline override и возвращает базовую ширину.
+- Обновлены version markers, README, architecture, function catalog, CHANGELOG, CI и regression до `0.62`; добавлен contract assertion для preview storage.
+- Пройдены node/PHP syntax, feature/module contracts, CI contract, `git diff --check` и полный HTTP regression против `127.0.0.1:8080`. `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.62` открыт во встроенном браузере; API открытия вкладки не предоставляет программных click/screenshot-команд, поэтому сохранение профиля после ручного переключения ещё не объявляется визуально принятым.
+
 ## Текущее исправление v0.61
 
 - Page Health получил итоговую локальную оценку `0–100`: ошибки уменьшают score на 25, предупреждения на 5; существующий diff и явное подтверждение сохранения не изменены.

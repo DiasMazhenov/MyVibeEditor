@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.61 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.62 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -157,6 +157,7 @@
         if (previewControls && previewFrame && document.documentElement.id == 'd') {
             var previewButtons = previewControls.querySelectorAll('[data-preview-size]'),
                 previewPreset = previewControls.querySelector('[data-preview-preset]'),
+                previewStorageKey = 'myvibehtml:preview-preset:' + location.pathname + location.search.replace(/[?&]rev=[^&]*/, ''),
                 previewPresets = {desktop:{size:'desktop',width:null},tablet:{size:'tablet',width:768},'tablet-landscape':{size:'tablet',width:1024},mobile:{size:'mobile',width:390},'mobile-landscape':{size:'mobile',width:812}},
                 setPreviewSize = function(previewPresetName) {
                     var preset = previewPresets[previewPresetName] || previewPresets.desktop;
@@ -174,11 +175,14 @@
                         previewFrame.style.transform = ''
                     }
                     if (previewPreset) previewPreset.value = previewPresets[previewPresetName] ? previewPresetName : 'desktop';
+                    try { localStorage.setItem(previewStorageKey, previewPresets[previewPresetName] ? previewPresetName : 'desktop') } catch (storageError) {}
                     for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == preset.size ? 'true' : 'false')
                 };
             for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].addEventListener('click', function() { setPreviewSize(this.getAttribute('data-preview-size')) });
             if (previewPreset) previewPreset.addEventListener('change', function() { setPreviewSize(this.value) });
-            setPreviewSize('desktop')
+            var initialPreviewPreset = 'desktop';
+            try { if (previewPresets[localStorage.getItem(previewStorageKey)]) initialPreviewPreset = localStorage.getItem(previewStorageKey) } catch (storageError) {}
+            setPreviewSize(initialPreviewPreset)
         }
 
         var menuToggle = document.querySelector('#myvibehtml-mobile-menu-toggle'),

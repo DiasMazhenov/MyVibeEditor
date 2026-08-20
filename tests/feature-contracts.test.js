@@ -41,6 +41,8 @@ test('Page navigation and Responsive Preview Studio reuse shell controls', () =>
     assert.match(shell, /new URL\(href, window\.location\.href\)/);
     assert.match(shell, /data-preview-preset/);
     assert.match(shell, /tablet-landscape/);
+    assert.match(shell, /previewStorageKey/);
+    assert.match(shell, /localStorage\.setItem\(previewStorageKey/);
     assert.match(php, /data-site-map/);
     assert.match(php, /preview_tablet_landscape/);
 });

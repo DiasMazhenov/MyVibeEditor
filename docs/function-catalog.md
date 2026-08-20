@@ -66,7 +66,7 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 `getDesignTokenNames()` и `getDesignTokenValue()` читают custom properties, `renderDesignTokens()` заполняет текущие значения в инспекторе, `isValidDesignTokenName()`/`isValidDesignTokenValue()` фильтруют ввод, а `syncDesignTokenSource()` синхронно меняет `:root`, live preview и draft.
 
-`validationDialogOpen()` дополнительно проверяет `lang`, `title`, `meta description`, `meta viewport`, количество `h1`, ссылки без `href` и ограниченный ресурсный бюджет страницы, а затем считает локальную оценку `0–100`. `myvibehtml-shell-controls.js` через `data-site-map` строит навигацию по same-origin ссылкам iframe, а `data-preview-preset` управляет пятью профилями Responsive Preview Studio без отдельной библиотеки.
+`validationDialogOpen()` дополнительно проверяет `lang`, `title`, `meta description`, `meta viewport`, количество `h1`, ссылки без `href` и ограниченный ресурсный бюджет страницы, а затем считает локальную оценку `0–100`. `myvibehtml-shell-controls.js` через `data-site-map` строит навигацию по same-origin ссылкам iframe, а `data-preview-preset` управляет пятью профилями Responsive Preview Studio и сохраняет профиль в localStorage без отдельной библиотеки.
 
 ## Полный именной inventory PHP
 

@@ -8,7 +8,7 @@ fi
 
 body_file="$(mktemp "${TMPDIR:-/tmp}/myvibe-e2e.XXXXXX")"
 trap 'rm -f "$body_file"' EXIT INT TERM
-version="${MYVIBEHTML_E2E_VERSION:-0.61}"
+version="${MYVIBEHTML_E2E_VERSION:-0.62}"
 status="$(curl -sS -o "$body_file" -w '%{http_code}' -H "Cookie: ${MYVIBEHTML_E2E_COOKIE}" "$MYVIBEHTML_E2E_URL")"
 [ "$status" -ge 200 ] && [ "$status" -lt 300 ] || {
     echo "authenticated-e2e: expected 2xx, got $status" >&2

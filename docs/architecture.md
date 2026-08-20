@@ -1,6 +1,6 @@
-# Архитектура v0.61
+# Архитектура v0.62
 
-v0.61 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.62 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -29,7 +29,7 @@ v0.61 сохраняет безопасные модульные границы 
 
 - **Навигация по страницам**: shell-модуль сканирует `a[href]` в same-origin iframe, убирает дубли/внешние URL и строит доступный диалог с открытием страниц в новой вкладке.
 - **Page Health**: существующий `validationDialogOpen()` дополнен локальными SEO, структурными, ссылочными и ресурсными предупреждениями; сервер и внешние сервисы не вызываются.
-- **Responsive Preview Studio**: существующий `data-preview-size` расширен профилями с альбомной ориентацией и точной шириной iframe через inline style, с возвратом всех inline-стилей при desktop.
+- **Responsive Preview Studio**: существующий `data-preview-size` расширен профилями с альбомной ориентацией и точной шириной iframe через inline style; выбранный профиль хранится в localStorage по нормализованному пути файла, с возвратом всех inline-стилей при desktop.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 
