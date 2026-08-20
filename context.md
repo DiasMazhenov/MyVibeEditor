@@ -716,3 +716,11 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.36` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись. Остаточные v0.35 version markers в runtime/source-map/theme из предыдущего незакоммиченного состояния включены в этот release commit.
 - Проверки v0.36: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. HTTP regression сначала поймал 500 из-за потерянного третьего аргумента `str_replace` в шаблоне; исправление повторно прошло полный прогон. Browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance отдельно не заявляется.
 - Следующий функциональный номер — `0.37`: горячие клавиши и command palette.
+
+## Текущее исправление v0.37
+
+- Добавлена нативная command palette по Ctrl/Cmd+K: поиск команд, Escape, ArrowUp/ArrowDown, Enter, click-outside и focus management. Команды HTML/Text/Files/Settings, Validate/Save, Undo/Redo, preview и Blocks вызывают уже существующие DOM-действия.
+- Палитра строится только после открытия, использует `textContent` для данных команд, не добавляет runtime-библиотек и адаптируется до ширины мобильного экрана. Горячие клавиши Save/Undo/Redo предыдущих редакторов сохранены и не дублируются глобальным обработчиком.
+- Версия синхронно поднята до `0.37` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись.
+- Проверки v0.37: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS; HTTP regression повторен после локализации служебных строк command palette. Browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance отдельно не заявляется.
+- Функциональный roadmap v0.31–v0.37 реализован; дальнейшие изменения — отдельный backlog.

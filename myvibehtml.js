@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.36 */
+/* MyVibeHTML v0.37 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -4489,5 +4489,76 @@
                 toggle.focus()
             }
         })
+    })
+    documentObject[addEventListenerMethod](domContentLoadedEvent, function() {
+        var commandPanel = documentObject[querySelectorMethod]('#e');
+        if (!commandPanel) return;
+        var commandPalette = null,
+            commandPaletteInput = null,
+            commandPaletteList = null,
+            commandPaletteCommands = [],
+            commandPaletteActiveIndex = 0,
+            commandLabel = function(element, fallback) { return element && element[textContentProperty].replace(/^\s+|\s+$/g, '') || fallback },
+            commandText = function(attribute, fallback) { return commandPanel[querySelectorMethod]('[data-page-validate]') && commandPanel[querySelectorMethod]('[data-page-validate]')[getAttributeMethod]('data-' + attribute) || fallback },
+            dispatchCommand = function(element) {
+                if (!element) return;
+                if (element[tagNameProperty] == 'A') element.dispatchEvent(new MouseEvent('mousedown', {bubbles:true,cancelable:true,view:windowObject}));
+                else if (element[clickEvent]) element[clickEvent]()
+            },
+            buildCommands = function() {
+                var commands = [], add = function(label, shortcut, action) { if (action) commands.push({label:label,shortcut:shortcut,action:action}) },
+                    modes = commandPanel[querySelectorAllMethod]('div>ol>li'), tabs = commandPanel[querySelectorAllMethod]('div>ol+ul>li>a'),
+                    saveButton = commandPanel[querySelectorMethod]('div>div+ul li:first-child input'), validateButton = commandPanel[querySelectorMethod]('[data-page-validate]'),
+                    undoButton = commandPanel[querySelectorMethod]('[data-source-action="undo"]'), redoButton = commandPanel[querySelectorMethod]('[data-source-action="redo"]'),
+                    previewButtons = commandPanel[querySelectorAllMethod]('[data-preview-size]'), blockButton = commandPanel[querySelectorMethod]('[data-block-library]');
+                if (modes[0]) add(commandLabel(modes[0], 'HTML'), 'Ctrl/⌘+1', function() { dispatchCommand(modes[0]) });
+                if (modes[1]) add(commandLabel(modes[1], 'Text'), 'Ctrl/⌘+2', function() { dispatchCommand(modes[1]) });
+                if (tabs[0]) add(commandLabel(tabs[0], 'Files'), '', function() { dispatchCommand(tabs[0]) });
+                if (tabs[1]) add(commandLabel(tabs[1], 'Settings'), '', function() { dispatchCommand(tabs[1]) });
+                if (validateButton) add(commandLabel(validateButton, 'Check page'), '', function() { validateButton[clickEvent]() });
+                if (saveButton) add(commandLabel(saveButton, 'Save'), 'Ctrl/⌘+S', function() { saveButton[clickEvent]() });
+                if (undoButton) add(commandLabel(undoButton, 'Undo'), 'Ctrl/⌘+Z', function() { undoButton[clickEvent]() });
+                if (redoButton) add(commandLabel(redoButton, 'Redo'), 'Ctrl/⌘+Y', function() { redoButton[clickEvent]() });
+                if (blockButton) add(commandLabel(blockButton, 'Blocks'), '', function() { blockButton[clickEvent]() });
+                for (var previewIndex = 0; previewIndex < previewButtons[lengthProperty]; previewIndex++) (function(previewButton) { add(commandLabel(previewButton, previewButton[getAttributeMethod]('data-preview-size')), '', function() { previewButton[clickEvent]() }) })(previewButtons[previewIndex]);
+                return commands
+            },
+            closeCommandPalette = function() { if (commandPalette) { commandPalette.hidden = true; commandPaletteInput[valueProperty] = '' } },
+            renderCommandPalette = function() {
+                var query = commandPaletteInput[valueProperty][toLowerCaseMethod](), visible = [], commandIndex;
+                commandPaletteList[innerHTMLProperty] = '';
+                for (commandIndex = 0; commandIndex < commandPaletteCommands[lengthProperty]; commandIndex++) {
+                    var command = commandPaletteCommands[commandIndex];
+                    if (query && command.label[toLowerCaseMethod]().indexOf(query) === -1) continue;
+                    visible.push(command);
+                    var commandButton = documentObject[createElementMethod]('button');
+                    commandButton.type = 'button'; commandButton.setAttribute('role', 'option'); commandButton.setAttribute('aria-selected', visible[lengthProperty] - 1 == commandPaletteActiveIndex ? 'true' : 'false');
+                    commandButton[innerHTMLProperty] = '<span></span><kbd></kbd>'; commandButton[firstElementChildProperty][textContentProperty] = command.label; commandButton[lastElementChildProperty][textContentProperty] = command.shortcut; commandButton.__myvibeCommand = command;
+                    commandButton[addEventListenerMethod](clickEvent, function() { var selected = this.__myvibeCommand; closeCommandPalette(); if (selected) selected.action() });
+                    commandPaletteList[appendChildMethod](commandButton)
+                }
+                if (!visible[lengthProperty]) { var empty = documentObject[createElementMethod]('p'); empty[textContentProperty] = commandText('command-empty', 'No commands found'); commandPaletteList[appendChildMethod](empty) }
+            },
+            openCommandPalette = function() {
+                if (!commandPalette) {
+                    commandPalette = documentObject[createElementMethod]('aside'); commandPalette.id = 'myvibehtml-command-palette'; commandPalette.setAttribute('role', 'dialog'); commandPalette.setAttribute('aria-label', commandText('command-palette', 'Command palette'));
+                    commandPalette[innerHTMLProperty] = '<div class="myvibehtml-command-header"><h2>' + commandText('command-palette', 'Command palette') + '</h2><kbd>Esc</kbd></div><input type="search" placeholder="' + commandText('command-search', 'Search commands') + '" aria-label="' + commandText('command-search', 'Search commands') + '"><div role="listbox"></div><p class="myvibehtml-command-hint">' + commandText('command-hint', 'Use ↑ ↓ and Enter') + '</p>'; documentObject.body[appendChildMethod](commandPalette);
+                    commandPaletteInput = commandPalette[querySelectorMethod]('input'); commandPaletteList = commandPalette[querySelectorMethod]('[role="listbox"]');
+                    commandPaletteInput[addEventListenerMethod](inputEvent, function() { commandPaletteActiveIndex = 0; renderCommandPalette() });
+                    commandPalette[addEventListenerMethod](clickEvent, function(event) { if (event.target == commandPalette) closeCommandPalette() })
+                }
+                commandPaletteCommands = buildCommands(); commandPaletteActiveIndex = 0; commandPalette.hidden = false; renderCommandPalette(); commandPaletteInput[focusEvent]()
+            };
+        documentObject[addEventListenerMethod]('keydown', function(event) {
+            if ((event.metaKey || event.ctrlKey) && event[keyCodeProperty] == 75) { event[preventDefaultMethod](); openCommandPalette(); return }
+            if (!commandPalette || commandPalette.hidden) return;
+            if (event[keyCodeProperty] == 27) { event[preventDefaultMethod](); closeCommandPalette(); return }
+            if (event[keyCodeProperty] == 40 || event[keyCodeProperty] == 38) {
+                event[preventDefaultMethod](); var buttons = commandPaletteList[querySelectorAllMethod]('button'); if (!buttons[lengthProperty]) return;
+                commandPaletteActiveIndex = (commandPaletteActiveIndex + (event[keyCodeProperty] == 40 ? 1 : buttons[lengthProperty] - 1)) % buttons[lengthProperty];
+                for (var buttonIndex = 0; buttonIndex < buttons[lengthProperty]; buttonIndex++) buttons[buttonIndex].setAttribute('aria-selected', buttonIndex == commandPaletteActiveIndex ? 'true' : 'false'); buttons[commandPaletteActiveIndex][focusEvent]()
+            } else if (event[keyCodeProperty] == 13 && documentObject[activeElementProperty] && documentObject[activeElementProperty].parentNode == commandPaletteList) { event[preventDefaultMethod](); documentObject[activeElementProperty][clickEvent]() }
+        });
+        documentObject[addEventListenerMethod](clickEvent, function(event) { if (commandPalette && !commandPalette.hidden && !commandPalette.contains(event.target)) closeCommandPalette() })
     })
 }());

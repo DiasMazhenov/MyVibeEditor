@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.36" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.36'" myvibehtml.php
+rg -q "MyVibeHTML v0\.37" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.37'" myvibehtml.php
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
 rg -q "fileManagerCreate|searchProject|renameFile" myvibehtml.js
@@ -46,6 +46,7 @@ rg -q "data-myvibehtml-markup-property|syncMarkupSource|HTML / ARIA" myvibehtml.
 rg -q "data-preview-controls|data-preview-size|myvibehtml-preview-size" myvibehtml.php myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "data-block-library|saveBlockPreset|insertBlockPreset|data-file-action=\"media\"|fileManagerMediaMode" myvibehtml.php myvibehtml.js
 rg -q "data-page-validate|validationDialogOpen|validation-clean" myvibehtml.php myvibehtml.js
+rg -q "myvibehtml-command-palette|openCommandPalette|commandPaletteCommands|data-command-palette" myvibehtml.js myvibehtml.php myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
 if rg -n 'checkForUpdates|handleUpdateResult|installUpdate|checkInstallation|SETTING_UPDATE|textolite' myvibehtml.php myvibehtml.js; then
     echo "regression: removed update/legacy alias code is still present" >&2
@@ -69,13 +70,13 @@ node --test tests/deobfuscation.test.js
 node --test tests/accessibility.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.36" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.36" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.36" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.37" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.37" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.37" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.36"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.37"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2
