@@ -20,6 +20,11 @@ test('Time Machine keeps one persistent timeline for visual and source drafts', 
 test('Reusable Components extend the existing local block library', () => {
     assert.match(editor, /type:'component'/);
     assert.match(editor, /updateBlockPreset = function/);
+    assert.match(editor, /componentLinkAttribute = 'data-myvibe-component-id'/);
+    assert.match(editor, /insertBlockPreset\(this\.blockIndex, true\)/);
+    assert.match(editor, /syncAllLinkedComponentInstances = function/);
+    assert.match(editor, /setAttributeMethod\]\('data-cu', '1'\)/);
+    assert.match(editor, /addEventListenerMethod\]\('storage'/);
     assert.match(editor, /data-block-library-list/);
     assert.match(editor, /Update component|Обновить компонент/);
     assert.match(editor, /sanitizeBlockMarkup\(blockTarget\[outerHTMLProperty\]\)/);

@@ -1,6 +1,6 @@
-# Архитектура v0.62
+# Архитектура v0.63
 
-v0.62 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.63 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -19,7 +19,7 @@ v0.62 сохраняет безопасные модульные границы 
 
 ## Reusable Components
 
-Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию после выбранного узла, а `updateBlockPreset()` обновляет запись текущим выделением. Серверный HTML и внешние библиотеки для этого не нужны.
+Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию или связанную копию с `data-myvibe-component-id`, а `updateBlockPreset()` обновляет запись текущим выделением. `syncLinkedComponentInstances()` обновляет связанные узлы текущей страницы, а `storage` event распространяет изменения в другие открытые редакторы того же origin. Изменение записывается в draft и требует явного сохранения каждой страницы; серверный HTML и внешние библиотеки для синхронизации не нужны.
 
 ## Design Tokens
 

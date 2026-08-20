@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.62 */
+/* MyVibeHTML v0.63 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -519,6 +519,7 @@
                         mediaPickerTarget = null,
                         blockLibraryPanel = null,
                         blockLibraryButton = null,
+                        componentLinkAttribute = 'data-myvibe-component-id',
                         sourceMapState = null,
                         structuralTagOptions = ['article', 'aside', 'blockquote', 'button', 'code', 'div', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'label', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'span', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'ul'],
                         structuralVoidTags = '|area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr|',
@@ -690,6 +691,89 @@
                             }
                             return blockMarkupRoot[innerHTMLProperty]
                         },
+                        reloadVisualDocument = function() {
+                            runtimeValue127.open();
+                            runtimeValue127.write(runtimeValue117(serializedSource));
+                            runtimeValue127.close();
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue115();
+                            runtimeValue75()
+                        },
+                        syncLinkedComponentInstances = function(componentId, componentHtml) {
+                            if (!componentId || !componentHtml) return false;
+                            var componentMarkup = sanitizeBlockMarkup(componentHtml),
+                                componentMarkupContainer = runtimeValue127[createElementMethod]('div');
+                            componentMarkupContainer[innerHTMLProperty] = componentMarkup;
+                            var componentNode = componentMarkupContainer[firstElementChildProperty];
+                            if (!componentNode) return false;
+                            componentNode[setAttributeMethod](componentLinkAttribute, componentId);
+                            var linkedNodes = runtimeValue127[querySelectorAllMethod]('[' + componentLinkAttribute + ']'),
+                                linkedReplacements = [];
+                            for (var linkedNodeIndex = 0; linkedNodeIndex < linkedNodes[lengthProperty]; linkedNodeIndex++) {
+                                var linkedNode = linkedNodes[linkedNodeIndex];
+                                if (linkedNode[getAttributeMethod](componentLinkAttribute) != componentId) continue;
+                                var linkedStart = runtimeValue93(linkedNode),
+                                    linkedEnd = runtimeValue94(linkedNode);
+                                if (typeof linkedStart == 'number' && typeof linkedEnd == 'number') linkedReplacements.push({node:linkedNode,start:linkedStart,end:linkedEnd,markup:componentNode[outerHTMLProperty]})
+                            }
+                            if (!linkedReplacements[lengthProperty]) return false;
+                            linkedReplacements.sort(function(leftReplacement, rightReplacement) { return rightReplacement.start - leftReplacement.start });
+                            for (var linkedReplacementIndex = 0; linkedReplacementIndex < linkedReplacements[lengthProperty]; linkedReplacementIndex++) {
+                                var linkedReplacement = linkedReplacements[linkedReplacementIndex];
+                                serializedSource = serializedSource[sliceMethod](0, linkedReplacement.start) + linkedReplacement.markup + serializedSource[sliceMethod](linkedReplacement.end)
+                            }
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            runtimeValue11[setAttributeMethod]('data-cu', '1');
+                            writeSourceDraft(serializedSource);
+                            runtimeValue4[disabledProperty] = false;
+                            reloadVisualDocument();
+                            return true
+                        },
+                        syncAllLinkedComponentInstances = function() {
+                            var blockLibraryItems = readBlockLibrary(),
+                                componentMarkupById = {},
+                                linkedNodes = runtimeValue127[querySelectorAllMethod]('[' + componentLinkAttribute + ']'),
+                                linkedReplacements = [];
+                            for (var blockLibraryIndex = 0; blockLibraryIndex < blockLibraryItems[lengthProperty]; blockLibraryIndex++) {
+                                if (blockLibraryItems[blockLibraryIndex].id && blockLibraryItems[blockLibraryIndex].html) componentMarkupById[blockLibraryItems[blockLibraryIndex].id] = sanitizeBlockMarkup(blockLibraryItems[blockLibraryIndex].html)
+                            }
+                            for (var linkedNodeIndex = 0; linkedNodeIndex < linkedNodes[lengthProperty]; linkedNodeIndex++) {
+                                var linkedNode = linkedNodes[linkedNodeIndex],
+                                    linkedComponentId = linkedNode[getAttributeMethod](componentLinkAttribute),
+                                    linkedMarkup = componentMarkupById[linkedComponentId],
+                                    linkedMarkupContainer = runtimeValue127[createElementMethod]('div'),
+                                    linkedChanged = false;
+                                if (linkedMarkup) {
+                                    linkedMarkupContainer[innerHTMLProperty] = linkedMarkup;
+                                    var linkedComponentNode = linkedMarkupContainer[firstElementChildProperty];
+                                    if (linkedComponentNode) {
+                                        linkedComponentNode[setAttributeMethod](componentLinkAttribute, linkedComponentId);
+                                        linkedMarkup = linkedComponentNode[outerHTMLProperty];
+                                        linkedChanged = linkedMarkup != linkedNode[outerHTMLProperty]
+                                    }
+                                } else {
+                                    linkedNode[removeAttributeMethod](componentLinkAttribute);
+                                    linkedMarkup = linkedNode[outerHTMLProperty];
+                                    linkedChanged = true
+                                }
+                                if (!linkedMarkup || !linkedChanged) continue;
+                                var linkedStart = runtimeValue93(linkedNode),
+                                    linkedEnd = runtimeValue94(linkedNode);
+                                if (typeof linkedStart == 'number' && typeof linkedEnd == 'number') linkedReplacements.push({start:linkedStart,end:linkedEnd,markup:linkedMarkup})
+                            }
+                            if (!linkedReplacements[lengthProperty]) return false;
+                            linkedReplacements.sort(function(leftReplacement, rightReplacement) { return rightReplacement.start - leftReplacement.start });
+                            for (var linkedReplacementIndex = 0; linkedReplacementIndex < linkedReplacements[lengthProperty]; linkedReplacementIndex++) {
+                                var linkedReplacement = linkedReplacements[linkedReplacementIndex];
+                                serializedSource = serializedSource[sliceMethod](0, linkedReplacement.start) + linkedReplacement.markup + serializedSource[sliceMethod](linkedReplacement.end)
+                            }
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            runtimeValue11[setAttributeMethod]('data-cu', '1');
+                            writeSourceDraft(serializedSource);
+                            runtimeValue4[disabledProperty] = false;
+                            reloadVisualDocument();
+                            return true
+                        },
                         createBlockLibrary = function() {
                             if (blockLibraryPanel) return blockLibraryPanel;
                             var blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '');
@@ -723,6 +807,7 @@
                                 var blockLibraryItem = documentObject[createElementMethod]('li'),
                                     blockLibraryName = documentObject[createElementMethod]('span'),
                                     blockLibraryInsert = documentObject[createElementMethod]('button'),
+                                    blockLibraryLinkedInsert = documentObject[createElementMethod]('button'),
                                     blockLibraryDelete = documentObject[createElementMethod]('button');
                                     blockLibraryName[textContentProperty] = blockLibraryItems[blockLibraryIndex].name;
                                     blockLibraryName[setAttributeMethod]('title', blockLibraryItems[blockLibraryIndex].type == 'component' ? (blockLibraryRussian ? 'Компонент' : 'Component') : '');
@@ -731,6 +816,14 @@
                                 blockLibraryInsert.blockIndex = blockLibraryIndex;
                                     blockLibraryInsert[addEventListenerMethod](clickEvent, function() {
                                         insertBlockPreset(this.blockIndex)
+                                    });
+                                    blockLibraryLinkedInsert.type = 'button';
+                                    blockLibraryLinkedInsert[textContentProperty] = blockLibraryRussian ? 'Связать' : 'Link';
+                                    blockLibraryLinkedInsert[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Вставить связанным компонентом' : 'Insert as linked component');
+                                    blockLibraryLinkedInsert[setAttributeMethod]('title', blockLibraryRussian ? 'Синхронизировать компонент между открытыми страницами' : 'Sync this component across open pages');
+                                    blockLibraryLinkedInsert.blockIndex = blockLibraryIndex;
+                                    blockLibraryLinkedInsert[addEventListenerMethod](clickEvent, function() {
+                                        insertBlockPreset(this.blockIndex, true)
                                     });
                                     var blockLibraryUpdate = documentObject[createElementMethod]('button');
                                     blockLibraryUpdate.type = 'button';
@@ -748,10 +841,12 @@
                                     var blockLibraryItemsToDelete = readBlockLibrary();
                                     blockLibraryItemsToDelete.splice(this.blockIndex, 1);
                                     writeBlockLibrary(blockLibraryItemsToDelete);
+                                    syncAllLinkedComponentInstances();
                                     renderBlockLibrary()
                                 });
                                 blockLibraryItem[appendChildMethod](blockLibraryName);
                                 blockLibraryItem[appendChildMethod](blockLibraryInsert);
+                                blockLibraryItem[appendChildMethod](blockLibraryLinkedInsert);
                                 blockLibraryItem[appendChildMethod](blockLibraryUpdate);
                                 blockLibraryItem[appendChildMethod](blockLibraryDelete);
                                 blockLibraryList[appendChildMethod](blockLibraryItem)
@@ -789,9 +884,10 @@
                             blockPreset.type = 'component';
                             blockPreset.updated = Date.now();
                             writeBlockLibrary(blockLibraryItems.slice(0, 24));
+                            syncLinkedComponentInstances(blockPreset.id, blockPreset.html);
                             openBlockLibrary()
                         },
-                        insertBlockPreset = function(blockIndex) {
+                        insertBlockPreset = function(blockIndex, linked) {
                             var blockLibraryItems = readBlockLibrary(),
                                 blockPreset = blockLibraryItems[blockIndex],
                                 blockTarget = runtimeValue127[querySelectorMethod]('[' + focusAttribute + ']') || contextTarget;
@@ -803,6 +899,7 @@
                                 blockStart = runtimeValue93(blockTarget),
                                 blockEnd = runtimeValue94(blockTarget);
                             if (!blockNode || typeof blockStart != 'number' || typeof blockEnd != 'number') return;
+                            if (linked) blockNode[setAttributeMethod](componentLinkAttribute, blockPreset.id);
                             var blockSerialized = blockNode[outerHTMLProperty];
                             blockTarget[parentNodeProperty][insertBeforeMethod](blockNode, blockTarget[nextElementSiblingProperty]);
                             serializedSource = serializedSource[sliceMethod](0, blockEnd) + blockSerialized + serializedSource[sliceMethod](blockEnd);
@@ -3258,7 +3355,13 @@
                     runtimeValue127.close();
                     if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
                     windowObject[addEventListenerMethod]('load', function() {
-                        runtimeValue115()
+                        runtimeValue115();
+                        syncAllLinkedComponentInstances()
+                    });
+                    windowObject[addEventListenerMethod]('storage', function(event) {
+                        if (event.key != productPrefix + ':blocks') return;
+                        syncAllLinkedComponentInstances();
+                        if (blockLibraryPanel && !blockLibraryPanel.hidden) renderBlockLibrary()
                     });
                     runtimeValue4[addEventListenerMethod](clickEvent, function() {
                         if (!runtimeValue4[disabledProperty]) {

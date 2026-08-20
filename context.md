@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.63
+
+- Существующая локальная библиотека компонентов получила кнопку `Связать`: вставка остаётся отдельной копией по умолчанию, а связанная копия получает безопасный `data-myvibe-component-id`.
+- `syncLinkedComponentInstances()` обновляет связанные экземпляры через source-map и перезагружает только содержимое editor iframe; `storage` event синхронизирует изменения между открытыми страницами одного origin.
+- Синхронизация записывает локальный draft и включает явное сохранение, но не выполняет скрытый серверный save. При удалении записи orphan-маркер снимается и экземпляр становится обычным HTML.
+- Обновлены README, architecture, accessibility, browser acceptance, CHANGELOG, CI и regression version markers до `0.63`; добавлены contract assertions для marker, linked insertion, storage event и dirty state.
+- Пройдены node/PHP syntax, 15 unit/module/feature/accessibility/source-map/UI contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8080` — PASS. `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.63` открыт во встроенном браузере; программных click/screenshot-команд API нет, поэтому ручной сценарий двух вкладок ещё не объявляется визуально принятым.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.62
 
 - Responsive Preview Studio сохраняет выбранный профиль (`desktop`, `tablet`, `tablet-landscape`, `mobile`, `mobile-landscape`) в localStorage по нормализованному пути текущего файла; параметр `rev` исключён из ключа.
