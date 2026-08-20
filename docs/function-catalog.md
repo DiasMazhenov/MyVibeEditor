@@ -1,6 +1,6 @@
 # Каталог функций MyVibeHTML
 
-Это каталог runtime-функций после деобфускации v0.22. Имена `callbackValue...` в JavaScript — технические локальные ссылки старого IIFE; ниже они описаны по назначению, чтобы документация не зависела от номеров локальных переменных.
+Это каталог runtime-функций после семантической чистки v0.28. Внешние и security-критичные роли имеют предметные имена; удалённые update/install/activate-заглушки и compatibility aliases больше не входят в runtime.
 
 ## PHP: вход, ответ и конфигурация
 
@@ -16,7 +16,7 @@
 
 `__construct()` снимает копии `GET`, `POST`, `SERVER`, `COOKIE`, `FILES`. `getQuery()`, `getPost()`, `getServer()`, `getCookie()` и `getFile()` возвращают нормализованные значения из соответствующего источника. `filter()` выбирает обработчик по явной карте ключей, поэтому после деобфускации сохраняется обработка `DOCUMENT_ROOT`, `SCRIPT_FILENAME`, `PHP_SELF`, `SCRIPT_NAME` и IP.
 
-Фильтры `filterServerProtocol()`, `filterServerName()`, `filterScriptFilename()`, `filterDocumentRoot()`, `filterPhpSelf()`, `filterScriptName()`, `filterQueryString()`, `filterRemoteAddress()`, `filterServerAddress()`, `filterIpAddress()` и `filterSha1()` ограничивают формат соответствующих значений.
+Фильтры `filterServerProtocol()`, `filterServerName()`, `filterScriptFilename()`, `filterDocumentRoot()`, `filterPhpSelf()`, `filterScriptName()`, `filterQueryString()`, `filterRemoteAddress()`, `filterServerAddress()` и `filterIpAddress()` ограничивают формат соответствующих значений.
 
 ### `MyVibeHTMLResponse`
 
@@ -48,7 +48,7 @@
 
 CSS-инспектор используют `createStyleInspector()` и `renderStyleInspector()` для построения панели и заполнения inline/computed-значений. `applyStyleProperty()` валидирует allowlist CSS-свойств, применяет значение к live-узлу и вызывает `syncStyleSource()` для обновления исходного HTML. `getStyleSourceRange()` сначала использует `MyVibeHTMLSourceMap`, а затем fallback вычисления границ реального opening/closing tag, включая служебную текстовую обёртку `<edit>`. `resetStyleInspector()` удаляет inline-стиль с восстановлением источника. `closeStyleInspector()` закрывает панель по кнопке или Escape; `isValidStyleValue()` отклоняет опасные конструкции, внешние URL и неподдерживаемые значения.
 
-Существующие обработчики toolbar переиспользуются контекстным меню: clone (`callbackValue89`), move up (`callbackValue90`), move down (`callbackValue91`) и delete (`callbackValue92`). Это сохраняет одну бизнес-логику для нижней панели и правой кнопки мыши.
+Существующие обработчики toolbar переиспользуются контекстным меню для clone, move up, move down и delete. Это сохраняет одну бизнес-логику для нижней панели и правой кнопки мыши.
 
 `replaceFileListFragment()` принимает server response через `DOMParser`, удаляет неразрешённые теги/атрибуты и вставляет `DocumentFragment`. `openDirectory()`, `expandDirectory()` и обработчики file entry обновляют файловый список. `uploadFile()`, `deleteFile()`, `replaceFile()`, `recoverFile()` выполняют операции над файлами.
 
@@ -78,8 +78,8 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 CSS-инспектор: `createStyleInspector`, `closeStyleInspector`, `getStyleSourceRange`, `syncStyleSource`, `isValidStyleValue`, `applyStyleProperty`, `renderStyleInspector`, `resetStyleInspector`.
 
-Структура/drag-and-drop: `clone`, `move up`, `move down`, `delete` реализованы существующими toolbar callbacks `callbackValue89`, `callbackValue90`, `callbackValue91`, `callbackValue92`; вспомогательные роли — `callbackValue93`–`callbackValue125` для вычисления границ, сериализации, drag/drop и script/style режима.
+Структура/drag-and-drop: `clone`, `move up`, `move down`, `delete` реализованы существующими toolbar callbacks; вспомогательные локальные роли получили имена `runtimeValueN`/`visualEditorValueN` и отвечают за вычисление границ, сериализацию, drag/drop и script/style режим.
 
 Файлы: `openDirectory`, `collapseDirectory`, `expandDirectory`, `revealCurrentPath`, `initializeFileEntry`, `replaceFileListFragment`, `uploadFile`, `queueUploads`, `processUploadQueue`, `deleteFile`, `recoverBackup`, `renderFileSize`, `renderFileDate`.
 
-Настройки/система: `setMenuState`, `toggleSettingsSection`, `blurSettingsControls`, `hashSettingsPassword`, `submitSettings`, `applySavedSettings`, `restoreSettingsUi`, `restoreSettingsDefaults`, `initializeSettings`, `logout`, `checkForUpdates`, `handleUpdateResult`, `installUpdate`, `checkInstallation`. Последние четыре роли сохранены как локальные совместимые no-op/локальные проверки: удалённые update/install/activate endpoints в них не вызываются.
+Настройки/система: `setMenuState`, `toggleSettingsSection`, `blurSettingsControls`, `submitSettings`, `applySavedSettings`, `restoreSettingsUi`, `restoreSettingsDefaults`, `initializeSettings`, `logout`.

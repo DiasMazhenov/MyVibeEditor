@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.28
+
+- Завершена механическая часть семантической деобфускации: PHP generated-переменные `...ValueN` переименованы по области действия, JavaScript `callbackValueN`/`callbackArgumentN` — в `runtimeValueN`/`runtimeInputN`, а локальные группы редактора — в `visualEditorValueN`, `settingsValueN` и `submitValueN`. Числовой суффикс сохранён только для различения однотипных локальных значений.
+- Удалены мёртвые update/install/activate-заглушки, вызов `checkForUpdates`, настройки `update_final`/`update_beta` и их переводы. Внешний update flow не возвращён.
+- Удалены устаревшие локальные compatibility aliases `textolite.php`, `textolite.js`, `textolite.css`; канонические runtime-файлы — `myvibehtml.php`, `myvibehtml.js`, CSS и source-map assets.
+- Добавлены `docs/deobfuscation.md` и `tests/deobfuscation.test.js`; regression/security checks синхронизированы с новыми именами и версией `0.28`.
+- Версия runtime/cache-busting поднята до `0.28`. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне коммита.
+- Проверки v0.28: `php -l myvibehtml.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `node --test tests/source-map.test.js`, `node --test tests/deobfuscation.test.js`, `sh security-smoke.sh`, `git diff --check`, `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS. HTTP подтверждён; отдельная визуальная screenshot-проверка в текущем окружении недоступна.
+- Следующий functional номер — `0.29`: модульные границы, CI и authenticated E2E.
+
 ## Состояние ревью
 
 - Дата: 2026-08-19, Asia/Almaty.

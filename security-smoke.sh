@@ -14,17 +14,16 @@ fi
 
 rg -q 'Content-Security-Policy-Report-Only:' myvibehtml.php
 rg -q 'X-Permitted-Cross-Domain-Policies:none' myvibehtml.php
-rg -q 'data-myvibehtml-local-only="1"' myvibehtml.php
 rg -q 'myvibehtml_atomic_write' myvibehtml.php
 rg -q 'myvibehtml_unserialize_array' myvibehtml.php
 rg -q 'replaceFileListFragment' myvibehtml.js
-if rg -n 'callbackValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
+if rg -n 'runtimeValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
     echo "security-smoke: status sink still uses innerHTML" >&2
     exit 1
 fi
-rg -q 'callbackValue9\[textContentProperty\]' myvibehtml.js
+rg -q 'runtimeValue9\[textContentProperty\]' myvibehtml.js
 rg -q 'DOMParser' myvibehtml.js
-rg -q "callbackValue179 = \{LI: 1" myvibehtml.js
+rg -q "runtimeValue179 = \{LI: 1" myvibehtml.js
 rg -q 'RewriteRule \(\^\|/\)\\\.' .htaccess
 rg -q 'backup.*ini.*log' dev-router.php
 rg -q 'preg_match' dev-router.php

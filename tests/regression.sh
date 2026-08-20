@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.27" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.27'" myvibehtml.php
+rg -q "MyVibeHTML v0\.28" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.28'" myvibehtml.php
 rg -q 'MyVibeHTMLSourceMap|restoreBackupDirectory' myvibehtml.php myvibehtml.js myvibehtml-source-map.js
 rg -q 'password_hash|password_verify|random_bytes|hash_equals' myvibehtml.php
 rg -q 'function commit|encodeIniValue|config-state.lock|restoreBackupDirectory' myvibehtml.php
@@ -35,9 +35,13 @@ rg -Fq "return \$this->state['f'] ? \$this->state['f'] . 'backup/' : false" myvi
 rg -q "location ~\* /backup" nginx.conf.example
 rg -q "myvibehtml-style-inspector" myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
+if rg -n 'checkForUpdates|handleUpdateResult|installUpdate|checkInstallation|SETTING_UPDATE|textolite' myvibehtml.php myvibehtml.js; then
+    echo "regression: removed update/legacy alias code is still present" >&2
+    exit 1
+fi
 rg -q "position:fixed;right:0;bottom:0;left:0" myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "documentObject\.body\[appendChildMethod\]\(styleInspector\)" myvibehtml.js
-rg -q "initializeVisualEditorValue45 - 1" myvibehtml.js
+rg -q "visualEditorValue45 - 1" myvibehtml.js
 rg -q "REQUEST_DOCUMENT_ROOT => 'filterDocumentRoot'" myvibehtml.php
 if rg -n 'callbackValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
     echo "regression: unsafe status sink found" >&2
@@ -45,19 +49,19 @@ if rg -n 'callbackValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
 fi
 
 php -l myvibehtml.php >/dev/null
-php -l textolite.php >/dev/null
 php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 node --test tests/source-map.test.js
+node --test tests/deobfuscation.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.27" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.27" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.27" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.28" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.28" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.28" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.27"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.28"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2
