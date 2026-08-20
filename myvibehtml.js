@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.32 */
+/* MyVibeHTML v0.33 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -687,6 +687,7 @@
                         styleInspector = null,
                         styleInspectorTarget = null,
                         styleInspectorFields = null,
+                        markupInspectorFields = null,
                         styleInspectorError = null,
                         mediaPicker = null,
                         mediaPickerTarget = null,
@@ -898,6 +899,29 @@
                                     visualEditorValue12[appendChildMethod](visualEditorValue14);
                                     return visualEditorValue12
                                 },
+                                visualEditorMarkupField = function(markupLabel, markupProperty, markupOptions, markupDisabled) {
+                                    var markupFieldLabel = documentObject[createElementMethod]('label'),
+                                        markupFieldCaption = documentObject[createElementMethod]('span'),
+                                        markupFieldInput = documentObject[createElementMethod](markupOptions ? 'select' : 'input');
+                                    markupFieldCaption[textContentProperty] = markupLabel;
+                                    markupFieldInput[setAttributeMethod]('data-myvibehtml-markup-property', markupProperty);
+                                    markupFieldInput[setAttributeMethod]('aria-label', markupLabel);
+                                    markupFieldInput[classNameProperty] = 'myvibehtml-style-field';
+                                    if (markupDisabled) markupFieldInput[disabledProperty] = true;
+                                    if (markupOptions) for (var markupOptionIndex = 0; markupOptionIndex < markupOptions[lengthProperty]; markupOptionIndex++) {
+                                        var markupOption = documentObject[createElementMethod]('option');
+                                        markupOption.value = markupOptions[markupOptionIndex];
+                                        markupOption[textContentProperty] = markupOptions[markupOptionIndex] || '—';
+                                        markupFieldInput[appendChildMethod](markupOption)
+                                    } else {
+                                        markupFieldInput.type = 'text';
+                                        markupFieldInput[setAttributeMethod]('spellcheck', 'false')
+                                    }
+                                    if (!markupDisabled) markupFieldInput[addEventListenerMethod](markupOptions ? 'change' : inputEvent, applyMarkupProperty);
+                                    markupFieldLabel[appendChildMethod](markupFieldCaption);
+                                    markupFieldLabel[appendChildMethod](markupFieldInput);
+                                    return markupFieldLabel
+                                },
                                 visualEditorValue18 = [
                                     {title: visualEditorValue10.layout, fields: [
                                         {property: 'display', label: visualEditorValue10.display, options: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none']},
@@ -921,7 +945,16 @@
                                         {property: 'border-radius', label: visualEditorValue10.borderRadius}
                                     ]}
                                 ];
-                            styleInspector = documentObject[createElementMethod]('aside');
+                                visualEditorMarkupFields = [
+                                    {property: 'tagName', label: visualEditorValue9 ? 'Тег' : 'Tag', disabled: true},
+                                    {property: 'id', label: visualEditorValue9 ? 'ID' : 'ID'},
+                                    {property: 'class', label: visualEditorValue9 ? 'Классы' : 'Classes'},
+                                    {property: 'role', label: 'ARIA role'},
+                                    {property: 'aria-label', label: 'ARIA label'},
+                                    {property: 'aria-hidden', label: 'ARIA hidden', options: ['', 'true', 'false']},
+                                    {property: 'title', label: visualEditorValue9 ? 'Подсказка' : 'Title'}
+                                ],
+                                styleInspector = documentObject[createElementMethod]('aside');
                             styleInspector.id = 'myvibehtml-style-inspector';
                             styleInspector[setAttributeMethod]('role', 'dialog');
                             styleInspector[setAttributeMethod]('aria-modal', 'false');
@@ -948,6 +981,14 @@
                             visualEditorValue23[textContentProperty] = visualEditorValue10.hint;
                             visualEditorValue24[classNameProperty] = 'myvibehtml-style-inspector-target';
                             visualEditorValue24[setAttributeMethod]('data-myvibehtml-style-target', '');
+                            var markupInspectorFieldset = documentObject[createElementMethod]('fieldset'),
+                                markupInspectorLegend = documentObject[createElementMethod]('legend'),
+                                markupInspectorGrid = documentObject[createElementMethod]('div');
+                            markupInspectorLegend[textContentProperty] = visualEditorValue9 ? 'HTML / ARIA' : 'HTML / ARIA';
+                            markupInspectorGrid[classNameProperty] = 'myvibehtml-style-grid myvibehtml-markup-grid';
+                            for (var markupInspectorIndex = 0; markupInspectorIndex < visualEditorMarkupFields[lengthProperty]; markupInspectorIndex++) markupInspectorGrid[appendChildMethod](visualEditorMarkupField(visualEditorMarkupFields[markupInspectorIndex].label, visualEditorMarkupFields[markupInspectorIndex].property, visualEditorMarkupFields[markupInspectorIndex].options, visualEditorMarkupFields[markupInspectorIndex].disabled));
+                            markupInspectorFieldset[appendChildMethod](markupInspectorLegend);
+                            markupInspectorFieldset[appendChildMethod](markupInspectorGrid);
                             visualEditorValue25[setAttributeMethod]('novalidate', 'novalidate');
                             for (var visualEditorValue28 = 0, visualEditorValue29 = visualEditorValue18[lengthProperty]; visualEditorValue28 < visualEditorValue29; visualEditorValue28++) {
                                 var visualEditorValue30 = documentObject[createElementMethod]('fieldset'),
@@ -975,8 +1016,10 @@
                             styleInspector[appendChildMethod](visualEditorValue19);
                             styleInspector[appendChildMethod](visualEditorValue23);
                             styleInspector[appendChildMethod](visualEditorValue24);
+                            styleInspector[appendChildMethod](markupInspectorFieldset);
                             styleInspector[appendChildMethod](visualEditorValue25);
                             styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
+                            markupInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-markup-property]');
                             styleInspector[appendChildMethod](styleInspectorError);
                             visualEditorValue26[appendChildMethod](visualEditorValue27);
                             styleInspector[appendChildMethod](visualEditorValue26);
@@ -1049,6 +1092,28 @@
                             runtimeValue4[disabledProperty] = false;
                             return true
                         },
+                        escapeMarkupAttribute = function(markupValue) {
+                            return String(markupValue)[splitMethod]('&')[joinMethod]('&amp;')[splitMethod]('"')[joinMethod]('&quot;')[splitMethod]('<')[joinMethod]('&lt;')[splitMethod]('>')[joinMethod]('&gt;')
+                        },
+                        syncMarkupSource = function(markupTarget, markupStart, markupEnd, markupProperty, markupValue) {
+                            var markupSource = serializedSource[sliceMethod](markupStart, markupEnd),
+                                markupOpeningEnd = findOpeningTagEnd(markupSource);
+                            if (markupOpeningEnd < 0) return false;
+                            var markupOpening = markupSource[sliceMethod](0, markupOpeningEnd),
+                                markupAttributePattern = new RegExp('(?:\\s|^)' + markupProperty[replaceMethod](/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\s*=\\s*(?:"[^"]*"|\\x27[^\\x27]*\\x27|[^\\s>]+)', 'i'),
+                                markupAttributeValue = markupValue ? ' ' + markupProperty + '="' + escapeMarkupAttribute(markupValue) + '"' : '';
+                            if (markupAttributePattern.test(markupOpening)) markupOpening = markupOpening[replaceMethod](markupAttributePattern, markupAttributeValue);
+                            else if (markupAttributeValue) {
+                                var markupInsertAt = markupOpening[lengthProperty] - 1;
+                                if (markupOpening[markupInsertAt - 1] == '/') markupInsertAt--;
+                                markupOpening = markupOpening[sliceMethod](0, markupInsertAt) + markupAttributeValue + markupOpening[sliceMethod](markupInsertAt)
+                            }
+                            serializedSource = serializedSource[sliceMethod](0, markupStart) + markupOpening + markupSource[sliceMethod](markupOpeningEnd) + serializedSource[sliceMethod](markupEnd);
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            runtimeValue4[disabledProperty] = false;
+                            return true
+                        },
                         isValidStyleValue = function(initializeVisualEditorArgument9, initializeVisualEditorArgument10) {
                             if (!initializeVisualEditorArgument10) return '';
                             if (initializeVisualEditorArgument10[lengthProperty] > 180 || /[{}<>;]/.test(initializeVisualEditorArgument10) || /(?:javascript|expression|url)\s*\(/i.test(initializeVisualEditorArgument10)) return null;
@@ -1083,6 +1148,23 @@
                             this[removeAttributeMethod]('aria-invalid');
                             styleInspectorError.hidden = true
                         },
+                        applyMarkupProperty = function() {
+                            if (!styleInspectorTarget) return;
+                            var markupProperty = this[getAttributeMethod]('data-myvibehtml-markup-property'),
+                                markupValue = this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''),
+                                markupRange = getStyleSourceRange(styleInspectorTarget),
+                                markupHadAttribute = styleInspectorTarget.hasAttribute(markupProperty),
+                                markupPreviousValue = styleInspectorTarget[getAttributeMethod](markupProperty);
+                            if (markupValue) styleInspectorTarget[setAttributeMethod](markupProperty, markupValue); else styleInspectorTarget[removeAttributeMethod](markupProperty);
+                            if (!markupRange || !syncMarkupSource(styleInspectorTarget, markupRange[0], markupRange[1], markupProperty, markupValue)) {
+                                if (markupHadAttribute) styleInspectorTarget[setAttributeMethod](markupProperty, markupPreviousValue); else styleInspectorTarget[removeAttributeMethod](markupProperty);
+                                this[setAttributeMethod]('aria-invalid', 'true');
+                                styleInspectorError.hidden = false;
+                                return
+                            }
+                            this[removeAttributeMethod]('aria-invalid');
+                            styleInspectorError.hidden = true
+                        },
                         renderStyleInspector = function(initializeVisualEditorArgument11) {
                             if (!initializeVisualEditorArgument11 || initializeVisualEditorArgument11 == runtimeValue127.body) return;
                             createStyleInspector();
@@ -1108,6 +1190,12 @@
                                 }
                                 visualEditorValue59[valueProperty] = visualEditorValue61;
                                 visualEditorValue59[removeAttributeMethod]('aria-invalid')
+                            }
+                            for (var markupInspectorValueIndex = 0, markupInspectorValueLength = markupInspectorFields[lengthProperty]; markupInspectorValueIndex < markupInspectorValueLength; markupInspectorValueIndex++) {
+                                var markupInspectorField = markupInspectorFields[markupInspectorValueIndex],
+                                    markupInspectorProperty = markupInspectorField[getAttributeMethod]('data-myvibehtml-markup-property');
+                                markupInspectorField[valueProperty] = markupInspectorProperty == 'tagName' ? visualEditorValue54 : initializeVisualEditorArgument11[getAttributeMethod](markupInspectorProperty) || '';
+                                markupInspectorField[removeAttributeMethod]('aria-invalid')
                             }
                             styleInspectorError.hidden = true;
                             styleInspector.hidden = false;
@@ -1145,7 +1233,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';
@@ -1156,7 +1244,7 @@
                                 visualEditorValue16.handler = visualEditorValue13[visualEditorValue14][2];
                                 visualEditorValue16[textContentProperty] = visualEditorValue13[visualEditorValue14][1];
                                 visualEditorValue16[addEventListenerMethod](clickEvent, function() {
-                                    if (this.action == 'style') {
+                                    if (this.action == 'style' || this.action == 'markup') {
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
                                         selectContextNode(visualEditorValue17, 'element');
                                         renderStyleInspector(visualEditorValue17);

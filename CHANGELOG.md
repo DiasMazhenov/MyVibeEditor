@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.33
+
+- расширен инспектор выделенного элемента: добавлены текущие `tag`, `id`, `class`, `role`, `aria-label`, `aria-hidden` и `title`;
+- изменения HTML/ARIA-атрибутов синхронизируются с исходником через source map и безопасное экранирование;
+- контекстное меню получило действие `HTML / ARIA`; desktop-инспектор остаётся нижней горизонтальной панелью.
+
 ## 0.32
 
 - added file-manager create file/folder, rename and project search with path/name validation;

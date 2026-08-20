@@ -682,3 +682,12 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - README/CHANGELOG/function catalog map обновлены до `0.32`; runtime/cache-busting markers синхронизированы. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в релиз.
 - Проверки v0.32: PHP/JS lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check`, HTTP regression против изолированного `127.0.0.1:8096` — PASS. HTTP regression на стандартном `127.0.0.1:8080` не запускался из-за отсутствия слушающего сервера; графический browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance не заявляется.
 - Следующий функциональный номер — `0.33`: расширенный HTML/CSS/ARIA-инспектор.
+
+## Текущее исправление v0.33
+
+- Инспектор выделенного узла расширен HTML/ARIA-полями: `tag`, `id`, `class`, `role`, `aria-label`, `aria-hidden` и `title`. При открытии поля заполняются текущими значениями DOM, включая вычисленные CSS-значения существующего инспектора.
+- Изменение HTML/ARIA-атрибута применяется live к выбранному узлу и синхронизируется в opening tag исходника через текущую source map; значения экранируются, пустое значение удаляет атрибут, а ошибка откатывает DOM-изменение.
+- В контекстное меню добавлено действие `HTML / ARIA`. Новых внешних библиотек и runtime-доменов не добавлялось; graphite/teal тема и существующая геометрия нижней desktop-панели сохранены.
+- Версия синхронно поднята до `0.33` в PHP, JS, runtime/source-map, fallback, README и HTTP regression.
+- Проверки v0.33: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Следующий функциональный номер — `0.34`: адаптивный preview.
