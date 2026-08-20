@@ -1,6 +1,6 @@
-# Архитектура v0.53
+# Архитектура v0.54
 
-v0.53 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит shell-контролы и transport-примитивы в отдельные модули:
+v0.54 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.54
+
+- версия отображается рядом с названием MyVibeHTML на странице авторизации и в мобильной шапке редактора;
+- сохранены единые version markers и cache-busting URLs для всех runtime-модулей.
+
 ## 0.53
 
 - восстановлены animation primitives после extraction transport-модуля, чтобы auth и панели не падали на `fadeIn()`;

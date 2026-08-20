@@ -1,5 +1,12 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.54
+
+- Версия отображается рядом с названием MyVibeHTML на странице авторизации и не скрывается в мобильной шапке редактора.
+- Версия синхронно поднята до `0.54` в PHP, JS-модулях, CSS, README, CHANGELOG, документации и HTTP regression.
+- Перед коммитом нужно открыть `?q=myvibe/test-page.html&rev=0.54` во встроенном браузере и проверить auth/mobile визуально; API окна не предоставляет программных click/screenshot-команд.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.53
 
 - Исправлен блокер авторизации: при v0.52 extraction transport-модуля случайно удалились `animateValue`, `fadeIn`, `fadeOut`, `slideDown`, `slideUp`, `showPanel`, `hidePanel`; из-за отсутствующего `fadeIn()` flow останавливался на «Создание хеша» до AJAX.

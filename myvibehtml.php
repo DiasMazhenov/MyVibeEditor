@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.53 */
+<?php /* MyVibeHTML v0.54 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -373,7 +373,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['a'] = str_replace(
             '<body><fieldset><legend>{auth}</legend>',
-            '<body><div class="myvibehtml-auth-brand"><div class="myvibehtml-auth-mark" aria-hidden="true"><span class="myvibehtml-local-icon myvibehtml-icon-code"></span></div><div><strong>MyVibeHTML</strong><span>{auth_intro}</span></div></div><fieldset class="myvibehtml-auth-card"><legend id="myvibehtml-auth-title">{auth}</legend>',
+            '<body><div class="myvibehtml-auth-brand"><div class="myvibehtml-auth-mark" aria-hidden="true"><span class="myvibehtml-local-icon myvibehtml-icon-code"></span></div><div><strong>MyVibeHTML <em>v{version}</em></strong><span>{auth_intro}</span></div></div><fieldset class="myvibehtml-auth-card"><legend id="myvibehtml-auth-title">{auth}</legend>',
             $this->templates['a']
         );
         $this->templates['a'] = str_replace(
@@ -594,7 +594,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.53';
+    const VERSION = '0.54';
     private $config;
     private $request;
     private $response;
