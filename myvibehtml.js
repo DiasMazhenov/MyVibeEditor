@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.37 */
+/* MyVibeHTML v0.38 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -3667,7 +3667,8 @@
                 fileManagerSearchInput = runtimeValue164[querySelectorMethod]('[data-file-search]'),
                 fileManagerSearchResults = runtimeValue164[querySelectorMethod]('[data-file-search-results]'),
                 fileManagerSearchTimer = false,
-                fileManagerMediaMode = false;
+                fileManagerMediaMode = false,
+                fileManagerContentMode = false;
             if (locationObject.pathname == runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl') && locationObject[searchMethod][indexOfMethod]('?q=') === 0) {
                 runtimeValue169 = runtimeValue168 + locationObject[searchMethod][sliceMethod](3);
                 runtimeValue170 = locationObject[searchMethod]
@@ -3710,7 +3711,7 @@
                 replaceFileListFragment = function(runtimeInput54, runtimeInput55) {
                     var runtimeValue177 = new DOMParser().parseFromString(runtimeInput54, 'text/html'),
                         runtimeValue178 = documentObject.createDocumentFragment(),
-                        runtimeValue179 = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1, SPAN: 1},
+                        runtimeValue179 = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1, SPAN: 1, CODE: 1},
                         runtimeValue180 = {CLASS: 1, 'DATA-CY': 1, 'DATA-CZ': 1, TITLE: 1, ROLE: 1, TABINDEX: 1, 'ARIA-LABEL': 1, TYPE: 1, NAME: 1, VALUE: 1, CHECKED: 1},
                         runtimeValue181 = function(replaceFileListFragmentArgument1) {
                             if (replaceFileListFragmentArgument1.nodeType != 1) return true;
@@ -3767,7 +3768,7 @@
                         return
                     }
                     fileManagerSearchTimer = windowObject[setTimeoutMethod](function() {
-                        fileManagerSubmit('search=' + windowObject[encodeURIComponentMethod](fileManagerSearchTerm), function(fileManagerSearchResponse) {
+                        fileManagerSubmit((fileManagerContentMode ? 'content_search=' : 'search=') + windowObject[encodeURIComponentMethod](fileManagerSearchTerm), function(fileManagerSearchResponse) {
                             replaceFileListFragment(fileManagerSearchResponse, fileManagerSearchResults);
                             fileManagerSearchResults[hiddenValue] = false;
                             var fileManagerSearchLinks = fileManagerSearchResults[querySelectorAllMethod]('a');
@@ -4129,18 +4130,38 @@
                     runtimeValue220[addEventListenerMethod](clickEvent, runtimeValue223)
                 };
             if (fileManagerSearchInput) fileManagerSearchInput[addEventListenerMethod](inputEvent, function() {
-                fileManagerMediaMode = false;
+                if (!fileManagerContentMode) {
+                    fileManagerMediaMode = false;
+                    if (fileManagerMediaButton) fileManagerMediaButton.setAttribute('aria-pressed', 'false')
+                }
                 searchProject()
             });
             var fileManagerCreateFileButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-file"]'),
                 fileManagerCreateFolderButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-folder"]'),
-                fileManagerMediaButton = runtimeValue164[querySelectorMethod]('[data-file-action="media"]');
+                fileManagerMediaButton = runtimeValue164[querySelectorMethod]('[data-file-action="media"]'),
+                fileManagerContentButton = runtimeValue164[querySelectorMethod]('[data-file-action="content"]');
             if (fileManagerCreateFileButton) fileManagerCreateFileButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_file') });
             if (fileManagerCreateFolderButton) fileManagerCreateFolderButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_folder') });
             if (fileManagerMediaButton) fileManagerMediaButton[addEventListenerMethod](clickEvent, function() {
+                fileManagerContentMode = false;
                 fileManagerMediaMode = true;
+                fileManagerMediaButton.setAttribute('aria-pressed', 'true');
+                if (fileManagerContentButton) fileManagerContentButton.setAttribute('aria-pressed', 'false');
                 if (fileManagerSearchInput) fileManagerSearchInput[valueProperty] = '.';
                 searchProject()
+            });
+            if (fileManagerContentButton) fileManagerContentButton[addEventListenerMethod](clickEvent, function() {
+                fileManagerContentMode = !fileManagerContentMode;
+                fileManagerMediaMode = false;
+                fileManagerContentButton.setAttribute('aria-pressed', fileManagerContentMode ? 'true' : 'false');
+                if (fileManagerMediaButton) fileManagerMediaButton.setAttribute('aria-pressed', 'false');
+                if (fileManagerSearchInput) {
+                    fileManagerSearchInput[valueProperty] = '';
+                    fileManagerSearchInput.placeholder = fileManagerContentMode ? fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'content-prompt') : fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'search-prompt');
+                    fileManagerSearchInput[focusEvent]()
+                }
+                fileManagerSearchResults[hiddenValue] = true;
+                fileManagerSearchResults[textContentProperty] = ''
             });
             initializeFileEntry(runtimeValue167);
             runtimeValue166[addEventListenerMethod](mouseDownEvent, function() {

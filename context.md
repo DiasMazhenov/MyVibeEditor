@@ -724,3 +724,13 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.37` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись.
 - Проверки v0.37: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS; HTTP regression повторен после локализации служебных строк command palette. Browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance отдельно не заявляется.
 - Функциональный roadmap v0.31–v0.37 реализован; дальнейшие изменения — отдельный backlog.
+
+## Текущее исправление v0.38
+
+- В файловом менеджере добавлен отдельный режим `В содержимом`: запрос отправляется на `content_search`, а существующий поиск имён файлов не изменён.
+- Серверный `collectContentSearch()` обходит только корень сайта без symlink и скрытых файлов, ограничивает глубину 32, размер файла 2 MiB и количество совпадений 100, отдельно отклоняет ошибку `filesize()`, пропускает бинарное содержимое и разрешает только настроенные расширения.
+- `renderContentSearchResults()` возвращает экранированные ссылки, номер строки и обрезаемый текстовый контекст. Результаты открываются штатным read-only переходом к файлу; операция поиска ничего не изменяет.
+- Клиентский DOM allowlist расширен только тегом `CODE`; режимы поиска/медиа имеют `aria-pressed`, а инструменты файловой панели переносятся на узких разрешениях.
+- Версия синхронно поднята до `0.38` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки и доменные запросы не добавлялись.
+- Проверки v0.38: `node --check myvibehtml.js`, PHP lint для `myvibehtml.php`/runtime/router, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Следующий функциональный номер — `0.39`: безопасная замена с diff и rollback.

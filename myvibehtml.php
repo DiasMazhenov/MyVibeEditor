@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.37 */
+<?php /* MyVibeHTML v0.38 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -345,7 +345,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['h'] = str_replace(
             '<div id="f">',
-            '<div id="f"><div class="myvibehtml-file-tools" data-file-tools><input type="search" data-file-search data-file-prompt="{file_name_prompt}" placeholder="{search_files}" aria-label="{search_files}"><button type="button" data-file-action="new-file">{new_file}</button><button type="button" data-file-action="new-folder">{new_folder}</button><button type="button" data-file-action="media">{media_manager}</button></div><ul data-file-search-results hidden></ul>',
+            '<div id="f"><div class="myvibehtml-file-tools" data-file-tools><input type="search" data-file-search data-file-prompt="{file_name_prompt}" data-content-prompt="{search_content}" data-search-prompt="{search_files}" placeholder="{search_files}" aria-label="{search_files}"><button type="button" data-file-action="new-file">{new_file}</button><button type="button" data-file-action="new-folder">{new_folder}</button><button type="button" data-file-action="media" aria-pressed="false">{media_manager}</button><button type="button" data-file-action="content" aria-pressed="false">{content_search}</button></div><ul data-file-search-results hidden></ul>',
             $this->templates['h']
         );
         $this->templates['n'] = str_replace('<i title="{add_file}"></i></li>', '<i title="{add_file}"></i><i title="{rename_file}"></i></li>', $this->templates['n']);
@@ -588,7 +588,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.37';
+    const VERSION = '0.38';
     private $config;
     private $request;
     private $response;
@@ -864,6 +864,9 @@ final class MyVibeHTMLController
             } else if (($dispatch31 = $this->request->getPost('search')) !== false && $dispatch31 !== '' && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $this->response->setBody($this->renderFileSearchResults(rawurldecode($dispatch31)));
+            } else if (($dispatch32 = $this->request->getPost('content_search')) !== false && $dispatch32 !== '' && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $this->response->setBody($this->renderContentSearchResults(rawurldecode($dispatch32)));
             } else if (($dispatch7 = $this->request->getPost('upload')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $dispatch7 = rawurldecode($dispatch7);
@@ -1332,6 +1335,48 @@ final class MyVibeHTMLController
             $searchExtension = strtolower(pathinfo($searchRelative, PATHINFO_EXTENSION));
             $searchUrl = $this->isAllowedExtension($searchExtension) ? $this->config->getSiteUrlBase() . $this->getQueryPrefix() . implode('/', array_map('rawurlencode', explode('/', $searchRelative))) : $this->getPublicFileUrl($searchPath);
             $searchOutput .= '<li><a data-cy="' . $this->escapeHtml($searchUrl) . '" title="' . $this->escapeHtml($searchRelative) . '">' . $this->escapeHtml($searchRelative) . '</a><span>' . $this->escapeHtml(filesize($searchPath)) . '</span></li>';
+        }
+        return $searchOutput;
+    }
+
+    private function collectContentSearch($searchDirectory, $relativeDirectory, $searchTerm, &$searchEntries, $searchDepth = 0)
+    {
+        if ($searchDepth > 32 || count($searchEntries) >= 100 || !($searchHandle = @opendir($searchDirectory))) return;
+        while (($searchName = readdir($searchHandle)) !== false && count($searchEntries) < 100) {
+            if ($searchName === '.' || $searchName === '..' || $searchName[0] === '.') continue;
+            $searchPath = $searchDirectory . $searchName;
+            $searchRelative = $relativeDirectory === '' ? $searchName : $relativeDirectory . '/' . $searchName;
+            if (is_link($searchPath)) continue;
+            if (is_dir($searchPath . '/')) {
+                $this->collectContentSearch($searchPath . '/', $searchRelative, $searchTerm, $searchEntries, $searchDepth + 1);
+            } else if (is_file($searchPath) && $this->isAllowedExtension(strtolower(pathinfo($searchName, PATHINFO_EXTENSION)))) {
+                $searchSize = @filesize($searchPath);
+                if ($searchSize === false || $searchSize > 2097152) continue;
+                $searchContent = @file_get_contents($searchPath);
+                if ($searchContent === false || strpos($searchContent, "\0") !== false) continue;
+                $searchLines = explode("\n", str_replace("\r\n", "\n", $searchContent));
+                foreach ($searchLines as $searchLineNumber => $searchLine) {
+                    if (stripos($searchLine, $searchTerm) === false) continue;
+                    $searchEntries[] = [$searchRelative, $searchPath, $searchLineNumber + 1, trim($searchLine)];
+                    if (count($searchEntries) >= 100) break;
+                }
+            }
+        }
+        closedir($searchHandle);
+    }
+
+    private function renderContentSearchResults($searchTerm)
+    {
+        $searchTerm = trim((string)$searchTerm);
+        if ($searchTerm === '') return '';
+        $searchEntries = [];
+        $this->collectContentSearch(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $searchTerm, $searchEntries);
+        $searchOutput = '';
+        foreach ($searchEntries as $searchEntry) {
+            $searchRelative = $searchEntry[0];
+            $searchPath = $searchEntry[1];
+            $searchUrl = $this->isAllowedExtension(strtolower(pathinfo($searchRelative, PATHINFO_EXTENSION))) ? $this->config->getSiteUrlBase() . $this->getQueryPrefix() . implode('/', array_map('rawurlencode', explode('/', $searchRelative))) : $this->getPublicFileUrl($searchPath);
+            $searchOutput .= '<li><a data-cy="' . $this->escapeHtml($searchUrl) . '" title="' . $this->escapeHtml($searchRelative) . '">' . $this->escapeHtml($searchRelative) . '</a><span>line ' . $this->escapeHtml($searchEntry[2]) . '</span><code>' . $this->escapeHtml($searchEntry[3]) . '</code></li>';
         }
         return $searchOutput;
     }
