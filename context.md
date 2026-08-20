@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.52
+
+- Transport-примитивы `writeCookie`, `removeCookie`, `readCookie`, SHA-1/Base64, `base64UrlEncode`, AJAX и `generateToken` вынесены в `myvibehtml-transport.js`; `myvibehtml.js` получает их через явный `MyVibeHTMLTransport`-контракт.
+- Авторизационный DOM-flow и существующий AJAX-протокол не переписывались: это намеренная граница безопасного физического разбиения перед отдельным extraction auth-модуля.
+- В PHP-шаблоны добавлена загрузка transport-модуля до `myvibehtml.js` для auth и editor режимов; внешних библиотек и доменных запросов не добавлено.
+- Версия синхронно поднята до `0.52` в PHP, JS-модулях, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Повторные проверки v0.52: PHP/JS lint, unit/source-map/deobfuscation/accessibility/UI-contract tests, transport contract, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и HTTP regression — PASS.
+- Страница v0.52 открыта во встроенном браузере на `?rev=0.52`; live click-through остаётся ручным, потому что API окна не предоставляет программных click/screenshot-команд, поэтому этот пункт не объявляется автоматически пройденным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.51
 
 - Следующий shell extraction seam завершён: preview-переключатели и mobile menu удалены из `myvibehtml.js` и перенесены в `myvibehtml-shell-controls.js`.

@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.51**.
+Текущая версия: **0.52**.
 
 ## Возможности
 
@@ -33,7 +33,7 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 - command palette по Ctrl/Cmd+K с поиском, стрелочной навигацией и Enter;
 - контекстное меню с Escape, стрелочной навигацией, Home/End и возвратом фокуса;
 - локальные SVG-иконки без runtime-запросов к внешним доменам;
-- модульные runtime-контракты для PHP, source-map и UI transport;
+- модульные runtime-контракты для PHP, source-map, UI contracts и transport;
 - защитные HTTP-заголовки, CSP Report-Only, проверки путей и атомарная запись файлов.
 
 CI запускает PHP/JS syntax checks, unit/security/HTTP regression и optional authenticated HTTP E2E. Пароли и cookies для E2E берутся только из GitHub Actions secrets `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; без них проверка явно пропускается.
@@ -73,7 +73,7 @@ CI запускает PHP/JS syntax checks, unit/security/HTTP regression и opt
    /var/www/example/myvibe/
    ```
 
-2. Разместите `myvibehtml.php`, JavaScript-модули (`myvibehtml.js`, `myvibehtml-source-map.js`, `myvibehtml-ui-contracts.js`, `myvibehtml-shell-controls.js`), CSS, `myvibehtml-icons/` и `lang.ini` в одном каталоге.
+2. Разместите `myvibehtml.php`, JavaScript-модули (`myvibehtml.js`, `myvibehtml-source-map.js`, `myvibehtml-ui-contracts.js`, `myvibehtml-transport.js`, `myvibehtml-shell-controls.js`), CSS, `myvibehtml-icons/` и `lang.ini` в одном каталоге.
 
 3. Скопируйте `.htaccess` из проекта в каталог редактора или в document root — в зависимости от того, какой URL должен вести на `myvibehtml.php`.
 
@@ -205,6 +205,7 @@ php -S 127.0.0.1:8080 -t /path/to/site /path/to/site/myvibe/dev-router.php
 | обработчик context menu | Показывает уровни DOM и действия над выбранным элементом. |
 | обработчик mobile menu | Открывает бургер и направляет пункты меню к соответствующим контролам панели. |
 | `myvibehtml-shell-controls.js` | Изолированный shell-модуль command palette: поиск команд, `Ctrl/Cmd+K`, стрелочная навигация, Enter и Escape без доступа к внутреннему editor closure. |
+| `myvibehtml-transport.js` | Изолированный transport-контракт: cookies, совместимый SHA-1/Base64, URL-safe Base64, AJAX и генератор токенов через `myvibehtml-ui-contracts.js`. |
 
 ## Безопасность
 
@@ -227,6 +228,7 @@ MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh
 php -l myvibehtml.php
 php -l dev-router.php
 node --check myvibehtml.js
+node --check myvibehtml-transport.js
 git diff --check
 ```
 

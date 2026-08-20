@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.52
+
+- transport-примитивы cookies, совместимый SHA-1/Base64 слой и AJAX вынесены в `myvibehtml-transport.js`;
+- основной editor closure теперь использует transport через явный модульный контракт; auth-протокол и DOM-поведение сохранены.
+
 ## 0.51
 
 - preview-переключатели и mobile menu вынесены из основного editor closure в существующий shell-модуль;
