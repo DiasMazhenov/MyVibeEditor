@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.47
+
+- Устранено наложение HTML/ARIA на «Разметку»: причиной было flex-сжатие прямого `fieldset` после переноса scrollbar на весь инспектор. `#myvibehtml-style-inspector` теперь обычный потоковый scroll-контейнер, поэтому все fieldset сохраняют естественную высоту.
+- Единый scrollbar окна и блокировка горизонтального overflow сохранены; вложенной прокрутки формы и flex-сжатия больше нет.
+- Версия синхронно поднята до `0.47` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Проверки: PHP/JS lint, `node --test tests/source-map.test.js tests/deobfuscation.test.js tests/accessibility.test.js tests/ui-contracts.test.js`, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Headless/browser runner в текущем окружении отсутствует; live-визуальная проверка исправленного наложения и финальный screenshot acceptance не выдаются за выполненные. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне commit.
+
 ## Текущее исправление v0.46
 
 - Исправлена геометрия scroll: scrollbar перенесён с `form` CSS-групп на весь `#myvibehtml-style-inspector`. HTML/ARIA, CSS-группы, сообщение об ошибке и footer теперь находятся в одном потоке прокрутки; вложенного scrollbar больше нет.

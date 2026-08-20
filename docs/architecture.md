@@ -1,6 +1,6 @@
-# Архитектура v0.46
+# Архитектура v0.47
 
-v0.46 сохраняет безопасные модульные границы без добавления bundler/dependency и делает всё окно CSS-инспектора единым scroll-контейнером, а его источник состояния — текущий выделенный DOM-узел:
+v0.47 сохраняет безопасные модульные границы без добавления bundler/dependency и оставляет всё окно CSS-инспектора единым scroll-контейнером без flex-сжатия fieldset:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
