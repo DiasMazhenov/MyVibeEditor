@@ -1,16 +1,17 @@
-# Архитектура v0.49
+# Архитектура v0.50
 
-v0.49 сохраняет безопасные модульные границы без добавления bundler/dependency и размещает CSS-инспектор справа на desktop; mobile override сбрасывает inline-ширину и учитывает safe-area inset:
+v0.50 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop и выносит независимую command palette в shell-модуль:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
 - `myvibehtml-source-map.js` — DOM ↔ HTML source-map;
 - `myvibehtml-ui-contracts.js` — независимые browser transport/UI contracts, сейчас генератор CSRF-токенов;
-- `myvibehtml.js` — оркестрация UI/editor; его крупный closure остаётся следующим extraction seam, потому что физический распил без отдельного DOM contract создаст регрессию;
+- `myvibehtml-shell-controls.js` — изолированная command palette, работающая только через публичные DOM-контролы панели;
+- `myvibehtml.js` — оркестрация auth/transport/visual-source editor/files/settings; крупный closure остаётся следующим extraction seam, потому что его части используют общий editor state;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, security, regression, CI contract и optional authenticated E2E.
 
-Новый UI-модуль загружается до основного editor runtime и не имеет внешних запросов. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
+Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: команды вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 
 v0.29 фиксирует границы runtime без добавления библиотек:
 

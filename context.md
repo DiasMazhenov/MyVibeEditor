@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.50
+
+- Следующий этап физического разбиения начат с безопасного extraction seam: command palette удалена из `myvibehtml.js` и вынесена в `myvibehtml-shell-controls.js`.
+- Новый shell-модуль не обращается к приватному editor closure: он ищет существующие DOM-контролы, вызывает их нативные действия и собирает собственную разметку через DOM API/`textContent`.
+- PHP-шаблон загружает `source-map → ui-contracts → myvibehtml.js → shell-controls`; внешних библиотек и доменных запросов нет.
+- Проверки v0.50: PHP/JS lint, unit/source-map/deobfuscation/accessibility/UI-contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и HTTP regression — PASS; реальный browser acceptance подтвердил command palette (`Ctrl+K` → поиск `save` → Escape), context menu, CSS-инспектор, desktop/mobile geometry и axe `0` serious/critical нарушений, screenshots просмотрены.
+- Известное ограничение тестовой страницы сохраняется: её широкая таблица/блоки дают 5px mobile overflow внутри iframe; пользовательский `test-page.html` не изменялся.
+- Версия синхронно поднята до `0.50` в PHP, JS-модулях, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.49
 
 - Реальный browser acceptance v0.48 выявил регресс: desktop resize оставлял inline `width`, и при переходе на mobile bottom-sheet выходил за safe inset.

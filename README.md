@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.49**.
+Текущая версия: **0.50**.
 
 ## Возможности
 
@@ -73,7 +73,7 @@ CI запускает PHP/JS syntax checks, unit/security/HTTP regression и opt
    /var/www/example/myvibe/
    ```
 
-2. Разместите `myvibehtml.php`, `myvibehtml.js`, CSS, `myvibehtml-icons/` и `lang.ini` в одном каталоге.
+2. Разместите `myvibehtml.php`, JavaScript-модули (`myvibehtml.js`, `myvibehtml-source-map.js`, `myvibehtml-ui-contracts.js`, `myvibehtml-shell-controls.js`), CSS, `myvibehtml-icons/` и `lang.ini` в одном каталоге.
 
 3. Скопируйте `.htaccess` из проекта в каталог редактора или в document root — в зависимости от того, какой URL должен вести на `myvibehtml.php`.
 
@@ -204,6 +204,7 @@ php -S 127.0.0.1:8080 -t /path/to/site /path/to/site/myvibe/dev-router.php
 | обработчик preview | Переключает ширину визуального iframe между desktop/tablet/mobile и открывает прямой URL сайта в новой вкладке. |
 | обработчик context menu | Показывает уровни DOM и действия над выбранным элементом. |
 | обработчик mobile menu | Открывает бургер и направляет пункты меню к соответствующим контролам панели. |
+| `myvibehtml-shell-controls.js` | Изолированный shell-модуль command palette: поиск команд, `Ctrl/Cmd+K`, стрелочная навигация, Enter и Escape без доступа к внутреннему editor closure. |
 
 ## Безопасность
 

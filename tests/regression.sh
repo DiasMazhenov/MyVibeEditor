@@ -17,10 +17,12 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.49" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.49'" myvibehtml.php
+rg -q "MyVibeHTML v0\.50" myvibehtml.php myvibehtml.js myvibehtml-fallback.css myvibehtml-shell-controls.js
+rg -q "const VERSION = '0\.50'" myvibehtml.php
 rg -q '<html id="[a-d]" lang="\{language\}"|<iframe title="\{title\}"' myvibehtml.php
 rg -q "myvibehtml-ui-contracts\.js|MyVibeHTMLUIContracts" myvibehtml.php myvibehtml.js myvibehtml-ui-contracts.js
+rg -q "myvibehtml-shell-controls\.js" myvibehtml.php myvibehtml-shell-controls.js
+rg -q "myvibehtml\.js.*myvibehtml-shell-controls\.js" myvibehtml.php
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
 rg -q "content_search|renderContentSearchResults|collectContentSearch|data-file-action=\"content\"" myvibehtml.php myvibehtml.js lang.ini
@@ -76,7 +78,7 @@ rg -q "data-myvibehtml-markup-property|syncMarkupSource|HTML / ARIA" myvibehtml.
 rg -q "data-preview-controls|data-preview-size|myvibehtml-preview-size" myvibehtml.php myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "data-block-library|saveBlockPreset|insertBlockPreset|data-file-action=\"media\"|fileManagerMediaMode" myvibehtml.php myvibehtml.js
 rg -q "data-page-validate|validationDialogOpen|validation-clean" myvibehtml.php myvibehtml.js
-rg -q "myvibehtml-command-palette|openCommandPalette|commandPaletteCommands|data-command-palette" myvibehtml.js myvibehtml.php myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "myvibehtml-command-palette|open|commands|data-command-palette" myvibehtml-shell-controls.js myvibehtml.php myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
 if rg -n 'checkForUpdates|handleUpdateResult|installUpdate|checkInstallation|SETTING_UPDATE|textolite' myvibehtml.php myvibehtml.js; then
     echo "regression: removed update/legacy alias code is still present" >&2
@@ -95,6 +97,7 @@ php -l myvibehtml-runtime.php >/dev/null
 php -l myvibehtml.php >/dev/null
 php -l dev-router.php >/dev/null
 node --check myvibehtml.js
+node --check myvibehtml-shell-controls.js
 node --check myvibehtml-ui-contracts.js
 node --test tests/source-map.test.js
 node --test tests/deobfuscation.test.js
@@ -102,16 +105,17 @@ node --test tests/accessibility.test.js
 node --test tests/ui-contracts.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.49" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.49" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.49" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.49" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.49" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.49" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.50" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.50" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.49"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.50"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 for icon in device-desktop device-tablet device-mobile layout-grid; do
     test -s "myvibehtml-icons/$icon.svg"

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.49 source map */
+/* MyVibeHTML v0.50 source map */
 (function(root, factory) {
     if (typeof module == 'object' && module.exports) module.exports = factory();
     else root.MyVibeHTMLSourceMap = factory();

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.50
+
+- command palette вынесена из основного editor closure в локальный `myvibehtml-shell-controls.js`;
+- shell-модуль загружается после `myvibehtml.js`, использует только публичные DOM-контролы и не добавляет внешних зависимостей;
+- динамическая разметка palette собирается через DOM API и `textContent`, без вставки локализованных строк через `innerHTML`.
+
 ## 0.49
 
 - исправлен переход CSS-инспектора из desktop в mobile: сохранённая inline-ширина больше не выталкивает bottom-sheet за safe inset;
