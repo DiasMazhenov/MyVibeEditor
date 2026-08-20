@@ -1,6 +1,6 @@
-# Архитектура v0.56
+# Архитектура v0.57
 
-v0.56 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.57 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -9,9 +9,13 @@ v0.56 сохраняет безопасные модульные границы 
 - `myvibehtml-transport.js` — cookies, совместимый SHA-1/Base64 слой и AJAX-транспорт; модуль сохраняет существующий протокол без доступа к editor closure;
 - `myvibehtml-auth.js` — отдельный DOM/AJAX-flow авторизации, загружается только на auth-странице после transport;
 - `myvibehtml-shell-controls.js` — изолированные command palette, preview-кнопки и mobile menu, работающие только через публичные DOM-контролы панели;
-- `myvibehtml.js` — оркестрация visual/source editor, files и settings без auth-flow;
+- `myvibehtml.js` — оркестрация visual/source editor, files, settings и общей локальной timeline-истории без auth-flow;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, module-boundary, security, regression, CI contract и optional authenticated E2E.
+
+## История изменений
+
+`writeSourceDraft()` — единая точка фиксации draft после visual/source-операций. Она сохраняет текущий draft и добавляет снимок в `myvibehtml:timeline:<file>` в localStorage. В текстовом редакторе `sourceHistoryOpenTimeline()` показывает последние 40 снимков и восстанавливает выбранный source через существующий renderer, поэтому новая модель не дублирует Undo/Redo и не меняет серверный протокол.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 

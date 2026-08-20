@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.57
+
+- Добавлена локальная Time Machine поверх существующего draft-потока: `writeSourceDraft()` теперь записывает снимки в `myvibehtml:timeline:<file>` и сохраняет максимум 40 последних состояний.
+- Снимки создаются и после visual-операций, и после изменений source editor, поэтому обе вкладки используют одну историю без нового серверного API. Ключ нормализует `rev`, чтобы cache-busting не создавал отдельную историю.
+- В text-режиме кнопка `История изменений` открывает доступный диалог; восстановление подтверждается и передаётся в существующий `sourceHistoryRender()`, текущие изменения остаются в Undo.
+- Добавлены стили fallback для desktop/mobile, `tests/feature-contracts.test.js`, обновлены README, architecture, function catalog, CHANGELOG и version markers до `0.57`.
+- `node --check`, `php -l`, `git diff --check`, `tests/ci-contract.sh` и полный `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` прошли. Для HTTP regression доступ к localhost потребовал разрешённого локального запуска; сервер уже был поднят на 127.0.0.1:8080.
+- Открыта live-страница `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.57` во встроенном браузере. API окна позволяет открыть вкладку, но не предоставляет программных click/screenshot-команд, поэтому автоматический визуальный click-through не объявляется выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. Следующий этап — v0.58 Reusable Components.
+
 ## Текущее исправление v0.56
 
 - Граница модулей зафиксирована контрактными тестами: auth загружает только `ui-contracts → transport → auth`, editor — `source-map → ui-contracts → transport → editor → shell`; auth-flow не возвращается в `myvibehtml.js`.

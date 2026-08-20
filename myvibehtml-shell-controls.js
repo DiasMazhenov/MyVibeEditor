@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.56 shell controls: command palette and responsive controls */
+/* MyVibeHTML v0.57 shell controls: command palette and responsive controls */
 (function() {
     'use strict';
 

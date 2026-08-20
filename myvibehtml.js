@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.56 */
+/* MyVibeHTML v0.57 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -352,11 +352,32 @@
                 runtimeValue11 = documentObject[querySelectorMethod]('#j'),
                 serializedSource = runtimeValue11[getAttributeMethod]('data-encoding') == 'base64' ? base64Decode(runtimeValue11[textContentProperty]) : runtimeValue11[innerHTMLProperty],
                 sourceDraftKey = 'myvibehtml:draft:' + locationObject.pathname + locationObject.search,
+                editorTimelineKey = 'myvibehtml:timeline:' + locationObject.pathname + locationObject.search.replace(/[?&]rev=[^&]*/, ''),
                 sourceDraftTimer = false,
                 sourceHistoryBar = runtimeValue1[querySelectorMethod]('[data-source-history]'),
                 sourceHistoryApi = {markSaved:function(){},isDirty:function(){return false}},
+                readEditorTimeline = function() {
+                    try {
+                        var editorTimelineData = windowObject.localStorage.getItem(editorTimelineKey),
+                            editorTimelineItems = editorTimelineData ? JSON.parse(editorTimelineData) : [];
+                        return Array.isArray(editorTimelineItems) ? editorTimelineItems : []
+                    } catch (editorTimelineError) { return [] }
+                },
+                writeEditorTimeline = function(editorTimelineItems) {
+                    try { windowObject.localStorage.setItem(editorTimelineKey, JSON.stringify(editorTimelineItems)) } catch (editorTimelineError) {}
+                },
+                recordEditorTimeline = function(editorTimelineSource) {
+                    if (typeof editorTimelineSource != 'string' || !editorTimelineSource) return;
+                    var editorTimelineItems = readEditorTimeline(),
+                        editorTimelineLast = editorTimelineItems[0];
+                    if (editorTimelineLast && editorTimelineLast.source === editorTimelineSource) return;
+                    editorTimelineItems.unshift({source:editorTimelineSource,updated:Date.now(),label:documentObject.documentElement.lang == 'ru' ? 'Изменение' : 'Change'});
+                    editorTimelineItems = editorTimelineItems.slice(0, 40);
+                    writeEditorTimeline(editorTimelineItems)
+                },
                 writeSourceDraft = function(sourceDraftValue) {
                     try { windowObject.localStorage.setItem(sourceDraftKey, JSON.stringify({source:sourceDraftValue,updated:Date.now()})) } catch (sourceDraftError) {}
+                    recordEditorTimeline(sourceDraftValue)
                 },
                 readSourceDraft = function() {
                     try {
@@ -3324,6 +3345,8 @@
                         sourceHistoryUndoButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="undo"]') : null,
                         sourceHistoryRedoButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="redo"]') : null,
                         sourceHistoryRestoreButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="restore"]') : null,
+                        sourceHistoryTimelineButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="timeline"]') : null,
+                        sourceHistoryTimeline = null,
                         sourceHistoryValue = function() { return runtimeValue137(runtimeValue131[innerHTMLProperty]) },
                         sourceHistoryStatusUpdate = function() {
                             if (!sourceHistoryBar) return;
@@ -3392,6 +3415,52 @@
                             sourceHistory.redo = [];
                             clearSourceDraft();
                             sourceHistoryStatusUpdate()
+                        },
+                        sourceHistoryOpenTimeline = function() {
+                            var sourceHistoryTimelineRussian = documentObject.documentElement.lang == 'ru';
+                            if (!sourceHistoryTimeline) {
+                                sourceHistoryTimeline = documentObject[createElementMethod]('aside');
+                                sourceHistoryTimeline.id = 'myvibehtml-timeline';
+                                sourceHistoryTimeline[setAttributeMethod]('role', 'dialog');
+                                sourceHistoryTimeline[setAttributeMethod]('aria-modal', 'false');
+                                sourceHistoryTimeline[setAttributeMethod]('aria-label', sourceHistoryTimelineRussian ? 'История изменений' : 'Change history');
+                                sourceHistoryTimeline.hidden = true;
+                                sourceHistoryTimeline[innerHTMLProperty] = '<div class="myvibehtml-timeline-header"><h2>' + (sourceHistoryTimelineRussian ? 'История изменений' : 'Change history') + '</h2><button type="button" data-timeline-close aria-label="' + (sourceHistoryTimelineRussian ? 'Закрыть' : 'Close') + '">×</button></div><p>' + (sourceHistoryTimelineRussian ? 'Снимки создаются при изменениях в визуальном и текстовом редакторе.' : 'Snapshots are created by visual and source editor changes.') + '</p><ol data-timeline-list></ol>';
+                                documentObject.body[appendChildMethod](sourceHistoryTimeline);
+                                sourceHistoryTimeline[querySelectorMethod]('[data-timeline-close]')[addEventListenerMethod](clickEvent, function() { sourceHistoryTimeline.hidden = true });
+                            }
+                            var sourceHistoryTimelineList = sourceHistoryTimeline[querySelectorMethod]('[data-timeline-list]'),
+                                sourceHistoryTimelineItems = readEditorTimeline();
+                            sourceHistoryTimelineList[textContentProperty] = '';
+                            if (!sourceHistoryTimelineItems[lengthProperty]) {
+                                var sourceHistoryTimelineEmpty = documentObject[createElementMethod]('li');
+                                sourceHistoryTimelineEmpty[textContentProperty] = sourceHistoryTimelineRussian ? 'История пока пуста' : 'History is empty';
+                                sourceHistoryTimelineList[appendChildMethod](sourceHistoryTimelineEmpty)
+                            } else for (var sourceHistoryTimelineIndex = 0; sourceHistoryTimelineIndex < sourceHistoryTimelineItems[lengthProperty]; sourceHistoryTimelineIndex++) {
+                                var sourceHistoryTimelineItem = documentObject[createElementMethod]('li'),
+                                    sourceHistoryTimelineEntry = documentObject[createElementMethod]('button'),
+                                    sourceHistoryTimelineDate = new Date(sourceHistoryTimelineItems[sourceHistoryTimelineIndex].updated || 0);
+                                sourceHistoryTimelineEntry.type = 'button';
+                                sourceHistoryTimelineEntry.timelineIndex = sourceHistoryTimelineIndex;
+                                sourceHistoryTimelineEntry[textContentProperty] = (sourceHistoryTimelineItems[sourceHistoryTimelineIndex].label || (sourceHistoryTimelineRussian ? 'Изменение' : 'Change')) + ' · ' + sourceHistoryTimelineDate.toLocaleString();
+                                sourceHistoryTimelineEntry[setAttributeMethod]('title', sourceHistoryTimelineItems[sourceHistoryTimelineIndex].source.slice(0, 120));
+                                sourceHistoryTimelineEntry[addEventListenerMethod](clickEvent, function() {
+                                    var sourceHistoryTimelineItemToRestore = readEditorTimeline()[this.timelineIndex];
+                                    if (!sourceHistoryTimelineItemToRestore || sourceHistoryTimelineItemToRestore.source === sourceHistory.current) return;
+                                    if (!windowObject.confirm(sourceHistoryTimelineRussian ? 'Восстановить этот снимок? Текущие изменения останутся в Undo.' : 'Restore this snapshot? Current changes remain in Undo.')) return;
+                                    sourceHistory.undo.push(sourceHistoryTimelineItemToRestore.source);
+                                    sourceHistory.redo = [];
+                                    sourceHistory.current = sourceHistoryTimelineItemToRestore.source;
+                                    sourceHistoryRender(sourceHistory.current);
+                                    sourceHistoryStatusUpdate();
+                                    sourceHistoryTimeline.hidden = true
+                                });
+                                sourceHistoryTimelineItem[appendChildMethod](sourceHistoryTimelineEntry);
+                                sourceHistoryTimelineList[appendChildMethod](sourceHistoryTimelineItem)
+                            }
+                            sourceHistoryTimeline.hidden = false;
+                            sourceHistoryTimeline[setAttributeMethod]('aria-hidden', 'false');
+                            sourceHistoryTimeline[querySelectorMethod]('[data-timeline-close]')[focusEvent]()
                         };
                     windowObject[addEventListenerMethod](resizeEvent, runtimeValue149);
                     runtimeValue149();
@@ -3420,6 +3489,7 @@
                     if (sourceHistoryUndoButton) sourceHistoryUndoButton[addEventListenerMethod](clickEvent, sourceHistoryUndo);
                     if (sourceHistoryRedoButton) sourceHistoryRedoButton[addEventListenerMethod](clickEvent, sourceHistoryRedo);
                     if (sourceHistoryRestoreButton) sourceHistoryRestoreButton[addEventListenerMethod](clickEvent, sourceHistoryRestore);
+                    if (sourceHistoryTimelineButton) sourceHistoryTimelineButton[addEventListenerMethod](clickEvent, sourceHistoryOpenTimeline);
                     sourceHistoryStatusUpdate();
                     windowObject[addEventListenerMethod]('beforeunload', function(event) {
                         if (sourceHistoryApi.isDirty()) {

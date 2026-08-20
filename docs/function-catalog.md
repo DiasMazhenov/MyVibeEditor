@@ -60,6 +60,8 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 Редактор исходного кода использует `innerHTML` намеренно для подсветки и восстановления пользовательского HTML. Это не server-response sink; статусные узлы редактора v0.22 используют `textContent`.
 
+`readEditorTimeline()`, `writeEditorTimeline()` и `recordEditorTimeline()` обслуживают постоянную локальную историю снимков visual/source draft. `sourceHistoryOpenTimeline()` строит доступный диалог истории и передаёт восстановление в существующий `sourceHistoryRender()`; максимум хранится 40 снимков на файл.
+
 ## Полный именной inventory PHP
 
 Ниже перечислены все функции и методы, присутствующие в `myvibehtml.php`; одинаковые имена `__construct()` и `writeFileAtomically()` относятся к разным классам.
