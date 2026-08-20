@@ -24,3 +24,12 @@ test('Reusable Components extend the existing local block library', () => {
     assert.match(editor, /sanitizeBlockMarkup\(blockTarget\[outerHTMLProperty\]\)/);
     assert.match(php, /data-block-label="\{components\}"/);
 });
+
+test('Design Tokens are editable through the CSS inspector and source', () => {
+    assert.match(editor, /getDesignTokenNames = function/);
+    assert.match(editor, /syncDesignTokenSource = function/);
+    assert.match(editor, /data-myvibehtml-token-name/);
+    assert.match(editor, /data-myvibehtml-token-apply/);
+    assert.match(editor, /runtimeValue127\.documentElement\[styleProperty\]\.setProperty/);
+    assert.match(editor, /:root\\s\*\\\{/);
+});

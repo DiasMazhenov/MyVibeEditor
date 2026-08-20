@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.59
+
+- В CSS-инспектор добавлен блок `Дизайн-токены`: `getDesignTokenNames()` находит custom properties в source, `renderDesignTokens()` показывает актуальные значения, `syncDesignTokenSource()` обновляет существующий `:root` или добавляет style перед `</head>`.
+- `Применить` меняет live `documentElement`, `serializedSource`, source map и общий draft; `Новый токен` создаёт валидное имя `--...`. Значения ограничены по длине и блокируют `{}`, HTML, `url()`, `javascript`, `expression` и `;`.
+- Добавлены token contract assertions, CSS fallback-правила, README, architecture, function catalog, CHANGELOG и version markers до `0.59`.
+- Пройдены `node --check`, PHP lint, feature/module contracts, `git diff --check` и полный HTTP regression против `127.0.0.1:8080`. `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.59` открыт во встроенном браузере; API окна не предоставляет программных click/screenshot-команд, поэтому ручные клики по CSS-инспектору ещё должны быть выполнены пользователем/вручную.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. После v0.59 останется обновить финальную документацию/roadmap и отдельно проверить клики в интерфейсе вручную во встроенном браузере.
+
 ## Текущее исправление v0.58
 
 - Существующая библиотека `myvibehtml:blocks` расширена до Reusable Components без второго механизма хранения: записи получают `id`, `type=component`, `created` и `updated`.

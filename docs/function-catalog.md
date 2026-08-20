@@ -64,6 +64,8 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 `readBlockLibrary()`, `writeBlockLibrary()` и `sanitizeBlockMarkup()` обслуживают локальное безопасное хранилище компонентов. `saveBlockPreset()` создаёт компонент, `insertBlockPreset()` вставляет независимую копию, а `updateBlockPreset()` заменяет markup сохранённого компонента текущим выделением; старые записи библиотеки мигрируют в память с `id/type` без потери данных.
 
+`getDesignTokenNames()` и `getDesignTokenValue()` читают custom properties, `renderDesignTokens()` заполняет текущие значения в инспекторе, `isValidDesignTokenName()`/`isValidDesignTokenValue()` фильтруют ввод, а `syncDesignTokenSource()` синхронно меняет `:root`, live preview и draft.
+
 ## Полный именной inventory PHP
 
 Ниже перечислены все функции и методы, присутствующие в `myvibehtml.php`; одинаковые имена `__construct()` и `writeFileAtomically()` относятся к разным классам.

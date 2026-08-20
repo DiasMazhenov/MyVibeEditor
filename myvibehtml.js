@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.58 */
+/* MyVibeHTML v0.59 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -493,6 +493,9 @@
                         styleInspectorFields = null,
                         markupInspectorFields = null,
                         styleInspectorError = null,
+                        designTokenFieldset = null,
+                        designTokenNameField = null,
+                        designTokenValueField = null,
                         styleInspectorResizeHandle = null,
                         styleInspectorResizeState = null,
                         mediaPicker = null,
@@ -832,6 +835,73 @@
                             event[preventDefaultMethod]();
                             setStyleInspectorWidth(width)
                         },
+                        getDesignTokenNames = function() {
+                            var designTokenMatches = serializedSource.match(/--[a-zA-Z][a-zA-Z0-9_-]*/g) || [],
+                                designTokenNames = [];
+                            for (var designTokenIndex = 0; designTokenIndex < designTokenMatches[lengthProperty]; designTokenIndex++) if (designTokenNames[indexOfMethod](designTokenMatches[designTokenIndex]) === -1) designTokenNames.push(designTokenMatches[designTokenIndex]);
+                            return designTokenNames
+                        },
+                        isValidDesignTokenName = function(designTokenName) {
+                            return /^--[a-z][a-z0-9_-]{0,63}$/i.test(designTokenName)
+                        },
+                        isValidDesignTokenValue = function(designTokenValue) {
+                            return !!designTokenValue && designTokenValue[lengthProperty] <= 180 && !/[{}<>;]/.test(designTokenValue) && !/(?:javascript|expression|url)\s*\(/i.test(designTokenValue)
+                        },
+                        getDesignTokenValue = function(designTokenName) {
+                            var designTokenRoot = runtimeValue127.documentElement,
+                                designTokenValue = designTokenRoot && designTokenRoot[styleProperty].getPropertyValue(designTokenName);
+                            if (!designTokenValue && runtimeValue127.defaultView) designTokenValue = runtimeValue127.defaultView[getComputedStyleMethod](designTokenRoot).getPropertyValue(designTokenName);
+                            return (designTokenValue || '')[replaceMethod](/^\s+|\s+$/g, '')
+                        },
+                        renderDesignTokens = function() {
+                            if (!designTokenNameField || !designTokenValueField) return;
+                            var designTokenNames = getDesignTokenNames();
+                            if (!designTokenNames[lengthProperty]) designTokenNames.push('--myvibe-primary');
+                            var designTokenSelected = designTokenNameField[valueProperty];
+                            designTokenNameField[textContentProperty] = '';
+                            for (var designTokenIndex = 0; designTokenIndex < designTokenNames[lengthProperty]; designTokenIndex++) {
+                                var designTokenOption = documentObject[createElementMethod]('option');
+                                designTokenOption.value = designTokenNames[designTokenIndex];
+                                designTokenOption[textContentProperty] = designTokenNames[designTokenIndex];
+                                designTokenNameField[appendChildMethod](designTokenOption)
+                            }
+                            designTokenNameField[valueProperty] = designTokenNames[indexOfMethod](designTokenSelected) === -1 ? designTokenNames[0] : designTokenSelected;
+                            designTokenValueField[valueProperty] = getDesignTokenValue(designTokenNameField[valueProperty])
+                        },
+                        syncDesignTokenSource = function(designTokenName, designTokenValue) {
+                            if (!isValidDesignTokenName(designTokenName) || !isValidDesignTokenValue(designTokenValue)) return false;
+                            var designTokenRootPattern = /:root\s*\{([\s\S]*?)\}/i,
+                                designTokenRootMatch = serializedSource[matchMethod](designTokenRootPattern),
+                                designTokenPattern = new RegExp('(^|;)\\s*' + designTokenName[replaceMethod](/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*[^;}]*;?', 'i');
+                            if (designTokenRootMatch) {
+                                var designTokenBody = designTokenRootMatch[1];
+                                if (designTokenPattern.test(designTokenBody)) designTokenBody = designTokenBody[replaceMethod](designTokenPattern, function(match, prefix) { return prefix + ' ' + designTokenName + ': ' + designTokenValue + ';' });
+                                else designTokenBody = designTokenBody[replaceMethod](/\s*$/, '') + '\n  ' + designTokenName + ': ' + designTokenValue + ';\n';
+                                serializedSource = serializedSource[sliceMethod](0, designTokenRootMatch.index) + designTokenRootMatch[0][replaceMethod](designTokenRootMatch[1], designTokenBody) + serializedSource[sliceMethod](designTokenRootMatch.index + designTokenRootMatch[0][lengthProperty]);
+                            } else {
+                                var designTokenStyle = '<style>:root{' + designTokenName + ':' + designTokenValue + ';}</style>',
+                                    designTokenHeadEnd = serializedSource[searchMethod](/<\/head\s*>/i);
+                                serializedSource = designTokenHeadEnd < 0 ? designTokenStyle + serializedSource : serializedSource[sliceMethod](0, designTokenHeadEnd) + designTokenStyle + serializedSource[sliceMethod](designTokenHeadEnd)
+                            }
+                            runtimeValue127.documentElement[styleProperty].setProperty(designTokenName, designTokenValue);
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue4[disabledProperty] = false;
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            return true
+                        },
+                        applyDesignToken = function() {
+                            if (!designTokenNameField || !designTokenValueField) return;
+                            var designTokenName = designTokenNameField[valueProperty],
+                                designTokenValue = designTokenValueField[valueProperty][replaceMethod](/^\s+|\s+$/g, '');
+                            if (!syncDesignTokenSource(designTokenName, designTokenValue)) {
+                                styleInspectorError.hidden = false;
+                                return
+                            }
+                            styleInspectorError.hidden = true;
+                            renderDesignTokens()
+                        },
                         createStyleInspector = function() {
                             if (styleInspector) return styleInspector;
                             var visualEditorValue8 = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '',
@@ -859,7 +929,12 @@
                                     textAlign: 'Выравнивание',
                                     color: 'Цвет текста',
                                     backgroundColor: 'Фон',
-                                    borderRadius: 'Скругление'
+                                    borderRadius: 'Скругление',
+                                    tokens: 'Дизайн-токены',
+                                    tokenName: 'Token',
+                                    tokenValue: 'Значение',
+                                    tokenApply: 'Применить',
+                                    tokenNew: 'Новый токен'
                                 } : {
                                     title: 'CSS properties',
                                     close: 'Close',
@@ -883,7 +958,12 @@
                                     textAlign: 'Text align',
                                     color: 'Text color',
                                     backgroundColor: 'Background',
-                                    borderRadius: 'Border radius'
+                                    borderRadius: 'Border radius',
+                                    tokens: 'Design tokens',
+                                    tokenName: 'Token',
+                                    tokenValue: 'Value',
+                                    tokenApply: 'Apply',
+                                    tokenNew: 'New token'
                                 },
                                 visualEditorValue11 = function(initializeVisualEditorArgument1, initializeVisualEditorArgument2) {
                                     var visualEditorValue12 = documentObject[createElementMethod]('label'),
@@ -1009,6 +1089,29 @@
                             for (var markupInspectorIndex = 0; markupInspectorIndex < visualEditorMarkupFields[lengthProperty]; markupInspectorIndex++) markupInspectorGrid[appendChildMethod](visualEditorMarkupField(visualEditorMarkupFields[markupInspectorIndex].label, visualEditorMarkupFields[markupInspectorIndex].property, visualEditorMarkupFields[markupInspectorIndex].options, visualEditorMarkupFields[markupInspectorIndex].disabled));
                             markupInspectorFieldset[appendChildMethod](markupInspectorLegend);
                             markupInspectorFieldset[appendChildMethod](markupInspectorGrid);
+                            designTokenFieldset = documentObject[createElementMethod]('fieldset');
+                            designTokenFieldset[classNameProperty] = 'myvibehtml-token-fieldset';
+                            designTokenFieldset[innerHTMLProperty] = '<legend>' + visualEditorValue10.tokens + '</legend><div class="myvibehtml-style-grid"><label><span>' + visualEditorValue10.tokenName + '</span><select class="myvibehtml-style-field" data-myvibehtml-token-name aria-label="' + visualEditorValue10.tokenName + '"></select></label><label><span>' + visualEditorValue10.tokenValue + '</span><input class="myvibehtml-style-field" data-myvibehtml-token-value type="text" spellcheck="false" aria-label="' + visualEditorValue10.tokenValue + '"></label></div><div class="myvibehtml-token-actions"><button type="button" data-myvibehtml-token-new>' + visualEditorValue10.tokenNew + '</button><button type="button" data-myvibehtml-token-apply>' + visualEditorValue10.tokenApply + '</button></div>';
+                            designTokenNameField = designTokenFieldset[querySelectorMethod]('[data-myvibehtml-token-name]');
+                            designTokenValueField = designTokenFieldset[querySelectorMethod]('[data-myvibehtml-token-value]');
+                            designTokenFieldset[querySelectorMethod]('[data-myvibehtml-token-name]')[addEventListenerMethod](changeEvent, function() { designTokenValueField[valueProperty] = getDesignTokenValue(this[valueProperty]) });
+                            designTokenFieldset[querySelectorMethod]('[data-myvibehtml-token-apply]')[addEventListenerMethod](clickEvent, applyDesignToken);
+                            designTokenFieldset[querySelectorMethod]('[data-myvibehtml-token-new]')[addEventListenerMethod](clickEvent, function() {
+                                var designTokenPrompt = windowObject.prompt(visualEditorValue9 ? 'Имя нового токена' : 'New token name', '--myvibe-primary');
+                                if (!designTokenPrompt) return;
+                                designTokenPrompt = designTokenPrompt[replaceMethod](/^\s+|\s+$/g, '');
+                                if (!isValidDesignTokenName(designTokenPrompt)) {
+                                    styleInspectorError.hidden = false;
+                                    return
+                                }
+                                var designTokenOption = documentObject[createElementMethod]('option');
+                                designTokenOption.value = designTokenPrompt;
+                                designTokenOption[textContentProperty] = designTokenPrompt;
+                                designTokenNameField[appendChildMethod](designTokenOption);
+                                designTokenNameField[valueProperty] = designTokenPrompt;
+                                designTokenValueField[valueProperty] = '';
+                                designTokenValueField[focusEvent]()
+                            });
                             visualEditorValue25[setAttributeMethod]('novalidate', 'novalidate');
                             for (var visualEditorValue28 = 0, visualEditorValue29 = visualEditorValue18[lengthProperty]; visualEditorValue28 < visualEditorValue29; visualEditorValue28++) {
                                 var visualEditorValue30 = documentObject[createElementMethod]('fieldset'),
@@ -1038,6 +1141,7 @@
                             styleInspector[appendChildMethod](visualEditorValue23);
                             styleInspector[appendChildMethod](visualEditorValue24);
                             styleInspector[appendChildMethod](markupInspectorFieldset);
+                            styleInspector[appendChildMethod](designTokenFieldset);
                             styleInspector[appendChildMethod](visualEditorValue25);
                             styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
                             markupInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-markup-property]');
@@ -1346,6 +1450,7 @@
                                 markupInspectorField[valueProperty] = markupInspectorValue;
                                 markupInspectorField[removeAttributeMethod]('aria-invalid')
                             }
+                            renderDesignTokens();
                             styleInspectorError.hidden = true;
                             styleInspector.hidden = false;
                             styleInspector[setAttributeMethod]('aria-hidden', 'false')

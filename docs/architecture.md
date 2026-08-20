@@ -1,6 +1,6 @@
-# Архитектура v0.58
+# Архитектура v0.59
 
-v0.58 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.59 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -20,6 +20,10 @@ v0.58 сохраняет безопасные модульные границы 
 ## Reusable Components
 
 Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию после выбранного узла, а `updateBlockPreset()` обновляет запись текущим выделением. Серверный HTML и внешние библиотеки для этого не нужны.
+
+## Design Tokens
+
+`getDesignTokenNames()` извлекает имена custom properties из текущего source, `renderDesignTokens()` заполняет поля CSS-инспектора, а `syncDesignTokenSource()` обновляет существующий `:root` или добавляет безопасный `<style>` перед `</head>`. Значение одновременно применяется к live `documentElement`, попадает в source/draft и сохраняется обычной кнопкой `Сохранить`.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 
