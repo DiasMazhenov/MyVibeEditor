@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.34 */
+/* MyVibeHTML v0.35 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -691,6 +691,8 @@
                         styleInspectorError = null,
                         mediaPicker = null,
                         mediaPickerTarget = null,
+                        blockLibraryPanel = null,
+                        blockLibraryButton = null,
                         sourceMapState = null,
                         getContextNode = function(initializeVisualEditorArgument1) {
                             for (var visualEditorValue2 = initializeVisualEditorArgument1; visualEditorValue2 && visualEditorValue2 != runtimeValue127.body; visualEditorValue2 = visualEditorValue2[parentNodeProperty]) {
@@ -821,6 +823,139 @@
                             mediaPickerTarget = initializeVisualEditorArgument12;
                             mediaPicker.accept = initializeVisualEditorArgument12[tagNameProperty][toLowerCaseMethod]() == 'svg' ? 'image/svg+xml,.svg' : 'image/*,.svg';
                             mediaPicker.click()
+                        },
+                        readBlockLibrary = function() {
+                            try {
+                                var blockLibraryData = windowObject.localStorage.getItem(productPrefix + ':blocks'),
+                                    blockLibraryItems = blockLibraryData ? JSON.parse(blockLibraryData) : [];
+                                return Array.isArray(blockLibraryItems) ? blockLibraryItems : []
+                            } catch (blockLibraryError) {
+                                return []
+                            }
+                        },
+                        writeBlockLibrary = function(blockLibraryItems) {
+                            try {
+                                windowObject.localStorage.setItem(productPrefix + ':blocks', JSON.stringify(blockLibraryItems))
+                            } catch (blockLibraryError) {}
+                        },
+                        sanitizeBlockMarkup = function(blockMarkup) {
+                            var blockMarkupDocument = new DOMParser()[parseFromStringMethod]('<div>' + blockMarkup + '</div>', 'text/html'),
+                                blockMarkupRoot = blockMarkupDocument.body && blockMarkupDocument.body[firstElementChildProperty];
+                            if (!blockMarkupRoot) return '';
+                            var blockMarkupForbidden = blockMarkupRoot[querySelectorAllMethod]('script,style,iframe,object,embed,foreignobject');
+                            for (var blockMarkupIndex = 0; blockMarkupIndex < blockMarkupForbidden[lengthProperty]; blockMarkupIndex++) blockMarkupForbidden[blockMarkupIndex][parentNodeProperty][removeChildMethod](blockMarkupForbidden[blockMarkupIndex]);
+                            var blockMarkupElements = blockMarkupRoot[querySelectorAllMethod]('*');
+                            for (var blockMarkupElementIndex = 0; blockMarkupElementIndex < blockMarkupElements[lengthProperty]; blockMarkupElementIndex++) {
+                                var blockMarkupElement = blockMarkupElements[blockMarkupElementIndex];
+                                for (var blockMarkupAttributeIndex = blockMarkupElement.attributes[lengthProperty] - 1; blockMarkupAttributeIndex >= 0; blockMarkupAttributeIndex--) {
+                                    var blockMarkupAttribute = blockMarkupElement.attributes[blockMarkupAttributeIndex],
+                                        blockMarkupAttributeName = blockMarkupAttribute.name[toLowerCaseMethod]();
+                                    if (blockMarkupAttributeName[indexOfMethod]('data-myvibehtml-') === 0 || blockMarkupAttributeName[indexOfMethod]('on') === 0 || ((blockMarkupAttributeName == 'href' || blockMarkupAttributeName == 'src') && /^(?:javascript|vbscript):/i.test(blockMarkupAttribute.value))) blockMarkupElement[removeAttributeMethod](blockMarkupAttribute.name)
+                                }
+                            }
+                            return blockMarkupRoot[innerHTMLProperty]
+                        },
+                        createBlockLibrary = function() {
+                            if (blockLibraryPanel) return blockLibraryPanel;
+                            var blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '');
+                            blockLibraryPanel = documentObject[createElementMethod]('aside');
+                            blockLibraryPanel.id = 'myvibehtml-block-library';
+                            blockLibraryPanel.hidden = true;
+                            blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true');
+                            blockLibraryPanel[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Библиотека блоков' : 'Block library');
+                            blockLibraryPanel[innerHTMLProperty] = '<div class="myvibehtml-block-library-header"><h2>' + (blockLibraryRussian ? 'Библиотека блоков' : 'Block library') + '</h2><button type="button" data-block-library-close aria-label="' + (blockLibraryRussian ? 'Закрыть' : 'Close') + '">×</button></div><p class="myvibehtml-block-library-hint">' + (blockLibraryRussian ? 'Сохраняйте повторяющиеся секции и вставляйте их в выбранное место.' : 'Save reusable sections and insert them after the selected node.') + '</p><ul data-block-library-list></ul>';
+                            documentObject.body[appendChildMethod](blockLibraryPanel);
+                            blockLibraryPanel[querySelectorMethod]('[data-block-library-close]')[addEventListenerMethod](clickEvent, function() {
+                                blockLibraryPanel.hidden = true;
+                                blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true')
+                            });
+                            return blockLibraryPanel
+                        },
+                        renderBlockLibrary = function() {
+                            var blockLibrary = createBlockLibrary(),
+                                blockLibraryList = blockLibrary[querySelectorMethod]('[data-block-library-list]'),
+                                blockLibraryItems = readBlockLibrary(),
+                                blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '');
+                            blockLibraryList[textContentProperty] = '';
+                            if (!blockLibraryItems[lengthProperty]) {
+                                var blockLibraryEmpty = documentObject[createElementMethod]('li');
+                                blockLibraryEmpty[classNameProperty] = 'myvibehtml-block-library-empty';
+                                blockLibraryEmpty[textContentProperty] = blockLibraryRussian ? 'Библиотека пуста' : 'Library is empty';
+                                blockLibraryList[appendChildMethod](blockLibraryEmpty);
+                                return
+                            }
+                            for (var blockLibraryIndex = 0; blockLibraryIndex < blockLibraryItems[lengthProperty]; blockLibraryIndex++) {
+                                var blockLibraryItem = documentObject[createElementMethod]('li'),
+                                    blockLibraryName = documentObject[createElementMethod]('span'),
+                                    blockLibraryInsert = documentObject[createElementMethod]('button'),
+                                    blockLibraryDelete = documentObject[createElementMethod]('button');
+                                blockLibraryName[textContentProperty] = blockLibraryItems[blockLibraryIndex].name;
+                                blockLibraryInsert.type = 'button';
+                                blockLibraryInsert[textContentProperty] = blockLibraryRussian ? 'Вставить' : 'Insert';
+                                blockLibraryInsert.blockIndex = blockLibraryIndex;
+                                blockLibraryInsert[addEventListenerMethod](clickEvent, function() {
+                                    insertBlockPreset(this.blockIndex)
+                                });
+                                blockLibraryDelete.type = 'button';
+                                blockLibraryDelete[textContentProperty] = '×';
+                                blockLibraryDelete[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Удалить блок' : 'Delete block');
+                                blockLibraryDelete.blockIndex = blockLibraryIndex;
+                                blockLibraryDelete[addEventListenerMethod](clickEvent, function() {
+                                    var blockLibraryItemsToDelete = readBlockLibrary();
+                                    blockLibraryItemsToDelete.splice(this.blockIndex, 1);
+                                    writeBlockLibrary(blockLibraryItemsToDelete);
+                                    renderBlockLibrary()
+                                });
+                                blockLibraryItem[appendChildMethod](blockLibraryName);
+                                blockLibraryItem[appendChildMethod](blockLibraryInsert);
+                                blockLibraryItem[appendChildMethod](blockLibraryDelete);
+                                blockLibraryList[appendChildMethod](blockLibraryItem)
+                            }
+                        },
+                        openBlockLibrary = function() {
+                            var blockLibrary = createBlockLibrary();
+                            renderBlockLibrary();
+                            blockLibrary.hidden = false;
+                            blockLibrary[setAttributeMethod]('aria-hidden', 'false');
+                            var blockLibraryClose = blockLibrary[querySelectorMethod]('[data-block-library-close]');
+                            if (blockLibraryClose) blockLibraryClose[focusEvent]()
+                        },
+                        saveBlockPreset = function(blockTarget) {
+                            if (!blockTarget || blockTarget == runtimeValue127.body) return;
+                            var blockMarkup = sanitizeBlockMarkup(blockTarget[outerHTMLProperty]);
+                            if (!blockMarkup) return;
+                            var blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || ''),
+                                blockName = windowObject.prompt(blockLibraryRussian ? 'Название блока' : 'Block name', blockTarget[tagNameProperty][toLowerCaseMethod]());
+                            if (!blockName) return;
+                            var blockLibraryItems = readBlockLibrary();
+                            blockLibraryItems.unshift({name: blockName[substringMethod](0, 60), html: blockMarkup});
+                            writeBlockLibrary(blockLibraryItems[sliceMethod](0, 24));
+                            openBlockLibrary()
+                        },
+                        insertBlockPreset = function(blockIndex) {
+                            var blockLibraryItems = readBlockLibrary(),
+                                blockPreset = blockLibraryItems[blockIndex],
+                                blockTarget = runtimeValue127[querySelectorMethod]('[' + focusAttribute + ']') || contextTarget;
+                            if (!blockPreset || !blockTarget) return;
+                            var blockMarkup = sanitizeBlockMarkup(blockPreset.html),
+                                blockMarkupContainer = runtimeValue127[createElementMethod]('div');
+                            blockMarkupContainer[innerHTMLProperty] = blockMarkup;
+                            var blockNode = blockMarkupContainer[firstElementChildProperty],
+                                blockStart = runtimeValue93(blockTarget),
+                                blockEnd = runtimeValue94(blockTarget);
+                            if (!blockNode || typeof blockStart != 'number' || typeof blockEnd != 'number') return;
+                            var blockSerialized = blockNode[outerHTMLProperty];
+                            blockTarget[parentNodeProperty][insertBeforeMethod](blockNode, blockTarget[nextElementSiblingProperty]);
+                            serializedSource = serializedSource[sliceMethod](0, blockEnd) + blockSerialized + serializedSource[sliceMethod](blockEnd);
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue4[disabledProperty] = false;
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            if (blockLibraryPanel) {
+                                blockLibraryPanel.hidden = true;
+                                blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true')
+                            }
                         },
                         createStyleInspector = function() {
                             if (styleInspector) return styleInspector;
@@ -1233,7 +1368,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить в библиотеку' : 'Save to library', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';
@@ -1244,6 +1379,11 @@
                                 visualEditorValue16.handler = visualEditorValue13[visualEditorValue14][2];
                                 visualEditorValue16[textContentProperty] = visualEditorValue13[visualEditorValue14][1];
                                 visualEditorValue16[addEventListenerMethod](clickEvent, function() {
+                                    if (this.action == 'save-block') {
+                                        saveBlockPreset(contextTarget);
+                                        hideContextMenu();
+                                        return
+                                    }
                                     if (this.action == 'style' || this.action == 'markup') {
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
                                         selectContextNode(visualEditorValue17, 'element');
@@ -2901,6 +3041,8 @@
                         runtimeValue127 = runtimeValue126[contentWindowProperty].document,
                         runtimeValue128 = serializedSource;
                     serializedSource = runtimeValue123(runtimeValue128);
+                    blockLibraryButton = documentObject[querySelectorMethod]('[data-block-library]');
+                    if (blockLibraryButton) blockLibraryButton[addEventListenerMethod](clickEvent, openBlockLibrary);
                     runtimeValue11[innerHTMLProperty] = serializedSource;
                     runtimeValue3[addEventListenerMethod](clickEvent, function() {
                         var visualEditorValue363 = false,
@@ -3435,7 +3577,8 @@
                 fileManagerCurrentDirectory = runtimeValue168,
                 fileManagerSearchInput = runtimeValue164[querySelectorMethod]('[data-file-search]'),
                 fileManagerSearchResults = runtimeValue164[querySelectorMethod]('[data-file-search-results]'),
-                fileManagerSearchTimer = false;
+                fileManagerSearchTimer = false,
+                fileManagerMediaMode = false;
             if (locationObject.pathname == runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl') && locationObject[searchMethod][indexOfMethod]('?q=') === 0) {
                 runtimeValue169 = runtimeValue168 + locationObject[searchMethod][sliceMethod](3);
                 runtimeValue170 = locationObject[searchMethod]
@@ -3540,6 +3683,7 @@
                             fileManagerSearchResults[hiddenValue] = false;
                             var fileManagerSearchLinks = fileManagerSearchResults[querySelectorAllMethod]('a');
                             for (var fileManagerSearchIndex = 0; fileManagerSearchIndex < fileManagerSearchLinks[lengthProperty]; fileManagerSearchIndex++) {
+                                if (fileManagerMediaMode && !/\.(?:avif|gif|ico|jpe?g|png|svg|webp)$/i.test(fileManagerSearchLinks[fileManagerSearchIndex][getAttributeMethod](dataAttributePrefix + 'cy') || '')) fileManagerSearchLinks[fileManagerSearchIndex][parentNodeProperty][hiddenValue] = true;
                                 fileManagerSearchLinks[fileManagerSearchIndex].href = fileManagerSearchLinks[fileManagerSearchIndex][getAttributeMethod](dataAttributePrefix + 'cy');
                                 fileManagerSearchLinks[fileManagerSearchIndex][addEventListenerMethod](clickEvent, function() { fileManagerSearchResults[hiddenValue] = true })
                             }
@@ -3895,11 +4039,20 @@
                     });
                     runtimeValue220[addEventListenerMethod](clickEvent, runtimeValue223)
                 };
-            if (fileManagerSearchInput) fileManagerSearchInput[addEventListenerMethod](inputEvent, searchProject);
+            if (fileManagerSearchInput) fileManagerSearchInput[addEventListenerMethod](inputEvent, function() {
+                fileManagerMediaMode = false;
+                searchProject()
+            });
             var fileManagerCreateFileButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-file"]'),
-                fileManagerCreateFolderButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-folder"]');
+                fileManagerCreateFolderButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-folder"]'),
+                fileManagerMediaButton = runtimeValue164[querySelectorMethod]('[data-file-action="media"]');
             if (fileManagerCreateFileButton) fileManagerCreateFileButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_file') });
             if (fileManagerCreateFolderButton) fileManagerCreateFolderButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_folder') });
+            if (fileManagerMediaButton) fileManagerMediaButton[addEventListenerMethod](clickEvent, function() {
+                fileManagerMediaMode = true;
+                if (fileManagerSearchInput) fileManagerSearchInput[valueProperty] = '.';
+                searchProject()
+            });
             initializeFileEntry(runtimeValue167);
             runtimeValue166[addEventListenerMethod](mouseDownEvent, function() {
                 if (this[nextElementSiblingProperty][styleProperty][displayProperty] != blockValue) revealCurrentPath(runtimeValue167)

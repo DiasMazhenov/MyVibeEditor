@@ -699,3 +699,12 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.34` в PHP, JS, runtime/source-map, fallback, README и HTTP regression.
 - Проверки v0.34: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
 - Следующий функциональный номер — `0.35`: библиотека блоков и медиаменеджер.
+
+## Текущее исправление v0.35
+
+- Добавлена локальная библиотека блоков: выбранный узел можно сохранить через контекстное меню `Сохранить в библиотеку`, открыть через кнопку `Блоки`, вставить после текущего выделения или удалить. Данные хранятся только в localStorage текущего браузера.
+- Перед сохранением/вставкой библиотека удаляет `script/style/iframe/object/embed/foreignObject`, inline-события, `javascript:`/`vbscript:`-ссылки и внутренние `data-myvibehtml-*`-атрибуты; source map и draft обновляются после вставки.
+- В файловый менеджер добавлена кнопка `Медиа`: существующий project search переиспользуется, а результат фильтруется до `avif/gif/ico/jpg/jpeg/png/svg/webp` и открывается прямым URL.
+- Версия синхронно поднята до `0.35` в PHP, JS, runtime/source-map, fallback, README и HTTP regression; внешние библиотеки не добавлялись.
+- Проверки v0.35: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Следующий функциональный номер — `0.36`: проверка страницы и diff перед сохранением.
