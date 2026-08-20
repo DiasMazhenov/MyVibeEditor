@@ -44,6 +44,8 @@
 
 `readCookie()`, `writeCookie()`, `removeCookie()`, `generateToken()`, `sha1()`, `base64Encode()` и `base64UrlEncode()` обслуживают cookie/CSRF-транспорт. Пароль передаётся по HTTPS для серверной проверки `password_verify()`, без клиентского SHA-1. `fadeIn()` и `fadeOut()` управляют состоянием сообщений и панелей.
 
+Auth DOM-flow (`bootAuthentication()`, `togglePasswordVisibility()`, `updateLoginButton()`, `startLogin()`, `submitLogin()` и `reloadAfterAuthentication()`) находится в отдельном `myvibehtml-auth.js` и загружается только на auth-странице. Основной `myvibehtml.js` не содержит auth-обработчиков.
+
 Обработчики вкладок переключают `html`/`text`, `saveEditorContent()` сохраняет изменения, `switchEditorMode()` выбирает режим, а `toggleSettingsSection()`, `submitSettings()`, `applySavedSettings()` и `restoreSettingsDefaults()` обслуживают настройки.
 
 ## JavaScript: визуальный редактор
@@ -76,7 +78,7 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 Внешние runtime-роли IIFE: `writeCookie`, `removeCookie`, `readCookie`, `animateValue`, `fadeIn`, `fadeOut`, `slideDown`, `slideUp`, `showPanel`, `hidePanel`, `utf8Encode`, `sha1`, `base64Encode`, `ajaxRequest`, `generateToken`, `formatBytes`.
 
-Авторизация: `togglePasswordVisibility`, `handleLoginKeydown`, `updateLoginButton`, `startLogin`, `hashPassword`, `submitLogin`.
+Авторизация (`myvibehtml-auth.js`): `bootAuthentication`, `togglePasswordVisibility`, `updateLoginButton`, `startLogin`, `submitLogin`, `reloadAfterAuthentication`.
 
 Редактор и выделение: `initializeVisualEditor`, `getContextNode`, `getSectionNode`, `getBlockNode`, `clearContextSelection`, `selectContextNode`, `createContextMenu`, `showContextMenu`, `hideContextMenu`, `handleEditorSelection`, `syncToolbarSpace`, `saveEditorContent`, `switchEditorMode`, `resetEditorFocus`.
 

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.55 */
+<?php /* MyVibeHTML v0.56 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -595,7 +595,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.55';
+    const VERSION = '0.56';
     private $config;
     private $request;
     private $response;

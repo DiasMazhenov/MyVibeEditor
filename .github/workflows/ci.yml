@@ -28,6 +28,7 @@ jobs:
           php -l myvibehtml.php
           php -l dev-router.php
           node --check myvibehtml.js
+          node --check myvibehtml-auth.js
           node --check myvibehtml-source-map.js
           node --check myvibehtml-ui-contracts.js
           node --test tests/source-map.test.js
@@ -47,4 +48,5 @@ jobs:
         env:
           MYVIBEHTML_E2E_URL: ${{ secrets.MYVIBEHTML_E2E_URL }}
           MYVIBEHTML_E2E_COOKIE: ${{ secrets.MYVIBEHTML_E2E_COOKIE }}
+          MYVIBEHTML_E2E_VERSION: '0.56'
         run: sh tests/e2e-authenticated.sh

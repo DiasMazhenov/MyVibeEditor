@@ -1,6 +1,6 @@
-# Архитектура v0.55
+# Архитектура v0.56
 
-v0.55 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.56 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -11,7 +11,7 @@ v0.55 сохраняет безопасные модульные границы 
 - `myvibehtml-shell-controls.js` — изолированные command palette, preview-кнопки и mobile menu, работающие только через публичные DOM-контролы панели;
 - `myvibehtml.js` — оркестрация visual/source editor, files и settings без auth-flow;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
-- `tests/` — unit, security, regression, CI contract и optional authenticated E2E.
+- `tests/` — unit, module-boundary, security, regression, CI contract и optional authenticated E2E.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 

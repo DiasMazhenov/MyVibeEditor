@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.55**.
+Текущая версия: **0.56**.
 
 ## Возможности
 
@@ -36,7 +36,7 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 - модульные runtime-контракты для PHP, source-map, UI contracts и transport;
 - защитные HTTP-заголовки, CSP Report-Only, проверки путей и атомарная запись файлов.
 
-CI запускает PHP/JS syntax checks, unit/security/HTTP regression и optional authenticated HTTP E2E. Пароли и cookies для E2E берутся только из GitHub Actions secrets `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; без них проверка явно пропускается.
+CI запускает PHP/JS syntax checks, unit/security/HTTP regression и optional authenticated HTTP E2E. Пароли и cookies для E2E берутся только из GitHub Actions secrets `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; без них проверка явно пропускается. Полный ручной acceptance-сценарий для встроенного браузера находится в [`docs/browser-acceptance.md`](docs/browser-acceptance.md).
 
 ## Скриншоты
 

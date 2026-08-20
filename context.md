@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.56
+
+- Граница модулей зафиксирована контрактными тестами: auth загружает только `ui-contracts → transport → auth`, editor — `source-map → ui-contracts → transport → editor → shell`; auth-flow не возвращается в `myvibehtml.js`.
+- `tests/e2e-authenticated.sh` теперь проверяет актуальную версию asset-цепочки, editor-маркеры, mobile menu и отсутствие auth-only/unsafe markers; пароль и cookie по-прежнему берутся только из CI secrets.
+- Добавлен ручной сценарий [`docs/browser-acceptance.md`](docs/browser-acceptance.md) для встроенного браузера: auth, html/text, Files/Settings, context menu, CSS inspector, eye, mobile burger и отсутствие overflow.
+- Версия синхронно поднята до `0.56` в PHP, JS-модулях, CSS, README, CHANGELOG, документации, CI и regression.
+- Playwright/AWT не запускались по требованию проекта; встроенный браузер можно открыть, но API не предоставляет программных click/screenshot-команд.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.55
 
 - На мобильных ширинах до 900px `data-preview-controls` скрыты: переключатели desktop/tablet/mobile не занимают место и не перекрывают шапку.
