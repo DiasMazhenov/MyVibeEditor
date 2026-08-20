@@ -1,56 +1,5 @@
-<?php /* MyVibeHTML v0.28 */
-function myvibehtml_runtime_directory($myvibehtmlruntimedirectory1 = false)
-{
-    if (!$myvibehtmlruntimedirectory1 && isset($_SERVER['DOCUMENT_ROOT'])) $myvibehtmlruntimedirectory1 = $_SERVER['DOCUMENT_ROOT'];
-    $myvibehtmlruntimedirectory1 = str_replace('\\', '/', (string)$myvibehtmlruntimedirectory1);
-    $myvibehtmlruntimedirectory2 = realpath($myvibehtmlruntimedirectory1);
-    if (!$myvibehtmlruntimedirectory2 || $myvibehtmlruntimedirectory2 === '/') return false;
-    $myvibehtmlruntimedirectory2 = rtrim(str_replace('\\', '/', $myvibehtmlruntimedirectory2), '/');
-    $myvibehtmlruntimedirectory3 = dirname($myvibehtmlruntimedirectory2) . '/.myvibehtml-' . substr(sha1($myvibehtmlruntimedirectory2), 0, 16) . '/';
-    if (is_link(rtrim($myvibehtmlruntimedirectory3, '/'))) return false;
-    if (!is_dir($myvibehtmlruntimedirectory3)) @mkdir($myvibehtmlruntimedirectory3, 0700, true);
-    if (is_dir($myvibehtmlruntimedirectory3) && is_writable($myvibehtmlruntimedirectory3)) {
-        @chmod($myvibehtmlruntimedirectory3, 0700);
-        return $myvibehtmlruntimedirectory3;
-    }
-    return false;
-}
-
-function myvibehtml_atomic_write($myvibehtmlatomicwrite1, $myvibehtmlatomicwrite2, $myvibehtmlatomicwrite3, $myvibehtmlatomicwrite4)
-{
-    $myvibehtmlatomicwrite5 = dirname($myvibehtmlatomicwrite1);
-    if (!is_dir($myvibehtmlatomicwrite5) || !is_writable($myvibehtmlatomicwrite5) || is_link($myvibehtmlatomicwrite1)) return false;
-    $myvibehtmlatomicwrite6 = @fopen($myvibehtmlatomicwrite5 . '/' . $myvibehtmlatomicwrite4, 'c');
-    if (!$myvibehtmlatomicwrite6 || !flock($myvibehtmlatomicwrite6, LOCK_EX)) {
-        if ($myvibehtmlatomicwrite6) fclose($myvibehtmlatomicwrite6);
-        return false;
-    }
-    $myvibehtmlatomicwrite7 = tempnam($myvibehtmlatomicwrite5, '.myvibehtml-write-');
-    $myvibehtmlatomicwrite8 = $myvibehtmlatomicwrite7 ? @fopen($myvibehtmlatomicwrite7, 'wb') : false;
-    $myvibehtmlatomicwrite9 = false;
-    if ($myvibehtmlatomicwrite8) {
-        $myvibehtmlatomicwrite10 = 0;
-        $myvibehtmlatomicwrite11 = strlen($myvibehtmlatomicwrite2);
-        while ($myvibehtmlatomicwrite10 < $myvibehtmlatomicwrite11 && ($myvibehtmlatomicwrite12 = fwrite($myvibehtmlatomicwrite8, substr($myvibehtmlatomicwrite2, $myvibehtmlatomicwrite10))) !== false && $myvibehtmlatomicwrite12 > 0) $myvibehtmlatomicwrite10 += $myvibehtmlatomicwrite12;
-        $myvibehtmlatomicwrite9 = $myvibehtmlatomicwrite10 === $myvibehtmlatomicwrite11 && fflush($myvibehtmlatomicwrite8);
-        fclose($myvibehtmlatomicwrite8);
-    }
-    if ($myvibehtmlatomicwrite9) {
-        @chmod($myvibehtmlatomicwrite7, $myvibehtmlatomicwrite3);
-        $myvibehtmlatomicwrite9 = @rename($myvibehtmlatomicwrite7, $myvibehtmlatomicwrite1);
-        if ($myvibehtmlatomicwrite9) @chmod($myvibehtmlatomicwrite1, $myvibehtmlatomicwrite3);
-    }
-    if ($myvibehtmlatomicwrite7 && file_exists($myvibehtmlatomicwrite7)) @unlink($myvibehtmlatomicwrite7);
-    flock($myvibehtmlatomicwrite6, LOCK_UN);
-    fclose($myvibehtmlatomicwrite6);
-    return $myvibehtmlatomicwrite9;
-}
-
-function myvibehtml_unserialize_array($myvibehtmlunserializearray1)
-{
-    if (version_compare(PHP_VERSION, '7.0', '>=')) return @unserialize($myvibehtmlunserializearray1, ['allowed_classes' => false]);
-    return @unserialize($myvibehtmlunserializearray1);
-}
+<?php /* MyVibeHTML v0.29 */
+require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
 ini_set('error_reporting', E_ALL);
@@ -140,15 +89,6 @@ define('LANGUAGE_LIST', 'language_list');
 define('CLOSING_BODY_TAG', '</body>');
 define('COOKIE_PREFIX', 'myvibehtml_');
 define('BACKUP_URL_PREFIX', 'myvibehtml://backup/');
-
-function myvibehtml_base64_decode($value)
-{
-    if (!is_string($value) || !preg_match('~^[A-Za-z0-9+/_-]*={0,2}$~', $value)) return false;
-    $value = strtr($value, '-_', '+/');
-    $padding = strlen($value) % 4;
-    if ($padding) $value .= str_repeat('=', 4 - $padding);
-    return base64_decode($value, true);
-}
 
 final class MyVibeHTMLRequest
 {
@@ -625,7 +565,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.28';
+    const VERSION = '0.29';
     private $config;
     private $request;
     private $response;

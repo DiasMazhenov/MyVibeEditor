@@ -1,0 +1,33 @@
+name: MyVibeHTML CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and unit checks
+        run: |
+          php -l myvibehtml-runtime.php
+          php -l myvibehtml.php
+          php -l dev-router.php
+          node --check myvibehtml.js
+          node --check myvibehtml-source-map.js
+          node --test tests/source-map.test.js
+          node --test tests/deobfuscation.test.js
+          sh security-smoke.sh
+      - name: HTTP regression
+        run: |
+          php -S 127.0.0.1:8080 dev-router.php >/tmp/myvibehtml-ci.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in 1 2 3 4 5; do curl -fsS http://127.0.0.1:8080/test-page.html >/dev/null && break; sleep 1; done
+          MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh
+      - name: Authenticated HTTP E2E (optional)
+        env:
+          MYVIBEHTML_E2E_URL: ${{ secrets.MYVIBEHTML_E2E_URL }}
+          MYVIBEHTML_E2E_COOKIE: ${{ secrets.MYVIBEHTML_E2E_COOKIE }}
+        run: sh tests/e2e-authenticated.sh

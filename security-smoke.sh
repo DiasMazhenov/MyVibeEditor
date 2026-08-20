@@ -3,11 +3,12 @@ set -eu
 
 cd "$(dirname "$0")"
 
+php -l myvibehtml-runtime.php >/dev/null
 php -l myvibehtml.php >/dev/null
 php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 
-if rg -n -S 'textolite\.ru|withCredentials\s*=|buildServiceUrl|install=|activate=|system=http' myvibehtml.php myvibehtml.js; then
+if rg -n -S 'textolite\.ru|withCredentials\s*=|buildServiceUrl|install=|activate=|system=http' myvibehtml-runtime.php myvibehtml.php myvibehtml.js; then
     echo "security-smoke: external update flow residue found" >&2
     exit 1
 fi

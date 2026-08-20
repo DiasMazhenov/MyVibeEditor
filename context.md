@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.29
+
+- PHP runtime разделён без изменения публичного входа: `myvibehtml-runtime.php` содержит runtime-directory, atomic-write, legacy unserialize и Base64 decode helpers; `myvibehtml.php` подключает его через `require_once` и оставляет request/response/config/controller.
+- Добавлены [`docs/architecture.md`](docs/architecture.md), GitHub Actions workflow `.github/workflows/ci.yml` и `tests/e2e-authenticated.sh`. CI запускает PHP/JS syntax, unit, security и HTTP regression; authenticated E2E запускается только при наличии секретов `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`, иначе явно пропускается.
+- Версия runtime/cache-busting поднята до `0.29`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне коммита.
+- Проверки v0.29: `php -l myvibehtml-runtime.php`, `php -l myvibehtml.php`, `node --check myvibehtml.js`, `node --check myvibehtml-source-map.js`, source-map/deobfuscation tests, `sh security-smoke.sh`, `sh tests/e2e-authenticated.sh` (SKIP без секретов), `git diff --check`, `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Следующий functional номер — `0.30`: CSS consolidation, accessibility, performance и актуальная документация.
+
 ## Текущее исправление v0.28
 
 - Завершена механическая часть семантической деобфускации: PHP generated-переменные `...ValueN` переименованы по области действия, JavaScript `callbackValueN`/`callbackArgumentN` — в `runtimeValueN`/`runtimeInputN`, а локальные группы редактора — в `visualEditorValueN`, `settingsValueN` и `submitValueN`. Числовой суффикс сохранён только для различения однотипных локальных значений.
