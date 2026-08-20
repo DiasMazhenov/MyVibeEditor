@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.50: critical panel fallback and shared theme tokens. */
+/* MyVibeHTML v0.51: critical panel fallback and shared theme tokens. */
 :root{--mv-bg:#0c1117;--mv-surface:#141c24;--mv-surface-strong:#1b2732;--mv-border:rgba(148,163,184,.2);--mv-text:#edf2f7;--mv-muted:#91a0ad;--mv-primary:#14b8a6;--mv-ring:#5eead4}
 .myvibehtml-local-icon{display:block;width:18px;height:18px;background:currentColor;-webkit-mask-position:center;-webkit-mask-repeat:no-repeat;-webkit-mask-size:contain;mask-position:center;mask-repeat:no-repeat;mask-size:contain;pointer-events:none}
 .myvibehtml-icon-eye{-webkit-mask-image:url("myvibehtml-icons/eye.svg");mask-image:url("myvibehtml-icons/eye.svg")}

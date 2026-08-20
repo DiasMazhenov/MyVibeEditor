@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.50 shell controls: command palette */
+/* MyVibeHTML v0.51 shell controls: command palette and responsive controls */
 (function() {
     'use strict';
 
@@ -145,5 +145,60 @@
             }
         });
         document.addEventListener('click', function(event) { if (palette && !palette.hidden && !palette.contains(event.target)) close() })
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var panel = document.querySelector('#e'), previewControls, previewFrame;
+        if (!panel) return;
+        previewControls = panel.querySelector('[data-preview-controls]');
+        previewFrame = document.querySelector('#d iframe');
+        if (previewControls && previewFrame && document.documentElement.id == 'd') {
+            var previewButtons = previewControls.querySelectorAll('[data-preview-size]'),
+                setPreviewSize = function(previewSize) {
+                    if (previewSize != 'tablet' && previewSize != 'mobile') previewSize = 'desktop';
+                    document.documentElement.setAttribute('data-myvibehtml-preview-size', previewSize);
+                    for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == previewSize ? 'true' : 'false')
+                };
+            for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].addEventListener('click', function() { setPreviewSize(this.getAttribute('data-preview-size')) });
+            setPreviewSize('desktop')
+        }
+
+        var menuToggle = document.querySelector('#myvibehtml-mobile-menu-toggle'),
+            menu = document.querySelector('#myvibehtml-mobile-menu');
+        if (!menuToggle || !menu) return;
+        var menuItems = menu.querySelectorAll('[data-mobile-target]'),
+            setMenuState = function(open) {
+                menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                menu.setAttribute('aria-hidden', open ? 'false' : 'true')
+            };
+        for (var itemIndex = 0; itemIndex < menuItems.length; itemIndex++) {
+            var item = menuItems[itemIndex], target = panel.querySelector(item.getAttribute('data-mobile-target'));
+            if (!target) {
+                item.hidden = true;
+                continue
+            }
+            item.addEventListener('click', function(event) {
+                event.preventDefault();
+                var target = panel.querySelector(this.getAttribute('data-mobile-target'));
+                if (target && !target.disabled) {
+                    if (target.tagName == 'A') target.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, view:window}));
+                    else if (target.click) target.click()
+                }
+                setMenuState(false)
+            })
+        }
+        menuToggle.addEventListener('click', function(event) {
+            event.preventDefault();
+            setMenuState(menu.getAttribute('aria-hidden') == 'true')
+        });
+        document.addEventListener('click', function(event) {
+            if (event.target != menuToggle && !menuToggle.contains(event.target) && event.target != menu && !menu.contains(event.target)) setMenuState(false)
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key == 'Escape') {
+                setMenuState(false);
+                menuToggle.focus()
+            }
+        })
     })
 }());

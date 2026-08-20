@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51
+
+- preview-переключатели и mobile menu вынесены из основного editor closure в существующий shell-модуль;
+- сохранены `aria-pressed`, `aria-expanded`, `aria-hidden`, обработка Escape и прямой вызов текущих DOM-контролов без дублирования бизнес-логики.
+
 ## 0.50
 
 - command palette вынесена из основного editor closure в локальный `myvibehtml-shell-controls.js`;

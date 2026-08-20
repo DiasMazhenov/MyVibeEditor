@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.50 UI contracts */
+/* MyVibeHTML v0.51 UI contracts */
 (function(root) {
     root.MyVibeHTMLUIContracts = {
         generateToken: function() {

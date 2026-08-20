@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.50 */
+/* MyVibeHTML v0.51 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -4751,62 +4751,5 @@
             }
             runtimeValue226[addEventListenerMethod](mouseDownEvent, initializeSettings)
         }
-    })
-    documentObject[addEventListenerMethod](domContentLoadedEvent, function() {
-        var panel = documentObject[querySelectorMethod]('#e'),
-            previewControls;
-        if (!panel) return;
-        previewControls = panel[querySelectorMethod]('[data-preview-controls]');
-        var previewFrame = documentObject[querySelectorMethod]('#d iframe');
-        if (previewControls && previewFrame && documentObject[documentElementProperty].id == 'd') {
-            var previewButtons = previewControls[querySelectorAllMethod]('[data-preview-size]'),
-                setPreviewSize = function(previewSize) {
-                    if (previewSize != 'tablet' && previewSize != 'mobile') previewSize = 'desktop';
-                    documentObject[documentElementProperty][setAttributeMethod]('data-myvibehtml-preview-size', previewSize);
-                    for (var previewIndex = 0, previewLength = previewButtons[lengthProperty]; previewIndex < previewLength; previewIndex++) previewButtons[previewIndex][setAttributeMethod]('aria-pressed', previewButtons[previewIndex][getAttributeMethod]('data-preview-size') == previewSize ? 'true' : 'false')
-                };
-            for (var previewIndex = 0, previewLength = previewButtons[lengthProperty]; previewIndex < previewLength; previewIndex++) previewButtons[previewIndex][addEventListenerMethod](clickEvent, function() {
-                setPreviewSize(this[getAttributeMethod]('data-preview-size'))
-            });
-            setPreviewSize('desktop')
-        }
-        var toggle = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu-toggle'),
-            menu = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu');
-        if (!toggle || !menu) return;
-        var items = menu[querySelectorAllMethod]('[data-mobile-target]'),
-            setMenuState = function(open) {
-                toggle[setAttributeMethod]('aria-expanded', open ? 'true' : 'false');
-                menu[setAttributeMethod]('aria-hidden', open ? 'false' : 'true')
-            };
-        for (var runtimeValue276 = 0, runtimeValue277 = items[lengthProperty]; runtimeValue276 < runtimeValue277; runtimeValue276++) {
-            var item = items[runtimeValue276],
-                target = panel[querySelectorMethod](item[getAttributeMethod]('data-mobile-target'));
-            if (!target) {
-                item.hidden = true;
-                continue
-            }
-            item[addEventListenerMethod](clickEvent, function(event) {
-                event.preventDefault();
-                var target = panel[querySelectorMethod](this[getAttributeMethod]('data-mobile-target'));
-                if (target && !target.disabled) {
-                    if (target.tagName == 'A') target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
-                    else if (target.click) target.click()
-                }
-                setMenuState(false)
-            })
-        }
-        toggle[addEventListenerMethod](clickEvent, function(event) {
-            event.preventDefault();
-            setMenuState(menu[getAttributeMethod]('aria-hidden') == 'true')
-        });
-        documentObject[addEventListenerMethod](clickEvent, function(event) {
-            if (event.target != toggle && !toggle.contains(event.target) && event.target != menu && !menu.contains(event.target)) setMenuState(false)
-        });
-        documentObject[addEventListenerMethod]('keydown', function(event) {
-            if (event.key == 'Escape') {
-                setMenuState(false);
-                toggle.focus()
-            }
-        })
     })
 }());

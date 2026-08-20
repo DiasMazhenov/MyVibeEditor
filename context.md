@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.51
+
+- Следующий shell extraction seam завершён: preview-переключатели и mobile menu удалены из `myvibehtml.js` и перенесены в `myvibehtml-shell-controls.js`.
+- Сохранён существующий DOM-контракт: preview обновляет `data-myvibehtml-preview-size`/`aria-pressed`, mobile menu управляет `aria-expanded`/`aria-hidden`, Escape возвращает фокус на кнопку бургера.
+- Внешних библиотек и доменных запросов не добавлено; `myvibehtml.js` уменьшен ещё на 57 строк.
+- Версия синхронно поднята до `0.51` в PHP, JS-модулях, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Обновлённая страница открыта во встроенном браузере на `?rev=0.51`; текущий API сессии не предоставляет программных click/screenshot-команд для этого окна, поэтому live click-through не объявляется выполненным. Статические и HTTP regression — PASS.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.50
 
 - Следующий этап физического разбиения начат с безопасного extraction seam: command palette удалена из `myvibehtml.js` и вынесена в `myvibehtml-shell-controls.js`.
