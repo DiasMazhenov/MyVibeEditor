@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.60 */
+/* MyVibeHTML v0.61 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -479,7 +479,9 @@
                     validationDialog[querySelectorMethod]('[data-validation-cancel]')[textContentProperty] = validationText('validation-close', 'Close');
                     validationConfirm[textContentProperty] = validationOptions && validationOptions.confirm || validationText('validation-save', 'Save anyway');
                     validationConfirm.hidden = !saveCallback;
-                    validationSummary[textContentProperty] = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
+                    var validationScore = Math.max(0, 100 - validationErrorCount * 25 - validationWarningCount * 5),
+                        validationSummaryText = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
+                    validationSummary[textContentProperty] = validationSummaryText + ' · ' + validationText('validation-score', 'Score') + ': ' + validationScore + '/100';
                     validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationOptions && validationOptions.noChanges || validationText('validation-no-changes', 'No changes');
                     validationConfirm.onclick = saveCallback ? function() { validationDialog.hidden = true; saveCallback() } : null;
                     validationDialog.hidden = false;

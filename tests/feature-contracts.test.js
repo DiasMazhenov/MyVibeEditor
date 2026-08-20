@@ -48,8 +48,10 @@ test('Page navigation and Responsive Preview Studio reuse shell controls', () =>
 test('Page Health adds local SEO, structure and resource checks', () => {
     assert.match(editor, /validationDescription/);
     assert.match(editor, /validationResourceCount/);
+    assert.match(editor, /validationScore/);
     assert.match(editor, /validation-missing-lang/);
     assert.match(editor, /validation-h1/);
     assert.match(php, /data-validation-description/);
     assert.match(php, /data-validation-heavy/);
+    assert.match(php, /data-validation-score/);
 });

@@ -1,5 +1,12 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.61
+
+- Page Health получил итоговую локальную оценку `0–100`: ошибки уменьшают score на 25, предупреждения на 5; существующий diff и явное подтверждение сохранения не изменены.
+- Оценка выводится через безопасный `textContent` в том же диалоге проверки; внешние сервисы, сетевые проверки ссылок и отправка исходника не добавлялись.
+- Обновлены version markers, `lang.ini`, README, function catalog, CHANGELOG, CI и regression до `0.61`.
+- Перед коммитом v0.61 пройдены node/PHP syntax, feature/module contracts, CI contract, `git diff --check` и полный HTTP regression против `127.0.0.1:8080`; после фиксации нужно открыть `?rev=0.61` во встроенном браузере.
+
 ## Текущее исправление v0.60
 
 - Зафиксирован новый рабочий состав killer-фич 4–6: навигация по страницам, Page Health и Responsive Preview Studio.

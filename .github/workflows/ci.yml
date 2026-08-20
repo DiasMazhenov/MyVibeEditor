@@ -48,5 +48,5 @@ jobs:
         env:
           MYVIBEHTML_E2E_URL: ${{ secrets.MYVIBEHTML_E2E_URL }}
           MYVIBEHTML_E2E_COOKIE: ${{ secrets.MYVIBEHTML_E2E_COOKIE }}
-          MYVIBEHTML_E2E_VERSION: '0.60'
+          MYVIBEHTML_E2E_VERSION: '0.61'
         run: sh tests/e2e-authenticated.sh
