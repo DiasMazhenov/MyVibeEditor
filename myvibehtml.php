@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.33 */
+<?php /* MyVibeHTML v0.34 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -355,6 +355,7 @@ final class MyVibeHTMLConfig
         $this->templates['h'] = str_replace('<a></a>', '<a role="button" tabindex="0" aria-label="{show_password}"></a>', $this->templates['h']);
         $this->templates['h'] = str_replace('<input type="password" maxlength="14">', '<input type="password" aria-label="{new_password}" maxlength="14">', $this->templates['h']);
         $this->templates['h'] = str_replace('<a title="{restore_settings}"></a>', '<a role="button" tabindex="0" aria-label="{restore_settings}" title="{restore_settings}"></a>', $this->templates['h']);
+        $this->templates['h'] = str_replace('</div>{mode}<ul>', '<div class="myvibehtml-preview-controls" data-preview-controls role="group" aria-label="{preview_size}"><button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button></div></div>{mode}<ul>', $this->templates['h']);
         $this->templates['h'] = str_replace(
             '</span></a></div>',
             '</span></a><button id="myvibehtml-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="myvibehtml-mobile-menu" title="{mobile_menu}" aria-label="{mobile_menu}"><span class="myvibehtml-local-icon myvibehtml-icon-menu" aria-hidden="true"></span></button><div id="myvibehtml-mobile-menu" role="menu" aria-hidden="true"><button type="button" role="menuitem" data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li:first-child>a">{files}</button><button type="button" role="menuitem" data-mobile-target="div>ol+ul>li+li>a">{settings}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:first-child input">{save}</button><button type="button" role="menuitem" data-mobile-target="div>div+ul li:last-child input">{logout}</button></div></div>',
@@ -587,7 +588,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.33';
+    const VERSION = '0.34';
     private $config;
     private $request;
     private $response;

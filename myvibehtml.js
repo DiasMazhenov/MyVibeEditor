@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.33 */
+/* MyVibeHTML v0.34 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -4198,6 +4198,20 @@
             toggle = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu-toggle'),
             menu = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu');
         if (!panel || !toggle || !menu) return;
+        var previewControls = panel[querySelectorMethod]('[data-preview-controls]'),
+            previewFrame = documentObject[querySelectorMethod]('#d iframe');
+        if (previewControls && previewFrame && documentObject[documentElementProperty].id == 'd') {
+            var previewButtons = previewControls[querySelectorAllMethod]('[data-preview-size]'),
+                setPreviewSize = function(previewSize) {
+                    if (previewSize != 'tablet' && previewSize != 'mobile') previewSize = 'desktop';
+                    documentObject[documentElementProperty][setAttributeMethod]('data-myvibehtml-preview-size', previewSize);
+                    for (var previewIndex = 0, previewLength = previewButtons[lengthProperty]; previewIndex < previewLength; previewIndex++) previewButtons[previewIndex][setAttributeMethod]('aria-pressed', previewButtons[previewIndex][getAttributeMethod]('data-preview-size') == previewSize ? 'true' : 'false')
+                };
+            for (var previewIndex = 0, previewLength = previewButtons[lengthProperty]; previewIndex < previewLength; previewIndex++) previewButtons[previewIndex][addEventListenerMethod](clickEvent, function() {
+                setPreviewSize(this[getAttributeMethod]('data-preview-size'))
+            });
+            setPreviewSize('desktop')
+        }
         var items = menu[querySelectorAllMethod]('[data-mobile-target]'),
             setMenuState = function(open) {
                 toggle[setAttributeMethod]('aria-expanded', open ? 'true' : 'false');

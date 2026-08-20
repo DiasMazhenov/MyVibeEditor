@@ -691,3 +691,11 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия синхронно поднята до `0.33` в PHP, JS, runtime/source-map, fallback, README и HTTP regression.
 - Проверки v0.33: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
 - Следующий функциональный номер — `0.34`: адаптивный preview.
+
+## Текущее исправление v0.34
+
+- В визуальный редактор добавлен нативный responsive preview: кнопки `Десктоп`, `Планшет`, `Телефон` меняют ширину рабочего iframe соответственно на 100%, `768px` и `390px`; содержимое и CSS страницы остаются живыми.
+- Переключатель доступен как группа кнопок с `aria-pressed`; на узких разрешениях вынесен в компактную полосу под верхней панелью, в исходном режиме скрыт. Реализация использует только CSS и DOM, внешние библиотеки не добавлялись.
+- Версия синхронно поднята до `0.34` в PHP, JS, runtime/source-map, fallback, README и HTTP regression.
+- Проверки v0.34: `node --check`, PHP lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Следующий функциональный номер — `0.35`: библиотека блоков и медиаменеджер.
