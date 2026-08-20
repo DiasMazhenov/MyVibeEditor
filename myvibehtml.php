@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.31 */
+<?php /* MyVibeHTML v0.32 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -343,6 +343,13 @@ final class MyVibeHTMLConfig
             '<div class="myvibehtml-panel-brand"><h1><a href="{site_preview_url}">MyVibeHTML</a> <span>v{version}</span></h1><p>{extended}</p><a id="myvibehtml-site-preview" href="{site_preview_url}" target="_blank" rel="noopener" title="{view_site}" aria-label="{view_site}"><span class="myvibehtml-local-icon myvibehtml-icon-eye" aria-hidden="true"></span></a></div>',
             $this->templates['h']
         );
+        $this->templates['h'] = str_replace(
+            '<div id="f">',
+            '<div id="f"><div class="myvibehtml-file-tools" data-file-tools><input type="search" data-file-search data-file-prompt="{file_name_prompt}" placeholder="{search_files}" aria-label="{search_files}"><button type="button" data-file-action="new-file">{new_file}</button><button type="button" data-file-action="new-folder">{new_folder}</button></div><ul data-file-search-results hidden></ul>',
+            $this->templates['h']
+        );
+        $this->templates['n'] = str_replace('<i title="{add_file}"></i></li>', '<i title="{add_file}"></i><i title="{rename_file}"></i></li>', $this->templates['n']);
+        $this->templates['b'] = str_replace('<i title="{delete_file}"></i><i title="{deletion_confirm}"></i><i title="{deletion_cancel}"></i>', '<i title="{delete_file}"></i><i title="{deletion_confirm}"></i><i title="{deletion_cancel}"></i><i title="{rename_file}"></i>', $this->templates['b']);
         $this->templates['h'] = str_replace('<a title="{files}">', '<a role="button" tabindex="0" aria-expanded="false" title="{files}">', $this->templates['h']);
         $this->templates['h'] = str_replace('<a title="{settings}">', '<a role="button" tabindex="0" aria-expanded="false" title="{settings}">', $this->templates['h']);
         $this->templates['h'] = str_replace('<a></a>', '<a role="button" tabindex="0" aria-label="{show_password}"></a>', $this->templates['h']);
@@ -580,7 +587,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.31';
+    const VERSION = '0.32';
     private $config;
     private $request;
     private $response;
@@ -647,8 +654,13 @@ final class MyVibeHTMLController
         if (preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//~i', $getsiterelativepath1)) {
             $getsiterelativepath2 = parse_url($getsiterelativepath1);
             $getsiterelativepath3 = $this->request->getServer(REQUEST_SERVER_NAME);
-            if (!is_array($getsiterelativepath2) || !isset($getsiterelativepath2['host']) || !$getsiterelativepath3 || strcasecmp($getsiterelativepath2['host'], $getsiterelativepath3) !== 0 || isset($getsiterelativepath2['query']) || isset($getsiterelativepath2['fragment'])) return false;
+            if (!is_array($getsiterelativepath2) || !isset($getsiterelativepath2['host']) || !$getsiterelativepath3 || strcasecmp($getsiterelativepath2['host'], $getsiterelativepath3) !== 0 || isset($getsiterelativepath2['fragment'])) return false;
             $getsiterelativepath1 = isset($getsiterelativepath2['path']) ? $getsiterelativepath2['path'] : '/';
+            if (isset($getsiterelativepath2['query'])) {
+                parse_str($getsiterelativepath2['query'], $editorQuery);
+                if (count($editorQuery) !== 1 || !isset($editorQuery['q']) || !is_string($editorQuery['q'])) return false;
+                $getsiterelativepath1 = rtrim($getsiterelativepath1, '/') . '/' . ltrim(rawurldecode($editorQuery['q']), '/');
+            }
         }
         $getsiterelativepath2 = str_replace('\\', '/', $this->config->getSiteUrl());
         $getsiterelativepath3 = str_replace('\\', '/', $this->config->getSiteUrlBase());
@@ -821,6 +833,36 @@ final class MyVibeHTMLController
             } else if ($dispatch7 = $this->request->getPost('open')) {
                 $dispatch7 = rawurldecode($dispatch7);
                 $this->response->setBody($this->renderFileList($dispatch7));
+            } else if (($dispatch30 = $this->request->getPost('new_file')) && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $newFileDirectory = rawurldecode($dispatch30);
+                $newFileName = $this->normalizeManagerName($this->request->getPost('name'));
+                $newFileRelative = $this->getSiteRelativePath($newFileDirectory);
+                $newFilePath = $newFileName && $newFileRelative !== false ? ($newFileRelative === '' ? $newFileName : $newFileRelative . '/' . $newFileName) : false;
+                $newFileSafePath = $newFilePath === false ? false : $this->getSafeSitePath($newFilePath, true);
+                if ($newFileSafePath && !file_exists($newFileSafePath) && $this->isAllowedExtension(strtolower(pathinfo($newFileName, PATHINFO_EXTENSION))) && $this->writeFileAtomically($newFileSafePath, '')) {
+                    $this->config->setSetting(SETTING_CACHE, '');
+                } else $this->response->setStatus(422, 'Unprocessable Entity');
+            } else if (($dispatch30 = $this->request->getPost('new_folder')) && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $newFolderDirectory = rawurldecode($dispatch30);
+                $newFolderName = $this->normalizeManagerName($this->request->getPost('name'));
+                $newFolderRelative = $this->getSiteRelativePath($newFolderDirectory);
+                $newFolderPath = $newFolderName && $newFolderRelative !== false ? ($newFolderRelative === '' ? $newFolderName : $newFolderRelative . '/' . $newFolderName) : false;
+                $newFolderSafePath = $newFolderPath === false ? false : $this->getSafeSitePath($newFolderPath, true);
+                if ($newFolderSafePath && !file_exists($newFolderSafePath) && @mkdir($newFolderSafePath, 0755)) $this->config->setSetting(SETTING_CACHE, ''); else $this->response->setStatus(422, 'Unprocessable Entity');
+            } else if (($dispatch30 = $this->request->getPost('rename')) && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $renameSourceRelative = $this->getSiteRelativePath(rawurldecode($dispatch30), true);
+                $renameName = $this->normalizeManagerName($this->request->getPost('name'));
+                $renameSourcePath = $renameSourceRelative === false ? false : $this->getSafeSitePath($renameSourceRelative);
+                $renameTargetRelative = $renameSourceRelative !== false && $renameName ? (dirname($renameSourceRelative) === '.' ? $renameName : dirname($renameSourceRelative) . '/' . $renameName) : false;
+                $renameTargetPath = $renameTargetRelative === false ? false : $this->getSafeSitePath($renameTargetRelative, true);
+                $renameExtension = strtolower(pathinfo($renameName, PATHINFO_EXTENSION));
+                if ($renameSourcePath && $renameTargetPath && !file_exists($renameTargetPath) && is_dir(dirname($renameTargetPath)) && (is_dir($renameSourcePath) || $this->isAllowedExtension($renameExtension)) && (!is_file($renameSourcePath) || $this->createBackup($renameSourceRelative)) && @rename($renameSourcePath, $renameTargetPath)) $this->config->setSetting(SETTING_CACHE, ''); else $this->response->setStatus(422, 'Unprocessable Entity');
+            } else if (($dispatch31 = $this->request->getPost('search')) !== false && $dispatch31 !== '' && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $this->response->setBody($this->renderFileSearchResults(rawurldecode($dispatch31)));
             } else if (($dispatch7 = $this->request->getPost('upload')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $dispatch7 = rawurldecode($dispatch7);
@@ -1252,6 +1294,45 @@ final class MyVibeHTMLController
     {
         $isallowedextension2 = $this->config->getSetting(SETTING_ALLOWED_EXTENSIONS);
         if (!$isallowedextension2 || preg_match('~(?:^|,\s*)' . $isallowedextension1 . '(?:\s*,|$)~i', $isallowedextension2)) return true;
+    }
+
+    private function normalizeManagerName($managerName)
+    {
+        if (!is_string($managerName)) return false;
+        $managerName = rawurldecode($managerName);
+        if ($managerName === '' || $managerName === '.' || $managerName === '..' || $managerName[0] === '.' || strpos($managerName, "\0") !== false || preg_match('~[\\\\/]~', $managerName) || basename($managerName) !== $managerName) return false;
+        return $managerName;
+    }
+
+    private function collectFileSearch($searchDirectory, $relativeDirectory, $searchTerm, &$searchEntries, $searchDepth = 0)
+    {
+        if ($searchDepth > 32 || count($searchEntries) >= 200 || !($searchHandle = @opendir($searchDirectory))) return;
+        while (($searchName = readdir($searchHandle)) !== false && count($searchEntries) < 200) {
+            if ($searchName === '.' || $searchName === '..' || $searchName[0] === '.') continue;
+            $searchPath = $searchDirectory . $searchName;
+            $searchRelative = $relativeDirectory === '' ? $searchName : $relativeDirectory . '/' . $searchName;
+            if (is_link($searchPath)) continue;
+            if (is_dir($searchPath . '/')) $this->collectFileSearch($searchPath . '/', $searchRelative, $searchTerm, $searchEntries, $searchDepth + 1);
+            else if (is_file($searchPath) && stripos($searchRelative, $searchTerm) !== false) $searchEntries[] = [$searchRelative, $searchPath];
+        }
+        closedir($searchHandle);
+    }
+
+    private function renderFileSearchResults($searchTerm)
+    {
+        $searchTerm = trim((string)$searchTerm);
+        if ($searchTerm === '') return '';
+        $searchEntries = [];
+        $this->collectFileSearch(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $searchTerm, $searchEntries);
+        $searchOutput = '';
+        foreach ($searchEntries as $searchEntry) {
+            $searchRelative = $searchEntry[0];
+            $searchPath = $searchEntry[1];
+            $searchExtension = strtolower(pathinfo($searchRelative, PATHINFO_EXTENSION));
+            $searchUrl = $this->isAllowedExtension($searchExtension) ? $this->config->getSiteUrlBase() . $this->getQueryPrefix() . implode('/', array_map('rawurlencode', explode('/', $searchRelative))) : $this->getPublicFileUrl($searchPath);
+            $searchOutput .= '<li><a data-cy="' . $this->escapeHtml($searchUrl) . '" title="' . $this->escapeHtml($searchRelative) . '">' . $this->escapeHtml($searchRelative) . '</a><span>' . $this->escapeHtml(filesize($searchPath)) . '</span></li>';
+        }
+        return $searchOutput;
     }
 
     private function renderPanel($renderpanel1)

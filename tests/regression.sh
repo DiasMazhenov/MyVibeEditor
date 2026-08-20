@@ -17,8 +17,11 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.30" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.31'" myvibehtml.php
+rg -q "MyVibeHTML v0\.32" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.32'" myvibehtml.php
+rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
+rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
+rg -q "fileManagerCreate|searchProject|renameFile" myvibehtml.js
 rg -q "data-source-action=\"redo\"" myvibehtml.php
 rg -q "myvibehtml:draft" myvibehtml.js
 rg -q "sourceHistoryUndo" myvibehtml.js
@@ -62,13 +65,13 @@ node --test tests/deobfuscation.test.js
 node --test tests/accessibility.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.30" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.30" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.30" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.32" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.32" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.32" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.30"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.32"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

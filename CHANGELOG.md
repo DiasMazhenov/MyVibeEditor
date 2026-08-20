@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.32
+
+- added file-manager create file/folder, rename and project search with path/name validation;
+- added local graphite/teal file tools and safe DOM-rendered search results;
+- added CRUD/search regression assertions and synchronized runtime version markers.
+
+## 0.31
+
+- added source Undo/Redo controls, keyboard shortcuts, local drafts and unsaved-change state;
+- draft storage reuses the existing source/visual save flow and is cleared after successful save.
+
 ## 0.30
 
 - consolidated responsive CSS ownership and removed duplicate mobile panel cascade;

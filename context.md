@@ -671,3 +671,14 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Версия runtime/cache-busting поднята до `0.31`. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в релиз.
 - Проверки v0.31: `php -l myvibehtml.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `sh tests/regression.sh`, `git diff --check` — PASS. Встроенный/графический browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance этого этапа ещё не заявляется.
 - Следующий функциональный номер — `0.32`: файловый менеджер CRUD и поиск по проекту.
+
+## Текущее исправление v0.32
+
+- Файловый менеджер получил создание пустого файла, создание папки, переименование файла/папки и удаление через существующий backup/CSRF flow. Новые имена проходят `normalizeManagerName()`, запрещены traversal, разделители, dot-файлы и NUL; новые файлы проверяются по `allowed_ext`.
+- `getSiteRelativePath()` теперь безопасно принимает собственные editor URL с единственным `q`-параметром; это исправляет CRUD для файлов, чьи `data-cy` ссылки используют query-router.
+- Добавлен поиск по всему document root с рекурсивным обходом без symlink, лимитом 200 результатов и дебаунсом 250 мс. Результаты строятся сервером как экранированные `li/a/span` и вставляются через существующий DOMParser allowlist.
+- В верхнюю часть файловой панели добавлены локальные graphite/teal controls поиска, `Новый файл` и `Новая папка`; для строк файлов/каталогов добавлено действие `Переименовать`. После успешного CRUD список обновляется текущим reload без дублирования file-manager бизнес-логики.
+- AJAX теперь передаёт все HTTP-ошибки `>=400` в общий error callback, поэтому 422 от CRUD не зависает до timeout.
+- README/CHANGELOG/function catalog map обновлены до `0.32`; runtime/cache-busting markers синхронизированы. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в релиз.
+- Проверки v0.32: PHP/JS lint, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check`, HTTP regression против изолированного `127.0.0.1:8096` — PASS. HTTP regression на стандартном `127.0.0.1:8080` не запускался из-за отсутствия слушающего сервера; графический browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance не заявляется.
+- Следующий функциональный номер — `0.33`: расширенный HTML/CSS/ARIA-инспектор.

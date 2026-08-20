@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.31 */
+/* MyVibeHTML v0.32 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -470,7 +470,7 @@
                     if (runtimeValue51.status == 200) {
                         windowObject[clearTimeoutMethod](runtimeValue52);
                         runtimeInput31.call(runtimeValue51, runtimeValue51.responseText)
-                    } else if (runtimeValue51.status == 404) {
+                    } else if (runtimeValue51.status >= 400) {
                         windowObject[clearTimeoutMethod](runtimeValue52);
                         runtimeInput32.call(runtimeValue51, runtimeValue51.responseText)
                     }
@@ -3343,7 +3343,11 @@
                 runtimeValue167 = runtimeValue164[querySelectorMethod]('li>ol'),
                 runtimeValue168 = runtimeValue167[firstElementChildProperty][firstElementChildProperty][getAttributeMethod](dataAttributePrefix + 'cy'),
                 runtimeValue169 = locationObject.pathname[sliceMethod](runtimeValue168[lengthProperty]),
-                runtimeValue170 = '';
+                runtimeValue170 = '',
+                fileManagerCurrentDirectory = runtimeValue168,
+                fileManagerSearchInput = runtimeValue164[querySelectorMethod]('[data-file-search]'),
+                fileManagerSearchResults = runtimeValue164[querySelectorMethod]('[data-file-search-results]'),
+                fileManagerSearchTimer = false;
             if (locationObject.pathname == runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl') && locationObject[searchMethod][indexOfMethod]('?q=') === 0) {
                 runtimeValue169 = runtimeValue168 + locationObject[searchMethod][sliceMethod](3);
                 runtimeValue170 = locationObject[searchMethod]
@@ -3386,7 +3390,7 @@
                 replaceFileListFragment = function(runtimeInput54, runtimeInput55) {
                     var runtimeValue177 = new DOMParser().parseFromString(runtimeInput54, 'text/html'),
                         runtimeValue178 = documentObject.createDocumentFragment(),
-                        runtimeValue179 = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1},
+                        runtimeValue179 = {LI: 1, OL: 1, UL: 1, A: 1, I: 1, INPUT: 1, SPAN: 1},
                         runtimeValue180 = {CLASS: 1, 'DATA-CY': 1, 'DATA-CZ': 1, TITLE: 1, ROLE: 1, TABINDEX: 1, 'ARIA-LABEL': 1, TYPE: 1, NAME: 1, VALUE: 1, CHECKED: 1},
                         runtimeValue181 = function(replaceFileListFragmentArgument1) {
                             if (replaceFileListFragmentArgument1.nodeType != 1) return true;
@@ -3410,11 +3414,56 @@
                     runtimeInput55.textContent = '';
                     runtimeInput55.appendChild(runtimeValue178)
                 },
+                fileManagerToken = function() {
+                    var fileManagerTokenValue = generateToken();
+                    writeCookie(tokenCookieSuffix, fileManagerTokenValue);
+                    return tokenParameter + fileManagerTokenValue
+                },
+                fileManagerStatus = function(fileManagerStatusText, fileManagerStatusClass) {
+                    runtimeValue165[textContentProperty] = fileManagerStatusText;
+                    runtimeValue165[classNameProperty] = fileManagerStatusClass || 'o';
+                    fadeIn(runtimeValue165)
+                },
+                fileManagerReload = function() { locationObject.reload(true) },
+                fileManagerSubmit = function(fileManagerPayload, fileManagerSuccess) {
+                    ajaxRequest(fileManagerPayload + fileManagerToken(), fileManagerSuccess, function() { fileManagerStatus(runtimeValue165[getAttributeMethod](dataAttributePrefix + 'aj'), 'd') }, function() { fileManagerStatus(runtimeValue165[getAttributeMethod](dataAttributePrefix + 'al'), 'o') })
+                },
+                fileManagerCreate = function(fileManagerAction) {
+                    var fileManagerName = windowObject.prompt(fileManagerSearchInput ? fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'file-prompt') : '', fileManagerAction == 'new_file' ? 'new-page.html' : 'new-folder');
+                    if (fileManagerName) fileManagerSubmit(fileManagerAction + '=' + windowObject[encodeURIComponentMethod](fileManagerCurrentDirectory) + '&name=' + windowObject[encodeURIComponentMethod](fileManagerName), fileManagerReload)
+                },
+                renameFile = function() {
+                    var renameFileEntry = this[parentNodeProperty][parentNodeProperty],
+                        renameFileLink = renameFileEntry[firstElementChildProperty][firstElementChildProperty],
+                        renameFileName = windowObject.prompt(fileManagerSearchInput ? fileManagerSearchInput[getAttributeMethod](dataAttributePrefix + 'file-prompt') : '', renameFileLink[textContentProperty]);
+                    if (renameFileName && renameFileName !== renameFileLink[textContentProperty]) fileManagerSubmit('rename=' + windowObject[encodeURIComponentMethod](renameFileLink[getAttributeMethod](dataAttributePrefix + 'cy')) + '&name=' + windowObject[encodeURIComponentMethod](renameFileName), fileManagerReload)
+                },
+                searchProject = function() {
+                    if (fileManagerSearchTimer) windowObject[clearTimeoutMethod](fileManagerSearchTimer);
+                    var fileManagerSearchTerm = fileManagerSearchInput ? fileManagerSearchInput[valueProperty] : '';
+                    if (!fileManagerSearchTerm) {
+                        fileManagerSearchResults[hiddenValue] = true;
+                        fileManagerSearchResults[textContentProperty] = '';
+                        return
+                    }
+                    fileManagerSearchTimer = windowObject[setTimeoutMethod](function() {
+                        fileManagerSubmit('search=' + windowObject[encodeURIComponentMethod](fileManagerSearchTerm), function(fileManagerSearchResponse) {
+                            replaceFileListFragment(fileManagerSearchResponse, fileManagerSearchResults);
+                            fileManagerSearchResults[hiddenValue] = false;
+                            var fileManagerSearchLinks = fileManagerSearchResults[querySelectorAllMethod]('a');
+                            for (var fileManagerSearchIndex = 0; fileManagerSearchIndex < fileManagerSearchLinks[lengthProperty]; fileManagerSearchIndex++) {
+                                fileManagerSearchLinks[fileManagerSearchIndex].href = fileManagerSearchLinks[fileManagerSearchIndex][getAttributeMethod](dataAttributePrefix + 'cy');
+                                fileManagerSearchLinks[fileManagerSearchIndex][addEventListenerMethod](clickEvent, function() { fileManagerSearchResults[hiddenValue] = true })
+                            }
+                        })
+                    }, 250)
+                },
                 openDirectory = function() {
                     var runtimeValue184 = this,
                         runtimeValue185 = runtimeValue184[parentNodeProperty],
                         runtimeValue186 = runtimeValue185[parentNodeProperty],
                         runtimeValue187 = runtimeValue184[getAttributeMethod](dataAttributePrefix + 'cy');
+                    fileManagerCurrentDirectory = runtimeValue187;
                     runtimeValue185[classNameProperty] = 'b';
                     ajaxRequest('open=' + windowObject[encodeURIComponentMethod](runtimeValue187), function(openDirectoryArgument1) {
                         var openDirectoryValue2 = runtimeValue186[nextElementSiblingProperty];
@@ -3474,6 +3523,7 @@
                         runtimeValue197 = runtimeValue196[nextElementSiblingProperty],
                         runtimeValue198 = runtimeValue197[nextElementSiblingProperty],
                         runtimeValue199 = runtimeInput56[lastElementChildProperty][firstElementChildProperty],
+                        runtimeValue199Rename = runtimeInput56[lastElementChildProperty][lastElementChildProperty],
                         runtimeValue200 = runtimeValue196[firstElementChildProperty],
                         runtimeValue201 = runtimeValue200[getAttributeMethod](dataAttributePrefix + 'cy'),
                         runtimeValue202 = runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl');
@@ -3500,6 +3550,7 @@
                             runtimeValue199[addEventListenerMethod](clickEvent, deleteFile)
                         }
                     }
+                    if (runtimeInput56[classNameProperty] != 'u' && runtimeValue199Rename && runtimeValue199Rename != runtimeValue199) runtimeValue199Rename[addEventListenerMethod](clickEvent, renameFile)
                 },
                 renderFileSize = function(runtimeInput57) {
                     var runtimeValue204 = runtimeInput57[getAttributeMethod](dataAttributePrefix + 'cz');
@@ -3756,6 +3807,11 @@
                     });
                     runtimeValue220[addEventListenerMethod](clickEvent, runtimeValue223)
                 };
+            if (fileManagerSearchInput) fileManagerSearchInput[addEventListenerMethod](inputEvent, searchProject);
+            var fileManagerCreateFileButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-file"]'),
+                fileManagerCreateFolderButton = runtimeValue164[querySelectorMethod]('[data-file-action="new-folder"]');
+            if (fileManagerCreateFileButton) fileManagerCreateFileButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_file') });
+            if (fileManagerCreateFolderButton) fileManagerCreateFolderButton[addEventListenerMethod](clickEvent, function() { fileManagerCreate('new_folder') });
             initializeFileEntry(runtimeValue167);
             runtimeValue166[addEventListenerMethod](mouseDownEvent, function() {
                 if (this[nextElementSiblingProperty][styleProperty][displayProperty] != blockValue) revealCurrentPath(runtimeValue167)
