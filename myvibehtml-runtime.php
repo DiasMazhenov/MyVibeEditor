@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.48 runtime module */
+<?php /* MyVibeHTML v0.49 runtime module */
 
 function myvibehtml_runtime_directory($documentRoot = false)
 {

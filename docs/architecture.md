@@ -1,6 +1,6 @@
-# Архитектура v0.48
+# Архитектура v0.49
 
-v0.48 сохраняет безопасные модульные границы без добавления bundler/dependency и размещает CSS-инспектор справа на desktop с единым scroll-контейнером без flex-сжатия fieldset:
+v0.49 сохраняет безопасные модульные границы без добавления bundler/dependency и размещает CSS-инспектор справа на desktop; mobile override сбрасывает inline-ширину и учитывает safe-area inset:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;

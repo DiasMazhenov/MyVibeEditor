@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.49
+
+- Реальный browser acceptance v0.48 выявил регресс: desktop resize оставлял inline `width`, и при переходе на mobile bottom-sheet выходил за safe inset.
+- Mobile override теперь принудительно сбрасывает inline-ширину через `width:auto!important`, использует `env(safe-area-inset-left/right/bottom)` и скрывает desktop resize handle.
+- Реальная browser-проверка покрыла авторизацию, context menu, CSS-инспектор, desktop full-height/right geometry, keyboard resize и mobile bottom-sheet: панель не выходит за viewport, все 20 полей доступны, axe дал 0 serious/critical нарушений, desktop/mobile screenshots просмотрены.
+- В iframe пользовательского `test-page.html` отдельно зафиксирован 5px horizontal overflow из-за широких тестовых блоков/таблицы; это не оболочка инспектора и файл пользователя намеренно не изменялся.
+- Версия синхронно поднята до `0.49` в PHP, JS, runtime/source-map/UI-contract, CSS, README, CHANGELOG, архитектурной/доступностной документации и HTTP regression.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.48
 
 - CSS-инспектор на desktop перенесён в правую боковую панель на всю высоту окна; ширина ограничена безопасным диапазоном `320px`–`min(720px, 80vw)`.

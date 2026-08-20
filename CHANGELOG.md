@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.49
+
+- исправлен переход CSS-инспектора из desktop в mobile: сохранённая inline-ширина больше не выталкивает bottom-sheet за safe inset;
+- mobile CSS-инспектор использует `width:auto!important` и safe-area inset для правого, левого и нижнего отступов;
+- browser acceptance выявил и подтвердил исправление desktop/mobile geometry и keyboard resize.
+
 ## 0.48
 
 - CSS-инспектор на desktop перенесён в правую боковую панель на всю высоту окна;
