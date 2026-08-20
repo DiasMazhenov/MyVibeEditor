@@ -18,7 +18,10 @@ expect_status() {
 }
 
 rg -q "MyVibeHTML v0\.30" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.30'" myvibehtml.php
+rg -q "const VERSION = '0\.31'" myvibehtml.php
+rg -q "data-source-action=\"redo\"" myvibehtml.php
+rg -q "myvibehtml:draft" myvibehtml.js
+rg -q "sourceHistoryUndo" myvibehtml.js
 rg -q "version_compare\(PHP_VERSION, '7\.4'" myvibehtml.php
 rg -q "myvibehtml-runtime\.php" myvibehtml.php
 rg -q 'MyVibeHTMLSourceMap|restoreBackupDirectory' myvibehtml.php myvibehtml.js myvibehtml-source-map.js

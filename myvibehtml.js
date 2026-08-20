@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.30 */
+/* MyVibeHTML v0.31 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -650,6 +650,23 @@
                 runtimeValue10 = runtimeValue1[querySelectorAllMethod]('div>ol+ul>li>a'),
                 runtimeValue11 = documentObject[querySelectorMethod]('#j'),
                 serializedSource = runtimeValue11[getAttributeMethod]('data-encoding') == 'base64' ? base64Decode(runtimeValue11[textContentProperty]) : runtimeValue11[innerHTMLProperty],
+                sourceDraftKey = 'myvibehtml:draft:' + locationObject.pathname + locationObject.search,
+                sourceDraftTimer = false,
+                sourceHistoryBar = runtimeValue1[querySelectorMethod]('[data-source-history]'),
+                sourceHistoryApi = {markSaved:function(){},isDirty:function(){return false}},
+                writeSourceDraft = function(sourceDraftValue) {
+                    try { windowObject.localStorage.setItem(sourceDraftKey, JSON.stringify({source:sourceDraftValue,updated:Date.now()})) } catch (sourceDraftError) {}
+                },
+                readSourceDraft = function() {
+                    try {
+                        var sourceDraftValue = windowObject.localStorage.getItem(sourceDraftKey),
+                            sourceDraftData = sourceDraftValue ? JSON.parse(sourceDraftValue) : null;
+                        return sourceDraftData && typeof sourceDraftData.source == 'string' ? sourceDraftData.source : null
+                    } catch (sourceDraftError) { return null }
+                },
+                clearSourceDraft = function() {
+                    try { windowObject.localStorage.removeItem(sourceDraftKey) } catch (sourceDraftError) {}
+                },
                 initializeVisualEditor = function() {
                     var runtimeValue18 = runtimeValue1[querySelectorMethod]('div>ul+div'),
                         runtimeValue19 = runtimeValue18[firstElementChildProperty],
@@ -1427,6 +1444,7 @@
                                     }
                                 }
                             }
+                            writeSourceDraft(serializedSource);
                             return runtimeValue124(serializedSource)
                         },
                         runtimeValue80 = function(initializeVisualEditorArgument15) {
@@ -2963,7 +2981,8 @@
                                     initializeSourceEditorValue6[addRangeMethod](initializeSourceEditorValue7)
                                 }
                                 runtimeValue131.h = sha1(runtimeValue131[innerHTMLProperty]);
-                                runtimeValue139()
+                                runtimeValue139();
+                                if (sourceHistory && !sourceHistory.applying) sourceHistoryRecord(runtimeValue137(runtimeValue131[innerHTMLProperty]))
                             }
                         },
                         runtimeValue141 = function() {
@@ -3002,25 +3021,12 @@
                         runtimeValue145 = function(event) {
                             if (event[keyCodeProperty] == 9) event[preventDefaultMethod]();
                             else if (event[keyCodeProperty] == 17) runtimeValue145.i = true;
-                            else if (event[keyCodeProperty] == 90 && runtimeValue145.i) {
+                            else if (event[keyCodeProperty] == 90 && runtimeValue145.i && !event.shiftKey) {
                                 event[preventDefaultMethod]();
-                                if (runtimeValue131.g[lengthProperty] > 1) {
-                                    runtimeValue131.g.pop();
-                                    runtimeValue131[innerHTMLProperty] = runtimeValue131.g.pop()[splitMethod](caretMarkup)[joinMethod](caretMarkup + ' ');
-                                    var initializeSourceEditorValue15 = runtimeValue131[querySelectorAllMethod](caretValue);
-                                    if (initializeSourceEditorValue15[lengthProperty]) {
-                                        var initializeSourceEditorValue16 = windowObject[getSelectionMethod](),
-                                            initializeSourceEditorValue17 = initializeSourceEditorValue15[0][nextSiblingProperty],
-                                            initializeSourceEditorValue18 = documentObject[createRangeMethod]();
-                                        initializeSourceEditorValue18[setStartMethod](initializeSourceEditorValue17, 0);
-                                        initializeSourceEditorValue18[setEndMethod](initializeSourceEditorValue17, 0);
-                                        initializeSourceEditorValue18[collapseMethod](true);
-                                        initializeSourceEditorValue16[removeAllRangesMethod]();
-                                        initializeSourceEditorValue17[textContentProperty] = initializeSourceEditorValue17[textContentProperty][sliceMethod](1);
-                                        initializeSourceEditorValue15[0][parentNodeProperty][removeChildMethod](initializeSourceEditorValue15[0]);
-                                        initializeSourceEditorValue16[addRangeMethod](initializeSourceEditorValue18)
-                                    }
-                                }
+                                sourceHistoryUndo()
+                            } else if ((event[keyCodeProperty] == 89 && runtimeValue145.i) || (event[keyCodeProperty] == 90 && runtimeValue145.i && event.shiftKey)) {
+                                event[preventDefaultMethod]();
+                                sourceHistoryRedo()
                             } else if (event[keyCodeProperty] == 83 && runtimeValue145.i) {
                                 event[preventDefaultMethod]();
                                 runtimeValue147();
@@ -3062,6 +3068,80 @@
                             return initializeSourceEditorArgument8[replaceMethod](new RegExp('(?:' + openingSpanMarkup + '[a-z]>)*&lt;focus.+?&lt;/focus&gt;', 'gi'), function(str1) {
                                 return openingSpanMarkup + 'k>' + str1[splitMethod](lineBreakMarkup + '</div><div>')[joinMethod]('' + closingSpanMarkup + lineBreakMarkup + '</div><div>' + openingSpanMarkup + 'k>') + closingSpanMarkup
                             })[splitMethod]('&lt;focus&gt;')[joinMethod]('')[splitMethod]('&lt;/focus&gt;')[joinMethod]('')
+                        },
+                        sourceHistory = {undo:[],redo:[],baseline:'',current:'',applying:false},
+                        sourceHistoryStatus = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-draft-status]') : null,
+                        sourceHistoryUndoButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="undo"]') : null,
+                        sourceHistoryRedoButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="redo"]') : null,
+                        sourceHistoryRestoreButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="restore"]') : null,
+                        sourceHistoryValue = function() { return runtimeValue137(runtimeValue131[innerHTMLProperty]) },
+                        sourceHistoryStatusUpdate = function() {
+                            if (!sourceHistoryBar) return;
+                            var sourceDraftValue = readSourceDraft(),
+                                sourceIsDirty = sourceHistory.current !== sourceHistory.baseline,
+                                sourceDraftAvailable = !!sourceDraftValue && sourceDraftValue !== sourceHistory.current;
+                            sourceHistoryBar.setAttribute('data-dirty', sourceIsDirty ? 'true' : 'false');
+                            sourceHistoryBar.setAttribute('data-draft', sourceDraftAvailable ? 'true' : 'false');
+                            if (sourceHistoryUndoButton) sourceHistoryUndoButton[disabledProperty] = sourceHistory.undo[lengthProperty] < 2;
+                            if (sourceHistoryRedoButton) sourceHistoryRedoButton[disabledProperty] = !sourceHistory.redo[lengthProperty];
+                            if (sourceHistoryRestoreButton) sourceHistoryRestoreButton[disabledProperty] = !sourceDraftAvailable;
+                            if (sourceHistoryStatus) sourceHistoryStatus[textContentProperty] = sourceIsDirty ? sourceHistoryBar[getAttributeMethod]('data-dirty') : sourceDraftAvailable ? sourceHistoryBar[getAttributeMethod]('data-draft') : sourceHistoryBar[getAttributeMethod]('data-clean')
+                        },
+                        sourceHistoryDraftSchedule = function(sourceDraftValue) {
+                            if (sourceDraftTimer) windowObject[clearTimeoutMethod](sourceDraftTimer);
+                            sourceDraftTimer = windowObject[setTimeoutMethod](function() {
+                                sourceDraftTimer = false;
+                                writeSourceDraft(sourceDraftValue);
+                                sourceHistoryStatusUpdate()
+                            }, 350)
+                        },
+                        sourceHistoryRecord = function(sourceValue) {
+                            if (sourceHistory.applying || sourceValue === sourceHistory.current) return;
+                            if (!sourceHistory.undo[lengthProperty] || sourceHistory.undo[sourceHistory.undo[lengthProperty] - 1] !== sourceValue) sourceHistory.undo.push(sourceValue);
+                            var sourceHistoryLimit = parseInt(runtimeValue131[getAttributeMethod](dataAttributePrefix + 'cx'), 10) || 50;
+                            while (sourceHistory.undo[lengthProperty] > sourceHistoryLimit + 1) sourceHistory.undo.shift();
+                            sourceHistory.current = sourceValue;
+                            sourceHistory.redo = [];
+                            sourceHistoryDraftSchedule(sourceValue);
+                            sourceHistoryStatusUpdate()
+                        },
+                        sourceHistoryRender = function(sourceValue) {
+                            sourceHistory.applying = true;
+                            runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(sourceValue)));
+                            runtimeValue131.h = sha1(runtimeValue131[innerHTMLProperty]);
+                            runtimeValue139();
+                            sourceHistory.applying = false;
+                            runtimeValue140()
+                        },
+                        sourceHistoryUndo = function() {
+                            if (sourceHistory.undo[lengthProperty] < 2) return;
+                            sourceHistory.redo.push(sourceHistory.undo.pop());
+                            sourceHistory.current = sourceHistory.undo[sourceHistory.undo[lengthProperty] - 1];
+                            sourceHistoryRender(sourceHistory.current);
+                            sourceHistoryStatusUpdate()
+                        },
+                        sourceHistoryRedo = function() {
+                            if (!sourceHistory.redo[lengthProperty]) return;
+                            sourceHistory.current = sourceHistory.redo.pop();
+                            sourceHistory.undo.push(sourceHistory.current);
+                            sourceHistoryRender(sourceHistory.current);
+                            sourceHistoryStatusUpdate()
+                        },
+                        sourceHistoryRestore = function() {
+                            var sourceDraftValue = readSourceDraft();
+                            if (!sourceDraftValue || sourceDraftValue === sourceHistory.current) return;
+                            sourceHistory.undo.push(sourceDraftValue);
+                            sourceHistory.redo = [];
+                            sourceHistory.current = sourceDraftValue;
+                            sourceHistoryRender(sourceDraftValue);
+                            sourceHistoryStatusUpdate()
+                        },
+                        sourceHistoryMarkSaved = function() {
+                            sourceHistory.baseline = sourceHistory.current;
+                            sourceHistory.undo = [sourceHistory.current];
+                            sourceHistory.redo = [];
+                            clearSourceDraft();
+                            sourceHistoryStatusUpdate()
                         };
                     windowObject[addEventListenerMethod](resizeEvent, runtimeValue149);
                     runtimeValue149();
@@ -3082,6 +3162,21 @@
                     }
                     runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(runtimeValue11[innerHTMLProperty]))));
                     runtimeValue139();
+                    sourceHistory.current = sourceHistoryValue();
+                    sourceHistory.baseline = sourceHistory.current;
+                    sourceHistory.undo = [sourceHistory.current];
+                    sourceHistoryApi.markSaved = sourceHistoryMarkSaved;
+                    sourceHistoryApi.isDirty = function() { return sourceHistory.current !== sourceHistory.baseline };
+                    if (sourceHistoryUndoButton) sourceHistoryUndoButton[addEventListenerMethod](clickEvent, sourceHistoryUndo);
+                    if (sourceHistoryRedoButton) sourceHistoryRedoButton[addEventListenerMethod](clickEvent, sourceHistoryRedo);
+                    if (sourceHistoryRestoreButton) sourceHistoryRestoreButton[addEventListenerMethod](clickEvent, sourceHistoryRestore);
+                    sourceHistoryStatusUpdate();
+                    windowObject[addEventListenerMethod]('beforeunload', function(event) {
+                        if (sourceHistoryApi.isDirty()) {
+                            event[preventDefaultMethod]();
+                            event.returnValue = ''
+                        }
+                    });
                     runtimeValue131[addEventListenerMethod](focusEvent, runtimeValue148);
                     runtimeValue131[focusEvent]();
                     runtimeValue4[addEventListenerMethod](clickEvent, function() {
@@ -3119,6 +3214,8 @@
                         if (saveEditorContentValue3) saveEditorContentValue3[innerHTMLProperty] = '';
                         runtimeValue9[textContentProperty] = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'ae');
                         runtimeValue9[classNameProperty] = 'c';
+                        clearSourceDraft();
+                        sourceHistoryApi.markSaved();
                         if (runtimeValue7[valueProperty] == runtimeValue7[getAttributeMethod](dataAttributePrefix + 'ac')) logout()
                     }, function() {
                         runtimeValue4[disabledProperty] = false;

@@ -661,3 +661,13 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Graphify пересобран после изменения JS/PHP: `102` узла, `306` связей; `diagnose multigraph` — `0` missing/dangling/self-loop/duplicate endpoint edges. `graphify-out/` остаётся локальным артефактом.
 - Functional version — `0.20`; следующий функциональный номер — `0.21`. Кодовый commit: `8bd9652b7b8f4de3ddc1b0a665cef9c140d90da6` (`2026-08-19T20:14:40+05:00`). Пользовательский `test-page.html` остаётся изменённым локально и не входит в commit.
 - SHA-256 v0.20: `myvibehtml.php` `1be13d42a5b3970e145560c971f58982ca3836b767d11a21ec7c54f8b0af7cbe`, `myvibehtml.js` `aad352f8231f8e34b61c7c89a74ed0a93f300f768e33c27d05e6483803f559b3`, `myvibehtml.css` `56dcb3cb5265f6c664c3bdb18051933e1386f19403599f45e7017b81b84e939d`, `myvibehtml-theme.css` `90858bfbd62fb6669e8a68db0a38c6013ac7cebc801a70bd4ebdc5697398f38b`, `myvibehtml-fallback.css` `3e736a13eebd897c98b1d97028cf84d8beca8ccf9f416af1c3a335d2d9600d76`, `README.md` `d98a7d0aa557faa2c5f2501ef8905b2b55bb5232ff8e1e994bf169f93072ade6`.
+
+## Текущее исправление v0.31
+
+- Добавлена история исходного редактора поверх существующего `contenteditable`: отдельные Undo/Redo стеки, ограниченные настройкой `code_undo_limit`, кнопки панели и поддержка Ctrl+Z/Ctrl+Y/Ctrl+Shift+Z. Существующий source-map и форматирование редактора не заменялись.
+- Добавлен локальный черновик через `localStorage` с ключом текущего URL: запись откладывается на 350 мс после изменения, есть кнопка восстановления, dirty-индикатор и предупреждение `beforeunload`. После успешного сохранения черновик удаляется, история становится чистой.
+- Визуальные изменения перед сохранением также записывают актуальный HTML в тот же черновик через существующий `runtimeValue79()`, поэтому visual/text режимы используют общий recovery-поток без второй модели состояния.
+- Тема и fallback получили единый graphite/teal toolbar для истории; на мобильном source editor добавлен отдельный ряд под фиксированной панелью, без перекрытия первой строки кода.
+- Версия runtime/cache-busting поднята до `0.31`. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в релиз.
+- Проверки v0.31: `php -l myvibehtml.php`, `php -l dev-router.php`, `node --check myvibehtml.js`, `sh tests/regression.sh`, `git diff --check` — PASS. Встроенный/графический browser runner в текущем окружении не обнаружен, поэтому screenshot acceptance этого этапа ещё не заявляется.
+- Следующий функциональный номер — `0.32`: файловый менеджер CRUD и поиск по проекту.

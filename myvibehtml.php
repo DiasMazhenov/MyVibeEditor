@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.30 */
+<?php /* MyVibeHTML v0.31 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -384,6 +384,11 @@ final class MyVibeHTMLConfig
         $this->templates['a'] = str_replace('data-bb="{pass_complexity}" maxlength="14"', 'data-bb="{pass_complexity}" maxlength="128"', $this->templates['a']);
         $this->templates['h'] = str_replace('<script src="{system_url}myvibehtml.js?v={version}"></script>', '<script src="{system_url}myvibehtml-source-map.js?v={version}"></script><script src="{system_url}myvibehtml.js?v={version}"></script>', $this->templates['h']);
         $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i role="button" tabindex="0" aria-label="{clone_block}" title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{move_up_block}" title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{move_down_block}" title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{delete_block}" title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i role="button" tabindex="0" aria-label="{attributes}" title="{attributes}"></i></p>', $this->templates['h']);
+        $this->templates['h'] = str_replace(
+            '<ul><li><input type="button" value="{save}" title="{save}" disabled>',
+            '<div class="myvibehtml-source-history" data-source-history role="toolbar" aria-label="{source_history}" data-clean="{no_unsaved_changes}" data-dirty="{unsaved_changes}" data-draft="{draft_available}"><button type="button" data-source-action="undo" aria-label="{undo}" title="{undo}" disabled>{undo}</button><button type="button" data-source-action="redo" aria-label="{redo}" title="{redo}" disabled>{redo}</button><button type="button" data-source-action="restore" aria-label="{restore_draft}" title="{restore_draft}" disabled>{restore_draft}</button><span data-source-draft-status aria-live="polite">{no_unsaved_changes}</span></div><ul><li><input type="button" value="{save}" title="{save}" disabled>',
+            $this->templates['h']
+        );
         $this->templates['o'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['o']);
         $this->templates['n'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['n']);
         $this->templates['b'] = str_replace('<i title=', '<i role="button" tabindex="0" aria-label="', $this->templates['b']);
@@ -575,7 +580,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.30';
+    const VERSION = '0.31';
     private $config;
     private $request;
     private $response;
