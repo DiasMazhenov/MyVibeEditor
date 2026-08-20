@@ -1,7 +1,8 @@
-/* MyVibeHTML v0.26 */
+/* MyVibeHTML v0.27 */
 (function() {
     var windowObject = window,
         documentObject = document,
+        sourceMapApi = windowObject.MyVibeHTMLSourceMap,
         locationObject = location,
         setIntervalMethod = 'setInterval',
         setTimeoutMethod = 'setTimeout',
@@ -665,6 +666,7 @@
                         styleInspectorError = null,
                         mediaPicker = null,
                         mediaPickerTarget = null,
+                        sourceMapState = null,
                         getContextNode = function(initializeVisualEditorArgument1) {
                             for (var initializeVisualEditorValue2 = initializeVisualEditorArgument1; initializeVisualEditorValue2 && initializeVisualEditorValue2 != callbackValue127.body; initializeVisualEditorValue2 = initializeVisualEditorValue2[parentNodeProperty]) {
                                 if (initializeVisualEditorValue2.realNode) initializeVisualEditorValue2 = initializeVisualEditorValue2.realNode;
@@ -968,6 +970,10 @@
                             styleInspectorTarget = null
                         },
                         getStyleSourceRange = function(initializeVisualEditorArgument2) {
+                            if (sourceMapState) {
+                                var sourceMapRange = sourceMapState.rangeFor(initializeVisualEditorArgument2);
+                                if (sourceMapRange) return sourceMapRange;
+                            }
                             var initializeVisualEditorValue34 = callbackValue93(initializeVisualEditorArgument2),
                                 initializeVisualEditorValue35 = callbackValue94(initializeVisualEditorArgument2);
                             if (typeof initializeVisualEditorValue34 == 'number' && serializedSource[initializeVisualEditorValue34] != '<') {
@@ -1014,6 +1020,7 @@
                                 }
                             } else if (initializeVisualEditorValue44) initializeVisualEditorValue42 = initializeVisualEditorValue42[replaceMethod](initializeVisualEditorValue43, '');
                             serializedSource = serializedSource[sliceMethod](0, initializeVisualEditorArgument6) + initializeVisualEditorValue42 + initializeVisualEditorValue40[sliceMethod](initializeVisualEditorValue41) + serializedSource[sliceMethod](initializeVisualEditorArgument7);
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, callbackValue127);
                             callbackValue11[innerHTMLProperty] = serializedSource;
                             callbackValue4[disabledProperty] = false;
                             return true
@@ -2809,6 +2816,7 @@
                     callbackValue127.open();
                     callbackValue127.write(callbackValue117(callbackValue128));
                     callbackValue127.close();
+                    if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, callbackValue127);
                     windowObject[addEventListenerMethod]('load', function() {
                         callbackValue115()
                     });

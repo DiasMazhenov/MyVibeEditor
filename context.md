@@ -614,6 +614,15 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Проверки v0.26: PHP/JS lint, `security-smoke.sh`, `git diff --check`, INI-encoding self-check и HTTP regression — PASS.
 - Следующий функциональный номер — `0.27`: устойчивый контракт DOM ↔ HTML source-map и тесты.
 
+## Текущее исправление v0.27
+
+- Добавлен локальный `myvibehtml-source-map.js` без зависимостей: scanner учитывает кавычки в атрибутах, пропускает комментарии/declaration и raw-текст `script/style`, а `build()` связывает opening-tag с DOM-узлом через внутреннюю map-запись без служебных атрибутов в пользовательском HTML.
+- CSS-инспектор и inline-SVG replacement используют source-map перед legacy range fallback; после каждой записи source карта пересобирается, поэтому изменение длины атрибута не оставляет старые диапазоны.
+- Добавлены [`docs/source-map.md`](docs/source-map.md) и `tests/source-map.test.js` с проверками `>` внутри кавычек, повторяющихся тегов, raw-script и точной замены opening-tag. Source-map загружается локально перед основным JS.
+- Версия runtime/cache-busting поднята до `0.27`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Проверки v0.27: PHP/JS lint, `node --test tests/source-map.test.js`, `sh security-smoke.sh`, `git diff --check` и HTTP regression с проверкой нового asset — PASS. Встроенный браузерный tab в этой сессии не автоматизируется отдельным headless-инструментом, поэтому live HTTP подтверждён, а screenshot acceptance оставлен как следующий обязательный QA-шаг.
+- Следующий функциональный номер — `0.28`: семантическая деобфускация и удаление dead code.
+
 ## Архив предыдущего исправления v0.20
 
 - Добавлено расширенное контекстное меню visual editor: после выбора element/section/block доступны `Клонировать`, `Переместить вверх`, `Переместить вниз`, `Удалить`. Контекстное меню переиспользует callbacks нижней toolbar, поэтому бизнес-логика не дублируется.

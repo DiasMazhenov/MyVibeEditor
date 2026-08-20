@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.26 */
+<?php /* MyVibeHTML v0.27 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -451,6 +451,7 @@ final class MyVibeHTMLConfig
         foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"><link rel="stylesheet" href="{system_url}myvibehtml-fallback.css?v={version}"></head>', $this->templates[$templateName]);
         $this->templates['h'] = str_replace('type="password" maxlength="14"', 'type="password" maxlength="128"', $this->templates['h']);
         $this->templates['a'] = str_replace('data-bb="{pass_complexity}" maxlength="14"', 'data-bb="{pass_complexity}" maxlength="128"', $this->templates['a']);
+        $this->templates['h'] = str_replace('<script src="{system_url}myvibehtml.js?v={version}"></script>', '<script src="{system_url}myvibehtml-source-map.js?v={version}"></script><script src="{system_url}myvibehtml.js?v={version}"></script>', $this->templates['h']);
         $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i title="{attributes}"></i></p>', $this->templates['h']);
         $this->state['a'] = $ConstructValue1;
         $this->state['b'] = $this->getSetting(REQUEST_DOCUMENT_ROOT);
@@ -638,7 +639,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.26';
+    const VERSION = '0.27';
     private $config;
     private $request;
     private $response;
