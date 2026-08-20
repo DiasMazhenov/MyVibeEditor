@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.24 */
+/* MyVibeHTML v0.25 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -512,6 +512,13 @@
             callbackValue51.send(callbackArgument30)
         },
         generateToken = function() {
+            var tokenBytes = new Uint8Array(32),
+                tokenHex = '';
+            if (windowObject.crypto && windowObject.crypto.getRandomValues) {
+                windowObject.crypto.getRandomValues(tokenBytes);
+                for (var tokenByteIndex = 0; tokenByteIndex < tokenBytes.length; tokenByteIndex++) tokenHex += ('00' + tokenBytes[tokenByteIndex].toString(16)).slice(-2);
+                return tokenHex
+            }
             return sha1(new Date().getTime() + '' + Math.floor(Math.random() * 2147483648))
         },
         formatBytes = function(callbackArgument36) {
@@ -564,26 +571,12 @@
                         authStatus[innerHTMLProperty] = authStatus[getAttributeMethod](dataAttributePrefix + 'az');
                         authStatus[classNameProperty] = 'b';
                         fadeIn(authStatus);
-                        hashPassword(passwordInput[valueProperty], passwordInput[getAttributeMethod](dataAttributePrefix + 'bb'), 200, submitLogin)
+                        submitLogin(passwordInput[valueProperty])
                     }
-                },
-                hashPassword = function(callbackArgument37, callbackArgument38, callbackArgument39, callbackArgument40) {
-                    var callbackValue59 = 0,
-                        callbackValue60 = sha1(sha1(callbackArgument37)[substringMethod](0, 22) + callbackArgument37),
-                        callbackValue61 = windowObject[setIntervalMethod](function() {
-                            for (var hashPasswordValue1 = callbackValue59 + callbackArgument39; callbackValue59 < hashPasswordValue1; callbackValue59++) {
-                                if (callbackValue59 < callbackArgument38) callbackValue60 = sha1(callbackValue60);
-                                else {
-                                    callbackArgument40(callbackValue60);
-                                    windowObject[clearIntervalMethod](callbackValue61);
-                                    break
-                                }
-                            }
-                        }, 0)
                 },
                 submitLogin = function(callbackArgument41) {
                     authStatus[innerHTMLProperty] = authStatus[getAttributeMethod](dataAttributePrefix + 'cr');
-                    ajaxRequest('password=' + callbackArgument41, function() {
+                    ajaxRequest('password=' + windowObject[encodeURIComponentMethod](callbackArgument41), function() {
                         writeCookie(checkMarker, 1, false, authStatus[getAttributeMethod](dataAttributePrefix + 'cl'));
                         authStatus[innerHTMLProperty] = authStatus[getAttributeMethod](dataAttributePrefix + 'cs');
                         authStatus[classNameProperty] = 'c';
@@ -3772,7 +3765,7 @@
                             callbackValue236[textContentProperty] = callbackValue236[getAttributeMethod](dataAttributePrefix + 'az');
                             callbackValue236[classNameProperty] = 'b';
                             fadeIn(callbackValue236);
-                            hashSettingsPassword(callbackValue230[valueProperty], callbackValue236[getAttributeMethod](dataAttributePrefix + 'bb'), 200, submitSettings)
+                            submitSettings(callbackValue230[valueProperty])
                         } else submitSettings('')
                     }
                 },
@@ -3807,20 +3800,6 @@
                     callbackValue257[focusEvent]();
                     callbackValue224[removeChildMethod](callbackValue257)
                 },
-                hashSettingsPassword = function(callbackArgument62, callbackArgument63, callbackArgument64, callbackArgument65) {
-                    var callbackValue258 = 0,
-                        callbackValue259 = sha1(sha1(callbackArgument62)[substringMethod](0, 22) + callbackArgument62),
-                        callbackValue260 = windowObject[setIntervalMethod](function() {
-                            for (var hashSettingsPasswordValue1 = callbackValue258 + callbackArgument64; callbackValue258 < hashSettingsPasswordValue1; callbackValue258++) {
-                                if (callbackValue258 < callbackArgument63) callbackValue259 = sha1(callbackValue259);
-                                else {
-                                    callbackArgument65(callbackValue259);
-                                    windowObject[clearIntervalMethod](callbackValue260);
-                                    break
-                                }
-                            }
-                        }, 0)
-                },
                 restoreSettingsDefaults = function() {
                     for (var callbackValue261 = 0, callbackValue262 = callbackValue231[lengthProperty]; callbackValue261 < callbackValue262; callbackValue261++) {
                         var callbackValue263 = callbackValue231[callbackValue261][parentNodeProperty][getAttributeMethod](dataAttributePrefix + 'aa');
@@ -3845,7 +3824,7 @@
                     fadeIn(callbackValue236);
                     var callbackValue265 = generateToken();
                     writeCookie(tokenCookieSuffix, callbackValue265);
-                    var callbackValue266 = 'token=' + callbackValue265 + settingsParameter + 'password]=' + callbackArgument66 + settingsParameter + 'auth_error_limit]=' + callbackValue231[0][valueProperty] + settingsParameter + 'auth_lockout_duration]=' + callbackValue231[1][valueProperty] + settingsParameter + 'auth_session_reset]=' + callbackValue231[2][valueProperty] + settingsParameter + 'code_redraw_delay]=' + callbackValue231[3][valueProperty] + settingsParameter + 'code_undo_limit]=' + callbackValue231[4][valueProperty] + settingsParameter + 'default_file]=' + callbackValue231[5][valueProperty] + settingsParameter + 'recovery_points]=' + callbackValue231[6][valueProperty] + settingsParameter + 'logout_to_site]=' + (callbackValue233[0][checkedProperty] * 1) + settingsParameter + 'site_scripts]=' + (callbackValue233[1][checkedProperty] * 1) + settingsParameter + 'site_styles]=' + (callbackValue233[2][checkedProperty] * 1) + settingsParameter + 'link_replacing]=' + (callbackValue233[3][checkedProperty] * 1) + settingsParameter + 'name_correction]=' + (callbackValue233[4][checkedProperty] * 1) + settingsParameter + 'image_rewriting]=' + (callbackValue233[5][checkedProperty] * 1) + settingsParameter + 'code_highlighting]=' + (callbackValue233[6][checkedProperty] * 1) + settingsParameter + 'folder_size]=' + (callbackValue233[7][checkedProperty] * 1) + settingsParameter + 'update_final]=' + (callbackValue233[8][checkedProperty] * 1) + settingsParameter + 'update_beta]=' + (callbackValue233[9][checkedProperty] * 1);
+                    var callbackValue266 = 'token=' + callbackValue265 + settingsParameter + 'password]=' + windowObject[encodeURIComponentMethod](callbackArgument66) + settingsParameter + 'auth_error_limit]=' + callbackValue231[0][valueProperty] + settingsParameter + 'auth_lockout_duration]=' + callbackValue231[1][valueProperty] + settingsParameter + 'auth_session_reset]=' + callbackValue231[2][valueProperty] + settingsParameter + 'code_redraw_delay]=' + callbackValue231[3][valueProperty] + settingsParameter + 'code_undo_limit]=' + callbackValue231[4][valueProperty] + settingsParameter + 'default_file]=' + callbackValue231[5][valueProperty] + settingsParameter + 'recovery_points]=' + callbackValue231[6][valueProperty] + settingsParameter + 'logout_to_site]=' + (callbackValue233[0][checkedProperty] * 1) + settingsParameter + 'site_scripts]=' + (callbackValue233[1][checkedProperty] * 1) + settingsParameter + 'site_styles]=' + (callbackValue233[2][checkedProperty] * 1) + settingsParameter + 'link_replacing]=' + (callbackValue233[3][checkedProperty] * 1) + settingsParameter + 'name_correction]=' + (callbackValue233[4][checkedProperty] * 1) + settingsParameter + 'image_rewriting]=' + (callbackValue233[5][checkedProperty] * 1) + settingsParameter + 'code_highlighting]=' + (callbackValue233[6][checkedProperty] * 1) + settingsParameter + 'folder_size]=' + (callbackValue233[7][checkedProperty] * 1) + settingsParameter + 'update_final]=' + (callbackValue233[8][checkedProperty] * 1) + settingsParameter + 'update_beta]=' + (callbackValue233[9][checkedProperty] * 1);
                     for (var callbackValue267 = 0, callbackValue268 = callbackValue232[lengthProperty]; callbackValue267 < callbackValue268; callbackValue267++) {
                         if (callbackValue232[callbackValue267][checkedProperty]) {
                             if (callbackValue232[callbackValue267].b != callbackValue232[callbackValue267][checkedProperty]) callbackValue264 = true;

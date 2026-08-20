@@ -596,6 +596,15 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - Проверки v0.24: `php -l myvibehtml.php`, `node --check myvibehtml.js`, `sh security-smoke.sh`, `git diff --check` — PASS; полный HTTP regression через локальный `127.0.0.1:8080` — `regression: PASS`.
 - Следующий функциональный номер — `0.25`: password_hash/random_bytes/hash_equals и миграция старой авторизации.
 
+## Текущее исправление v0.25
+
+- Авторизация переведена на `password_hash()`/`password_verify()`; старый SHA-1-формат проверяется отдельной legacy-веткой только для успешной миграции в новый хеш. Клиентский SHA-1 пароля и ограничение 14 символами удалены из рабочего потока; поле допускает до 128 символов.
+- Session token на сервере создаётся через `random_bytes(32)` и `bin2hex()`. CSRF-проверка централизована в `isValidPostToken()` и сравнивает cookie/request через `hash_equals()`; это покрывает save/upload/remove/replace/settings/recovery/scripts и switch mode.
+- Браузер генерирует CSRF-токены через `crypto.getRandomValues()`, а пароль передаёт URL-кодированным только для серверной проверки. Production должен работать по HTTPS; README теперь явно описывает это требование.
+- Версия runtime/cache-busting поднята до `0.25`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Проверки v0.25: `php -l myvibehtml.php`, `node --check myvibehtml.js`, `sh security-smoke.sh`, `git diff --check` и HTTP regression через `127.0.0.1:8080` — PASS.
+- Следующий функциональный номер — `0.26`: синхронная фиксация конфигурации и атомарное восстановление.
+
 ## Архив предыдущего исправления v0.20
 
 - Добавлено расширенное контекстное меню visual editor: после выбора element/section/block доступны `Клонировать`, `Переместить вверх`, `Переместить вниз`, `Удалить`. Контекстное меню переиспользует callbacks нижней toolbar, поэтому бизнес-логика не дублируется.

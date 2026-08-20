@@ -17,8 +17,13 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.24" myvibehtml.php myvibehtml.js myvibehtml.css myvibehtml-fallback.css
-rg -q "const VERSION = '0\.24'" myvibehtml.php
+rg -q "MyVibeHTML v0\.25" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.25'" myvibehtml.php
+rg -q 'password_hash|password_verify|random_bytes|hash_equals' myvibehtml.php
+if rg -n 'hashPassword|hashSettingsPassword|sha1\(time\(\)|mt_rand\(\)' myvibehtml.php myvibehtml.js; then
+    echo "regression: legacy password/session generation is still active" >&2
+    exit 1
+fi
 rg -q 'data-encoding="base64"' myvibehtml.php myvibehtml.js
 if rg -n 'str_replace\(SCRIPT_TAG|str_replace\(CLOSING_SCRIPT_TAG' myvibehtml.php; then
     echo "regression: raw script-tag placeholder escaping is still active" >&2
@@ -43,12 +48,12 @@ php -l dev-router.php >/dev/null
 node --check myvibehtml.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.24" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.24" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.25" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.25" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.24"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.25"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2

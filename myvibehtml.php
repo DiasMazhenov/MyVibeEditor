@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.24 */
+<?php /* MyVibeHTML v0.25 */
 function myvibehtml_runtime_directory($MyvibehtmlruntimedirectoryValue1 = false)
 {
     if (!$MyvibehtmlruntimedirectoryValue1 && isset($_SERVER['DOCUMENT_ROOT'])) $MyvibehtmlruntimedirectoryValue1 = $_SERVER['DOCUMENT_ROOT'];
@@ -434,7 +434,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['a'] = str_replace(
             '<p><span>{password}:</span><input type="password" data-bb=',
-            '<p class="myvibehtml-password-row"><label for="myvibehtml-password">{password}</label><input id="myvibehtml-password" type="password" autocomplete="current-password" aria-describedby="myvibehtml-auth-status" data-bb=',
+            '<p class="myvibehtml-password-row"><label for="myvibehtml-password">{password}</label><input id="myvibehtml-password" type="password" autocomplete="current-password" maxlength="128" aria-describedby="myvibehtml-auth-status" data-bb=',
             $this->templates['a']
         );
         $this->templates['a'] = str_replace(
@@ -443,6 +443,8 @@ final class MyVibeHTMLConfig
             $this->templates['a']
         );
         foreach (['a', 'c', 'd', 'e'] as $templateName) $this->templates[$templateName] = str_replace('</head>', '<link rel="stylesheet" href="{system_url}myvibehtml-theme.css?v={version}"><link rel="stylesheet" href="{system_url}myvibehtml-fallback.css?v={version}"></head>', $this->templates[$templateName]);
+        $this->templates['h'] = str_replace('type="password" maxlength="14"', 'type="password" maxlength="128"', $this->templates['h']);
+        $this->templates['a'] = str_replace('data-bb="{pass_complexity}" maxlength="14"', 'data-bb="{pass_complexity}" maxlength="128"', $this->templates['a']);
         $this->templates['h'] = str_replace('<p><i title="{clone_block}"></i><i title="{move_up_block}"></i><i title="{move_down_block}"></i><i title="{delete_block}"></i><i title="{attributes}"></i></p>', '<p><i title="{clone_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-copy" aria-hidden="true"></span></i><i title="{move_up_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-up" aria-hidden="true"></span></i><i title="{move_down_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-down" aria-hidden="true"></span></i><i title="{delete_block}"><span class="myvibehtml-action-icon myvibehtml-action-icon-close" aria-hidden="true"></span></i><i title="{attributes}"></i></p>', $this->templates['h']);
         $this->state['a'] = $ConstructValue1;
         $this->state['b'] = $this->getSetting(REQUEST_DOCUMENT_ROOT);
@@ -614,7 +616,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.24';
+    const VERSION = '0.25';
     private $config;
     private $request;
     private $response;
@@ -745,25 +747,42 @@ final class MyVibeHTMLController
         return htmlspecialchars((string)$EscapeHtmlValue1, ENT_QUOTES, 'UTF-8');
     }
 
+    private function verifyPassword($plainPassword, $storedPassword)
+    {
+        if (!is_string($plainPassword) || $plainPassword === '' || !is_string($storedPassword) || $storedPassword === '') return false;
+        $passwordInfo = password_get_info($storedPassword);
+        if ($passwordInfo['algo']) return password_verify($plainPassword, $storedPassword);
+        $legacyPassword = sha1(substr(sha1($plainPassword), 0, 22) . $plainPassword);
+        $legacyIterations = max(0, (int)$this->config->getSetting(SETTING_PASSWORD_COMPLEXITY) - (int)$this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS));
+        for ($legacyIteration = 0; $legacyIteration < $legacyIterations; $legacyIteration++) $legacyPassword = sha1($legacyPassword);
+        return hash_equals($storedPassword, $legacyPassword);
+    }
+
+    private function isValidPostToken()
+    {
+        $postToken = $this->request->getPost(POST_TOKEN);
+        $cookieToken = $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN);
+        return is_string($postToken) && $postToken !== '' && is_string($cookieToken) && hash_equals($cookieToken, $postToken);
+    }
+
     public function authenticate()
     {
-        $AuthenticateValue1 = $this->request->getCookie(COOKIE_PREFIX . SETTING_SESSION, HASH_ALGORITHM);
-        if ($AuthenticateValue1 && $AuthenticateValue1 == $this->config->getSetting(SETTING_SESSION)) $this->dispatch(); else {
+        $AuthenticateValue1 = $this->request->getCookie(COOKIE_PREFIX . SETTING_SESSION);
+        $storedSession = $this->config->getSetting(SETTING_SESSION);
+        if (is_string($AuthenticateValue1) && $AuthenticateValue1 !== '' && is_string($storedSession) && $storedSession !== '' && hash_equals($storedSession, $AuthenticateValue1)) $this->dispatch(); else {
             $AuthenticateValue2 = time();
             $AuthenticateValue3 = myvibehtml_unserialize_array(urldecode($this->config->getSetting(SETTING_AUTH_ERROR_LIST)));
             $AuthenticateValue4 = $this->config->getSetting(SETTING_AUTH_ERROR_LIMIT);
             $AuthenticateValue5 = $this->request->getServer(REQUEST_REMOTE_ADDR);
             if ($AuthenticateValue3 && isset($AuthenticateValue3[$AuthenticateValue5])) $AuthenticateValue6 = $AuthenticateValue3[$AuthenticateValue5]; else$AuthenticateValue6 = 0;
             if ($this->request->getPost() && $this->request->getServer(REQUEST_AJAX_HEADER)) {
-                $AuthenticateValue7 = $this->request->getPost(SETTING_PASSWORD, HASH_ALGORITHM);
+                $AuthenticateValue7 = $this->request->getPost(SETTING_PASSWORD);
                 if ($AuthenticateValue7 && ($AuthenticateValue6 < $AuthenticateValue4 || $this->config->getSetting(SETTING_AUTH_ERROR_TIME) + ($this->config->getSetting(SETTING_AUTH_LOCKOUT_DURATION) * 60) < $AuthenticateValue2)) {
                     $AuthenticateValue8 = $this->config->getSetting(SETTING_PASSWORD);
-                    $AuthenticateValue9 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS) * 1;
-                    $AuthenticateValue10 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY) * 1;
-                    $AuthenticateValue11 = $AuthenticateValue10 - $AuthenticateValue9;
-                    for ($AuthenticateValue12 = 0; $AuthenticateValue12 < $AuthenticateValue11; $AuthenticateValue12++) $AuthenticateValue7 = sha1($AuthenticateValue7);
-                    if ($AuthenticateValue8 == $AuthenticateValue7) {
+                    $legacyPassword = password_get_info($AuthenticateValue8)['algo'] ? false : true;
+                    if ($this->verifyPassword($AuthenticateValue7, $AuthenticateValue8)) {
                         if ($this->config->isWritable()) {
+                            if ($legacyPassword) $this->config->setSetting(SETTING_PASSWORD, password_hash($AuthenticateValue7, PASSWORD_DEFAULT));
                             $this->createSession();
                             if (isset($AuthenticateValue3[$AuthenticateValue5])) {
                                 unset($AuthenticateValue3[$AuthenticateValue5]);
@@ -814,7 +833,7 @@ final class MyVibeHTMLController
         $sitePrefix = trim($this->config->getSiteUrlBase(), '/');
         if ($sitePrefix !== '' && stripos($DispatchValue1, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(SETTING_DEFAULT_FILE), 307);
         if ($this->request->getServer(REQUEST_AJAX_HEADER)) {
-            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($DispatchValue5 = $this->request->getPost('save')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($DispatchValue5 = $this->request->getPost('save')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue5 = myvibehtml_base64_decode($DispatchValue5);
                 if ($DispatchValue2 && $this->isAllowedExtension(strtolower(substr($DispatchValue2, strripos($DispatchValue2, '.') + 1)))) {
@@ -833,7 +852,7 @@ final class MyVibeHTMLController
             } else if ($DispatchValue7 = $this->request->getPost('open')) {
                 $DispatchValue7 = rawurldecode($DispatchValue7);
                 $this->response->setBody($this->renderFileList($DispatchValue7));
-            } else if (($DispatchValue7 = $this->request->getPost('upload')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue7 = $this->request->getPost('upload')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue7 = rawurldecode($DispatchValue7);
                 $uploadDirectory = $this->getSiteRelativePath($DispatchValue7);
@@ -867,7 +886,7 @@ final class MyVibeHTMLController
                         if (isset($DispatchValue14)) $this->response->addHeader('X-d:1'); else if (isset($DispatchValue12)) $this->response->addHeader('X-b:1'); else if (isset($DispatchValue13)) $this->response->addHeader('X-e:1');
                     }
                 } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
-            } else if (($DispatchValue15 = $this->request->getPost('remove')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue15 = $this->request->getPost('remove')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue15 = rawurldecode($DispatchValue15);
                 $removeRelative = $this->getSiteRelativePath($DispatchValue15, true);
@@ -888,7 +907,7 @@ final class MyVibeHTMLController
                     $this->response->addHeader('X-d:1');
                     $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($DispatchValue15 = $this->request->getPost('replace')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue15 = $this->request->getPost('replace')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue15 = rawurldecode($DispatchValue15);
                 $DispatchValue16 = $this->request->getFile(FILE_CONTENT);
@@ -917,14 +936,9 @@ final class MyVibeHTMLController
                     $this->response->addHeader('X-d:1');
                     $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($DispatchValue19 = $this->request->getPost('settings')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue19 = $this->request->getPost('settings')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
-                if ($DispatchValue19[SETTING_PASSWORD]) {
-                    $DispatchValue20 = $this->config->getSetting(SETTING_PASSWORD);
-                    $DispatchValue21 = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY) - $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS);
-                    for ($DispatchValue22 = 0; $DispatchValue22 < $DispatchValue21; $DispatchValue22++) $DispatchValue19[SETTING_PASSWORD] = sha1($DispatchValue19[SETTING_PASSWORD]);
-                    if ($DispatchValue19[SETTING_PASSWORD] != $DispatchValue20) $this->config->setSetting(SETTING_PASSWORD, $DispatchValue19[SETTING_PASSWORD]);
-                }
+                if (isset($DispatchValue19[SETTING_PASSWORD]) && $DispatchValue19[SETTING_PASSWORD] !== '') $this->config->setSetting(SETTING_PASSWORD, password_hash($DispatchValue19[SETTING_PASSWORD], PASSWORD_DEFAULT));
                 if ($DispatchValue19[SETTING_LANGUAGE] && $DispatchValue19[SETTING_LANGUAGE] != $this->language) {
                     if (stripos($DispatchValue23 = $this->config->getSetting(SETTING_LANGUAGE), ',') && stripos($DispatchValue23, $DispatchValue19[SETTING_LANGUAGE]) !== false) {
                         if ($DispatchValue19[SETTING_LANGUAGE] != $this->request->getServer(REQUEST_ACCEPT_LANGUAGE)) $this->response->setCookie(COOKIE_PREFIX . SETTING_LANGUAGE, $DispatchValue19[SETTING_LANGUAGE], time() + 60 * 60 * 24 * 365, $this->config->getSiteUrlBase(), false, false, true); else$this->response->clearCookie(COOKIE_PREFIX . SETTING_LANGUAGE, $this->config->getSiteUrlBase());
@@ -935,7 +949,7 @@ final class MyVibeHTMLController
                 foreach ($DispatchValue19 as $DispatchValue10 => $DispatchValue25) {
                     if ($this->config->getSetting($DispatchValue10) !== null && preg_match('~^[0-9]{1,7}$~i', $DispatchValue25, $DispatchValue24) && isset($DispatchValue24[0])) $this->config->setSetting($DispatchValue10, $DispatchValue25); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 }
-            } else if (($DispatchValue7 = $this->request->getPost('recovery')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue7 = $this->request->getPost('recovery')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $DispatchValue7 = rawurldecode($DispatchValue7);
                 $backupRelative = $this->config->getBackupRelativePath($DispatchValue7);
@@ -962,7 +976,7 @@ final class MyVibeHTMLController
                         if (!rmdir($DispatchValue8)) $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                 } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
-            } else if (($DispatchValue29 = $this->request->getPost('scripts')) && ($DispatchValue6 = $this->request->getPost(POST_TOKEN, HASH_ALGORITHM)) && ($DispatchValue6 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN, HASH_ALGORITHM))) {
+            } else if (($DispatchValue29 = $this->request->getPost('scripts')) && $this->isValidPostToken()) {
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 if ($this->config->getSetting(SETTING_SITE_SCRIPTS) !== null) $this->config->setSetting(SETTING_SITE_SCRIPTS, '0'); else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
             } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
@@ -1169,7 +1183,7 @@ final class MyVibeHTMLController
 
     private function createSession()
     {
-        $CreateSessionValue1 = sha1(time() . mt_rand());
+        $CreateSessionValue1 = bin2hex(random_bytes(32));
         $this->config->setSetting(SETTING_SESSION, $CreateSessionValue1);
         $this->response->setCookie(COOKIE_PREFIX . SETTING_SESSION, $CreateSessionValue1, time() + 60 * $this->config->getSetting(SETTING_AUTH_SESSION_RESET), $this->config->getSiteUrlBase(), false, false, true);
     }
@@ -1185,7 +1199,7 @@ final class MyVibeHTMLController
         $SwitchModeValue1 = $this->request->getPost('switch');
         if (is_numeric($SwitchModeValue1)) {
             $SwitchModeValue2 = $this->request->getPost(POST_SOURCE);
-            if ($SwitchModeValue2 && ($SwitchModeValue3 = $this->request->getPost(POST_TOKEN)) && $SwitchModeValue3 == $this->request->getCookie(COOKIE_PREFIX . POST_TOKEN)) {
+            if ($SwitchModeValue2 && $this->isValidPostToken()) {
                 $SwitchModeValue2 = myvibehtml_base64_decode($SwitchModeValue2);
                 $this->response->addHeader('X-f:0');
                 $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);

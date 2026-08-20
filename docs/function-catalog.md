@@ -38,7 +38,7 @@
 
 ## JavaScript: UI и авторизация
 
-`readCookie()`, `writeCookie()`, `removeCookie()`, `generateToken()`, `sha1()` и `base64Encode()` обслуживают cookie-сессию и локальную проверку пароля. `fadeIn()` и `fadeOut()` управляют состоянием сообщений и панелей.
+`readCookie()`, `writeCookie()`, `removeCookie()`, `generateToken()`, `sha1()`, `base64Encode()` и `base64UrlEncode()` обслуживают cookie/CSRF-транспорт. Пароль передаётся по HTTPS для серверной проверки `password_verify()`, без клиентского SHA-1. `fadeIn()` и `fadeOut()` управляют состоянием сообщений и панелей.
 
 Обработчики вкладок переключают `html`/`text`, `saveEditorContent()` сохраняет изменения, `switchEditorMode()` выбирает режим, а `toggleSettingsSection()`, `submitSettings()`, `applySavedSettings()` и `restoreSettingsDefaults()` обслуживают настройки.
 
