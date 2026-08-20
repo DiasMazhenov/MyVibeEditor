@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.39 */
+/* MyVibeHTML v0.40 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -39,6 +39,7 @@
         activeElementProperty = 'activeElement',
         documentElementProperty = 'documentElement',
         childNodesProperty = 'childNodes',
+        firstChildProperty = 'firstChild',
         indexOfMethod = 'indexOf',
         lastIndexOfMethod = 'lastIndexOf',
         toLowerCaseMethod = 'toLowerCase',
@@ -776,6 +777,8 @@
                         blockLibraryPanel = null,
                         blockLibraryButton = null,
                         sourceMapState = null,
+                        structuralTagOptions = ['article', 'aside', 'blockquote', 'button', 'code', 'div', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'label', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'span', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'ul'],
+                        structuralVoidTags = '|area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr|',
                         getContextNode = function(initializeVisualEditorArgument1) {
                             for (var visualEditorValue2 = initializeVisualEditorArgument1; visualEditorValue2 && visualEditorValue2 != runtimeValue127.body; visualEditorValue2 = visualEditorValue2[parentNodeProperty]) {
                                 if (visualEditorValue2.realNode) visualEditorValue2 = visualEditorValue2.realNode;
@@ -1163,7 +1166,7 @@
                                     ]}
                                 ];
                                 visualEditorMarkupFields = [
-                                    {property: 'tagName', label: visualEditorValue9 ? 'Тег' : 'Tag', disabled: true},
+                                    {property: 'tagName', label: visualEditorValue9 ? 'Тег' : 'Tag', options: structuralTagOptions},
                                     {property: 'id', label: visualEditorValue9 ? 'ID' : 'ID'},
                                     {property: 'class', label: visualEditorValue9 ? 'Классы' : 'Classes'},
                                     {property: 'role', label: 'ARIA role'},
@@ -1341,6 +1344,112 @@
                             }
                             return initializeVisualEditorArgument10
                         },
+                        showStructuralError = function() {
+                            runtimeValue9[textContentProperty] = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'struct-invalid-tag') || 'Unsupported tag';
+                            runtimeValue9[classNameProperty] = 'o';
+                            fadeIn(runtimeValue9)
+                        },
+                        applyStructuralSource = function(structuralSource) {
+                            serializedSource = structuralSource;
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            runtimeValue4[disabledProperty] = false;
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            return true
+                        },
+                        attachStructuralNode = function(structuralNode) {
+                            if (!structuralNode) return;
+                            var structuralNodeTag = structuralNode[tagNameProperty][toLowerCaseMethod]();
+                            if (structuralNodeTag == imageTagName) {
+                                structuralNode.ondragover = runtimeValue112;
+                                structuralNode.ondragleave = runtimeValue113;
+                                structuralNode.ondrop = runtimeValue114;
+                                structuralNode.ondragstart = function() { runtimeValue1.e = this };
+                                structuralNode[addEventListenerMethod](mouseDownEvent, runtimeValue106)
+                            } else {
+                                structuralNode[addEventListenerMethod](mouseDownEvent, function(event) {
+                                    runtimeValue111(event);
+                                    runtimeValue106.call(this)
+                                });
+                                structuralNode[addEventListenerMethod](mouseUpEvent, runtimeValue111);
+                                structuralNode[addEventListenerMethod](clickEvent, runtimeValue111)
+                            }
+                        },
+                        replaceStructuralTag = function(structuralTag) {
+                            if (!styleInspectorTarget || structuralTagOptions[indexOfMethod](structuralTag) === -1) return false;
+                            var structuralCurrentTag = styleInspectorTarget[tagNameProperty][toLowerCaseMethod]();
+                            if (structuralCurrentTag == structuralTag) return true;
+                            var structuralRange = getStyleSourceRange(styleInspectorTarget),
+                                structuralParent = styleInspectorTarget[parentNodeProperty];
+                            if (!structuralRange || !structuralParent || structuralCurrentTag == 'body') return false;
+                            var structuralReplacement = runtimeValue127[createElementMethod](structuralTag);
+                            for (var structuralAttributeIndex = 0; structuralAttributeIndex < styleInspectorTarget.attributes[lengthProperty]; structuralAttributeIndex++) {
+                                var structuralAttribute = styleInspectorTarget.attributes[structuralAttributeIndex];
+                                structuralReplacement[setAttributeMethod](structuralAttribute.name, structuralAttribute.value)
+                            }
+                            while (styleInspectorTarget[firstChildProperty]) structuralReplacement[appendChildMethod](styleInspectorTarget[firstChildProperty]);
+                            structuralParent[replaceChildMethod](structuralReplacement, styleInspectorTarget);
+                            try {
+                                var structuralSource = serializedSource[sliceMethod](structuralRange[0], structuralRange[1]),
+                                    structuralOpeningPattern = new RegExp('^(\\s*<\\s*)' + structuralCurrentTag + '(\\b)', 'i'),
+                                    structuralClosingPattern = new RegExp('(</\\s*)' + structuralCurrentTag + '(\\s*>\\s*)$', 'i');
+                                if (!structuralOpeningPattern.test(structuralSource)) throw new Error('opening tag not found');
+                                structuralSource = structuralSource[replaceMethod](structuralOpeningPattern, '$1' + structuralTag + '$2');
+                                if (structuralVoidTags[indexOfMethod]('|' + structuralCurrentTag + '|') !== -1) structuralSource += '</' + structuralTag + '>';
+                                else if (structuralClosingPattern.test(structuralSource)) structuralSource = structuralSource[replaceMethod](structuralClosingPattern, '$1' + structuralTag + '$2');
+                                else throw new Error('closing tag not found');
+                                applyStructuralSource(serializedSource[sliceMethod](0, structuralRange[0]) + structuralSource + serializedSource[sliceMethod](structuralRange[1]));
+                            } catch (structuralReplaceError) {
+                                structuralParent[replaceChildMethod](styleInspectorTarget, structuralReplacement);
+                                return false
+                            }
+                            attachStructuralNode(structuralReplacement);
+                            styleInspectorTarget = structuralReplacement;
+                            selectContextNode(structuralReplacement, 'element');
+                            renderStyleInspector(structuralReplacement);
+                            return true
+                        },
+                        insertStructuralNode = function(structuralPosition) {
+                            var structuralTarget = contextTarget || styleInspectorTarget;
+                            if (!structuralTarget || structuralTarget == runtimeValue127.body) return;
+                            var structuralTag = windowObject.prompt(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'struct-tag-prompt') || 'New element tag', 'div');
+                            if (structuralTag === null) return;
+                            structuralTag = structuralTag.replace(/^\s+|\s+$/g, '')[toLowerCaseMethod]();
+                            if (structuralTagOptions[indexOfMethod](structuralTag) === -1) {
+                                showStructuralError();
+                                return
+                            }
+                            if (structuralPosition == 'child' && structuralVoidTags[indexOfMethod]('|' + structuralTarget[tagNameProperty][toLowerCaseMethod]() + '|') !== -1) {
+                                showStructuralError();
+                                return
+                            }
+                            var structuralText = windowObject.prompt(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'struct-text-prompt') || 'New element text', '');
+                            if (structuralText === null) return;
+                            var structuralRange = getStyleSourceRange(structuralTarget),
+                                structuralParent = structuralTarget[parentNodeProperty];
+                            if (!structuralRange || !structuralParent) return;
+                            var structuralNode = runtimeValue127[createElementMethod](structuralTag);
+                            structuralNode[textContentProperty] = structuralText;
+                            var structuralMarkup = structuralNode[outerHTMLProperty],
+                                structuralSource = serializedSource;
+                            if (structuralPosition == 'child') {
+                                var structuralTargetSource = serializedSource[sliceMethod](structuralRange[0], structuralRange[1]),
+                                    structuralClosingIndex = structuralTargetSource.search(new RegExp('</' + structuralTarget[tagNameProperty][toLowerCaseMethod]() + '\\s*>\\s*$', 'i'));
+                                if (structuralClosingIndex < 0) return;
+                                structuralSource = serializedSource[sliceMethod](0, structuralRange[0]) + structuralTargetSource[sliceMethod](0, structuralClosingIndex) + structuralMarkup + structuralTargetSource[sliceMethod](structuralClosingIndex) + serializedSource[sliceMethod](structuralRange[1]);
+                                structuralTarget[appendChildMethod](structuralNode)
+                            } else {
+                                structuralSource = serializedSource[sliceMethod](0, structuralRange[1]) + structuralMarkup + serializedSource[sliceMethod](structuralRange[1]);
+                                if (structuralTarget[nextElementSiblingProperty]) structuralParent[insertBeforeMethod](structuralNode, structuralTarget[nextElementSiblingProperty]); else structuralParent[appendChildMethod](structuralNode)
+                            }
+                            try { applyStructuralSource(structuralSource) } catch (structuralInsertError) {
+                                if (structuralNode[parentNodeProperty]) structuralNode[parentNodeProperty][removeChildMethod](structuralNode);
+                                return
+                            }
+                            attachStructuralNode(structuralNode);
+                            selectContextNode(structuralNode, 'element')
+                        },
                         applyStyleProperty = function() {
                             if (!styleInspectorTarget) return;
                             var visualEditorValue47 = this[getAttributeMethod]('data-myvibehtml-style-property'),
@@ -1369,9 +1478,20 @@
                             if (!styleInspectorTarget) return;
                             var markupProperty = this[getAttributeMethod]('data-myvibehtml-markup-property'),
                                 markupValue = this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''),
+                                markupTagChanged = markupProperty == 'tagName',
                                 markupRange = getStyleSourceRange(styleInspectorTarget),
                                 markupHadAttribute = styleInspectorTarget.hasAttribute(markupProperty),
                                 markupPreviousValue = styleInspectorTarget[getAttributeMethod](markupProperty);
+                            if (markupTagChanged) {
+                                if (!replaceStructuralTag(markupValue)) {
+                                    this[setAttributeMethod]('aria-invalid', 'true');
+                                    styleInspectorError.hidden = false
+                                } else {
+                                    this[removeAttributeMethod]('aria-invalid');
+                                    styleInspectorError.hidden = true
+                                }
+                                return
+                            }
                             if (markupValue) styleInspectorTarget[setAttributeMethod](markupProperty, markupValue); else styleInspectorTarget[removeAttributeMethod](markupProperty);
                             if (!markupRange || !syncMarkupSource(styleInspectorTarget, markupRange[0], markupRange[1], markupProperty, markupValue)) {
                                 if (markupHadAttribute) styleInspectorTarget[setAttributeMethod](markupProperty, markupPreviousValue); else styleInspectorTarget[removeAttributeMethod](markupProperty);
@@ -1410,8 +1530,19 @@
                             }
                             for (var markupInspectorValueIndex = 0, markupInspectorValueLength = markupInspectorFields[lengthProperty]; markupInspectorValueIndex < markupInspectorValueLength; markupInspectorValueIndex++) {
                                 var markupInspectorField = markupInspectorFields[markupInspectorValueIndex],
-                                    markupInspectorProperty = markupInspectorField[getAttributeMethod]('data-myvibehtml-markup-property');
-                                markupInspectorField[valueProperty] = markupInspectorProperty == 'tagName' ? visualEditorValue54 : initializeVisualEditorArgument11[getAttributeMethod](markupInspectorProperty) || '';
+                                    markupInspectorProperty = markupInspectorField[getAttributeMethod]('data-myvibehtml-markup-property'),
+                                    markupInspectorValue = markupInspectorProperty == 'tagName' ? visualEditorValue54 : initializeVisualEditorArgument11[getAttributeMethod](markupInspectorProperty) || '';
+                                if (markupInspectorProperty == 'tagName' && markupInspectorField[tagNameProperty][toLowerCaseMethod]() == 'select' && markupInspectorValue) {
+                                    var markupHasCurrentOption = false;
+                                    for (var markupOptionIndex = 0; markupOptionIndex < markupInspectorField.options[lengthProperty]; markupOptionIndex++) if (markupInspectorField.options[markupOptionIndex].value == markupInspectorValue) markupHasCurrentOption = true;
+                                    if (!markupHasCurrentOption) {
+                                        var markupCurrentOption = documentObject[createElementMethod]('option');
+                                        markupCurrentOption.value = markupInspectorValue;
+                                        markupCurrentOption[textContentProperty] = markupInspectorValue;
+                                        markupInspectorField[appendChildMethod](markupCurrentOption)
+                                    }
+                                }
+                                markupInspectorField[valueProperty] = markupInspectorValue;
                                 markupInspectorField[removeAttributeMethod]('aria-invalid')
                             }
                             styleInspectorError.hidden = true;
@@ -1450,7 +1581,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить в библиотеку' : 'Save to library', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить в библиотеку' : 'Save to library', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';
@@ -1458,6 +1589,8 @@
                                 visualEditorValue16[classNameProperty] = 'myvibehtml-context-action';
                                 visualEditorValue16.action = visualEditorValue13[visualEditorValue14][0];
                                 if (visualEditorValue16.action == 'media') visualEditorValue16[setAttributeMethod]('data-myvibehtml-media-action', 'true');
+                                if (visualEditorValue16.action == 'add-child') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-child', 'true');
+                                if (visualEditorValue16.action == 'add-after') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-after', 'true');
                                 visualEditorValue16.handler = visualEditorValue13[visualEditorValue14][2];
                                 visualEditorValue16[textContentProperty] = visualEditorValue13[visualEditorValue14][1];
                                 visualEditorValue16[addEventListenerMethod](clickEvent, function() {
@@ -1470,6 +1603,12 @@
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
                                         selectContextNode(visualEditorValue17, 'element');
                                         renderStyleInspector(visualEditorValue17);
+                                        hideContextMenu();
+                                        return
+                                    }
+                                    if (this.action == 'add-child' || this.action == 'add-after') {
+                                        selectContextNode(contextTarget, 'element');
+                                        insertStructuralNode(this.action == 'add-child' ? 'child' : 'after');
                                         hideContextMenu();
                                         return
                                     }
@@ -1506,6 +1645,8 @@
                                 visualEditorValue16 = visualEditorValue14.top + event.clientY;
                             var visualEditorValue17 = visualEditorValue13[querySelectorMethod]('[data-myvibehtml-media-action]');
                             if (visualEditorValue17) visualEditorValue17[styleProperty][displayProperty] = isMediaTarget(contextTarget) ? blockValue : noneValue;
+                            var visualEditorValue18 = visualEditorValue13[querySelectorMethod]('[data-myvibehtml-structural-child]');
+                            if (visualEditorValue18) visualEditorValue18[styleProperty][displayProperty] = structuralVoidTags[indexOfMethod]('|' + contextTarget[tagNameProperty][toLowerCaseMethod]() + '|') === -1 ? blockValue : noneValue;
                             visualEditorValue13[styleProperty][displayProperty] = blockValue;
                             visualEditorValue13[setAttributeMethod]('aria-hidden', 'false');
                             visualEditorValue15 = Math.max(8, Math.min(visualEditorValue15, windowObject.innerWidth - visualEditorValue13.offsetWidth - 8));

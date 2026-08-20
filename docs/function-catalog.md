@@ -38,6 +38,8 @@
 
 `collectContentSearch()` и `renderContentSearchResults()` выполняют ограниченный read-only поиск по разрешённым текстовым файлам. `isValidContentReplacementInput()`, `collectContentReplacementFiles()`, `contentReplacementSnapshot()` и `renderContentReplacementPreview()` собирают изменения, считают совпадения и формируют diff без записи. `createContentReplacementTransaction()`, `applyContentReplacement()` и `rollbackContentReplacement()` сохраняют последнюю точку отката в runtime-каталоге вне web-root, проверяют snapshot на устаревание и используют существующие атомарные операции записи/восстановления.
 
+`replaceStructuralTag()` переименовывает только разрешённые структурные теги, сохраняя исходные атрибуты/форматирование и не сериализуя служебные `<edit>`-обёртки. `insertStructuralNode()` добавляет текстовый узел внутрь или рядом с выбранным элементом; пользовательский ввод проходит через `textContent`, а результат обновляет source map и draft.
+
 ## JavaScript: UI и авторизация
 
 `readCookie()`, `writeCookie()`, `removeCookie()`, `generateToken()`, `sha1()`, `base64Encode()` и `base64UrlEncode()` обслуживают cookie/CSRF-транспорт. Пароль передаётся по HTTPS для серверной проверки `password_verify()`, без клиентского SHA-1. `fadeIn()` и `fadeOut()` управляют состоянием сообщений и панелей.
@@ -78,7 +80,7 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 Редактор и выделение: `initializeVisualEditor`, `getContextNode`, `getSectionNode`, `getBlockNode`, `clearContextSelection`, `selectContextNode`, `createContextMenu`, `showContextMenu`, `hideContextMenu`, `handleEditorSelection`, `syncToolbarSpace`, `saveEditorContent`, `switchEditorMode`, `resetEditorFocus`.
 
-CSS-инспектор: `createStyleInspector`, `closeStyleInspector`, `getStyleSourceRange`, `syncStyleSource`, `isValidStyleValue`, `applyStyleProperty`, `renderStyleInspector`, `resetStyleInspector`.
+CSS-инспектор: `createStyleInspector`, `closeStyleInspector`, `getStyleSourceRange`, `syncStyleSource`, `isValidStyleValue`, `applyStyleProperty`, `renderStyleInspector`, `resetStyleInspector`, `replaceStructuralTag`, `insertStructuralNode`.
 
 Структура/drag-and-drop: `clone`, `move up`, `move down`, `delete` реализованы существующими toolbar callbacks; вспомогательные локальные роли получили имена `runtimeValueN`/`visualEditorValueN` и отвечают за вычисление границ, сериализацию, drag/drop и script/style режим.
 

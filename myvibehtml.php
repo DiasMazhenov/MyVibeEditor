@@ -363,7 +363,7 @@ final class MyVibeHTMLConfig
         );
         $this->templates['h'] = str_replace(
             'data-cm="{version}"',
-            'data-cm="{version}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}" data-context-media="{context_media}" data-context-copy="{context_copy}" data-context-up="{context_up}" data-context-down="{context_down}" data-context-delete="{context_delete}"',
+            'data-cm="{version}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}" data-context-media="{context_media}" data-context-copy="{context_copy}" data-context-up="{context_up}" data-context-down="{context_down}" data-context-delete="{context_delete}" data-context-add-child="{context_add_child}" data-context-add-after="{context_add_after}" data-struct-tag-prompt="{struct_tag_prompt}" data-struct-text-prompt="{struct_text_prompt}" data-struct-invalid-tag="{struct_invalid_tag}"',
             $this->templates['h']
         );
         $this->templates['a'] = str_replace(
@@ -588,7 +588,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.39';
+    const VERSION = '0.40';
     private $config;
     private $request;
     private $response;

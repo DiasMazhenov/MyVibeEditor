@@ -745,3 +745,12 @@ Runtime `conf.ini` и `error.log` теперь создаются в скрыт�
 - HTTP regression дополнен проверкой протокола: preview/apply обязаны возвращать настоящие разделители строк для разбора snapshot и transaction id в JavaScript; пользовательские NUL-байты также отклоняются.
 - Проверки v0.39: PHP lint для `myvibehtml.php`/runtime/router, `node --check myvibehtml.js`, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
 - Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Следующий функциональный номер — `0.40`: расширенный инспектор и структурное редактирование.
+
+## Текущее исправление v0.40
+
+- HTML/ARIA-инспектор получил редактируемое поле `Тег` с allowlist безопасных структурных тегов. Переименование сохраняет атрибуты и исходное форматирование, меняя только opening/closing tag в исходнике; служебные `<edit>`-обёртки не попадают в source.
+- Контекстное меню получило `Добавить внутрь` и `Добавить рядом`. Пользователь выбирает разрешённый тег и обычный текст; HTML/скрипты из prompt не интерпретируются, потому что новый текст задаётся через `textContent`.
+- Новые узлы получают существующие обработчики выделения/перетаскивания, source map перестраивается, dirty-state и локальный draft обновляются через общий поток редактора.
+- Версия синхронно поднята до `0.40` в PHP, JS, runtime/source-map, fallback, README, function catalog, CHANGELOG и HTTP regression.
+- Проверки v0.40: PHP lint для `myvibehtml.php`/runtime/router, `node --check myvibehtml.js`, source-map/deobfuscation/accessibility tests, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8096` — PASS. Browser runner в текущем окружении не обнаружен, поэтому визуальный screenshot acceptance не заявляется.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Следующий номер — `0.41`: модульное разделение и CI/authenticated E2E.
