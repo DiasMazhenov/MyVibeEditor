@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.42 */
+/* MyVibeHTML v0.43 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -4699,11 +4699,10 @@
     })
     documentObject[addEventListenerMethod](domContentLoadedEvent, function() {
         var panel = documentObject[querySelectorMethod]('#e'),
-            toggle = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu-toggle'),
-            menu = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu');
-        if (!panel || !toggle || !menu) return;
-        var previewControls = panel[querySelectorMethod]('[data-preview-controls]'),
-            previewFrame = documentObject[querySelectorMethod]('#d iframe');
+            previewControls;
+        if (!panel) return;
+        previewControls = panel[querySelectorMethod]('[data-preview-controls]');
+        var previewFrame = documentObject[querySelectorMethod]('#d iframe');
         if (previewControls && previewFrame && documentObject[documentElementProperty].id == 'd') {
             var previewButtons = previewControls[querySelectorAllMethod]('[data-preview-size]'),
                 setPreviewSize = function(previewSize) {
@@ -4716,6 +4715,9 @@
             });
             setPreviewSize('desktop')
         }
+        var toggle = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu-toggle'),
+            menu = documentObject[querySelectorMethod]('#myvibehtml-mobile-menu');
+        if (!toggle || !menu) return;
         var items = menu[querySelectorAllMethod]('[data-mobile-target]'),
             setMenuState = function(open) {
                 toggle[setAttributeMethod]('aria-expanded', open ? 'true' : 'false');
@@ -4760,7 +4762,7 @@
             commandPaletteList = null,
             commandPaletteCommands = [],
             commandPaletteActiveIndex = 0,
-            commandLabel = function(element, fallback) { return element && element[textContentProperty].replace(/^\s+|\s+$/g, '') || fallback },
+            commandLabel = function(element, fallback) { return element && (element[getAttributeMethod]('data-preview-label') || element[getAttributeMethod]('data-block-label') || element[textContentProperty].replace(/^\s+|\s+$/g, '')) || fallback },
             commandText = function(attribute, fallback) { return commandPanel[querySelectorMethod]('[data-page-validate]') && commandPanel[querySelectorMethod]('[data-page-validate]')[getAttributeMethod]('data-' + attribute) || fallback },
             dispatchCommand = function(element) {
                 if (!element) return;

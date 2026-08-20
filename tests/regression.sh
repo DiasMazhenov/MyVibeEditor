@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.42" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
-rg -q "const VERSION = '0\.42'" myvibehtml.php
+rg -q "MyVibeHTML v0\.43" myvibehtml.php myvibehtml.js myvibehtml-fallback.css
+rg -q "const VERSION = '0\.43'" myvibehtml.php
 rg -q "myvibehtml-ui-contracts\.js|MyVibeHTMLUIContracts" myvibehtml.php myvibehtml.js myvibehtml-ui-contracts.js
 rg -q "data-file-action=\"new-file\"|data-file-action=\"new-folder\"" myvibehtml.php
 rg -q "renderFileSearchResults|normalizeManagerName" myvibehtml.php
@@ -80,17 +80,22 @@ node --test tests/accessibility.test.js
 node --test tests/ui-contracts.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.42" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.42" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.42" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.42" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.42" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.42" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.43" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.43" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.42"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.43"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
+for icon in device-desktop device-tablet device-mobile layout-grid; do
+    test -s "myvibehtml-icons/$icon.svg"
+done
+rg -q 'myvibehtml-icon-desktop|myvibehtml-icon-tablet|myvibehtml-icon-mobile|myvibehtml-icon-blocks' myvibehtml-fallback.css myvibehtml.php
+rg -q 'data-preview-label|data-block-label|title="\{preview_desktop\}"' myvibehtml.php
 if rg -q 'DOCUMENT_ROOT' "$TMP_DIR/body"; then
     echo "regression: unauthenticated response leaks DOCUMENT_ROOT" >&2
     exit 1

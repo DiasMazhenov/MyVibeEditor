@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.43
+
+- Preview-переключатели теперь инициализируются независимо от наличия mobile menu; visual editor использует `#d iframe`, а `aria-pressed` синхронизируется с `data-myvibehtml-preview-size`.
+- Режимы `Десктоп`, `Планшет`, `Телефон` и `Блоки` получили локальные SVG Tabler через Iconify API: `device-desktop`, `device-tablet`, `device-mobile`, `layout-grid`.
+- Текстовые подписи заменены на иконки; названия сохранены в `title`, `aria-label`, `data-preview-label`/`data-block-label`, а кнопки получили единую геометрию 34×28 px.
+- Проверки: PHP/JS lint, source-map/deobfuscation/accessibility/UI-contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, HTTP regression на `127.0.0.1:8080`, авторизованный HTML/asset smoke на `127.0.0.1:8080` — PASS. Headless/browser runner в окружении отсутствует, поэтому визуальный screenshot acceptance не заявляется.
+- Версия синхронно поднята до `0.43`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Следующий этап — реальный browser/axe acceptance.
+
 ## Текущее исправление v0.42
 
 - Контекстное меню стало keyboard-accessible: `ArrowUp`/`ArrowDown` перемещают фокус только по видимым действиям, `Home`/`End` переходят к началу/концу, `Enter`/`Space` активируют пункт, `Escape` закрывает меню.

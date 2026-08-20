@@ -12,6 +12,10 @@
 | `eye.svg` | https://icon-sets.iconify.design/tabler/eye/ | MIT |
 | `menu-2.svg` | https://icon-sets.iconify.design/tabler/menu-2/ | MIT |
 | `code.svg` | https://icon-sets.iconify.design/tabler/code/ | MIT |
+| `device-desktop.svg` | https://icon-sets.iconify.design/tabler/device-desktop/ | MIT |
+| `device-tablet.svg` | https://icon-sets.iconify.design/tabler/device-tablet/ | MIT |
+| `device-mobile.svg` | https://icon-sets.iconify.design/tabler/device-mobile/ | MIT |
+| `layout-grid.svg` | https://icon-sets.iconify.design/tabler/layout-grid/ | MIT |
 
 Iconify API endpoints:
 
@@ -23,5 +27,9 @@ Iconify API endpoints:
 - https://api.iconify.design/tabler/eye.svg
 - https://api.iconify.design/tabler/menu-2.svg
 - https://api.iconify.design/tabler/code.svg
+- https://api.iconify.design/tabler/device-desktop.svg
+- https://api.iconify.design/tabler/device-tablet.svg
+- https://api.iconify.design/tabler/device-mobile.svg
+- https://api.iconify.design/tabler/layout-grid.svg
 
 Tabler Icons распространяются по MIT License; runtime-загрузка внешнего домена не используется.
