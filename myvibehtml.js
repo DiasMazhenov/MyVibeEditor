@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.57 */
+/* MyVibeHTML v0.58 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -638,7 +638,12 @@
                             try {
                                 var blockLibraryData = windowObject.localStorage.getItem(productPrefix + ':blocks'),
                                     blockLibraryItems = blockLibraryData ? JSON.parse(blockLibraryData) : [];
-                                return Array.isArray(blockLibraryItems) ? blockLibraryItems : []
+                                if (!Array.isArray(blockLibraryItems)) return [];
+                                for (var blockLibraryIndex = 0; blockLibraryIndex < blockLibraryItems[lengthProperty]; blockLibraryIndex++) {
+                                    if (!blockLibraryItems[blockLibraryIndex].id) blockLibraryItems[blockLibraryIndex].id = 'component-' + blockLibraryIndex;
+                                    if (!blockLibraryItems[blockLibraryIndex].type) blockLibraryItems[blockLibraryIndex].type = 'component'
+                                }
+                                return blockLibraryItems
                             } catch (blockLibraryError) {
                                 return []
                             }
@@ -672,8 +677,8 @@
                             blockLibraryPanel.id = 'myvibehtml-block-library';
                             blockLibraryPanel.hidden = true;
                             blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true');
-                            blockLibraryPanel[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Библиотека блоков' : 'Block library');
-                            blockLibraryPanel[innerHTMLProperty] = '<div class="myvibehtml-block-library-header"><h2>' + (blockLibraryRussian ? 'Библиотека блоков' : 'Block library') + '</h2><button type="button" data-block-library-close aria-label="' + (blockLibraryRussian ? 'Закрыть' : 'Close') + '">×</button></div><p class="myvibehtml-block-library-hint">' + (blockLibraryRussian ? 'Сохраняйте повторяющиеся секции и вставляйте их в выбранное место.' : 'Save reusable sections and insert them after the selected node.') + '</p><ul data-block-library-list></ul>';
+                            blockLibraryPanel[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Компоненты' : 'Components');
+                            blockLibraryPanel[innerHTMLProperty] = '<div class="myvibehtml-block-library-header"><h2>' + (blockLibraryRussian ? 'Компоненты' : 'Components') + '</h2><button type="button" data-block-library-close aria-label="' + (blockLibraryRussian ? 'Закрыть' : 'Close') + '">×</button></div><p class="myvibehtml-block-library-hint">' + (blockLibraryRussian ? 'Сохраняйте повторно используемые секции и вставляйте их в выбранное место.' : 'Save reusable sections and insert them after the selected node.') + '</p><ul data-block-library-list></ul>';
                             documentObject.body[appendChildMethod](blockLibraryPanel);
                             blockLibraryPanel[querySelectorMethod]('[data-block-library-close]')[addEventListenerMethod](clickEvent, function() {
                                 blockLibraryPanel.hidden = true;
@@ -690,7 +695,7 @@
                             if (!blockLibraryItems[lengthProperty]) {
                                 var blockLibraryEmpty = documentObject[createElementMethod]('li');
                                 blockLibraryEmpty[classNameProperty] = 'myvibehtml-block-library-empty';
-                                blockLibraryEmpty[textContentProperty] = blockLibraryRussian ? 'Библиотека пуста' : 'Library is empty';
+                                blockLibraryEmpty[textContentProperty] = blockLibraryRussian ? 'Компонентов пока нет' : 'No components yet';
                                 blockLibraryList[appendChildMethod](blockLibraryEmpty);
                                 return
                             }
@@ -699,16 +704,25 @@
                                     blockLibraryName = documentObject[createElementMethod]('span'),
                                     blockLibraryInsert = documentObject[createElementMethod]('button'),
                                     blockLibraryDelete = documentObject[createElementMethod]('button');
-                                blockLibraryName[textContentProperty] = blockLibraryItems[blockLibraryIndex].name;
-                                blockLibraryInsert.type = 'button';
-                                blockLibraryInsert[textContentProperty] = blockLibraryRussian ? 'Вставить' : 'Insert';
+                                    blockLibraryName[textContentProperty] = blockLibraryItems[blockLibraryIndex].name;
+                                    blockLibraryName[setAttributeMethod]('title', blockLibraryItems[blockLibraryIndex].type == 'component' ? (blockLibraryRussian ? 'Компонент' : 'Component') : '');
+                                    blockLibraryInsert.type = 'button';
+                                    blockLibraryInsert[textContentProperty] = blockLibraryRussian ? 'Вставить' : 'Insert';
                                 blockLibraryInsert.blockIndex = blockLibraryIndex;
-                                blockLibraryInsert[addEventListenerMethod](clickEvent, function() {
-                                    insertBlockPreset(this.blockIndex)
-                                });
-                                blockLibraryDelete.type = 'button';
+                                    blockLibraryInsert[addEventListenerMethod](clickEvent, function() {
+                                        insertBlockPreset(this.blockIndex)
+                                    });
+                                    var blockLibraryUpdate = documentObject[createElementMethod]('button');
+                                    blockLibraryUpdate.type = 'button';
+                                    blockLibraryUpdate[textContentProperty] = blockLibraryRussian ? 'Обновить' : 'Update';
+                                    blockLibraryUpdate[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Обновить компонент' : 'Update component');
+                                    blockLibraryUpdate.blockIndex = blockLibraryIndex;
+                                    blockLibraryUpdate[addEventListenerMethod](clickEvent, function() {
+                                        updateBlockPreset(this.blockIndex)
+                                    });
+                                    blockLibraryDelete.type = 'button';
                                 blockLibraryDelete[textContentProperty] = '×';
-                                blockLibraryDelete[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Удалить блок' : 'Delete block');
+                                blockLibraryDelete[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Удалить компонент' : 'Delete component');
                                 blockLibraryDelete.blockIndex = blockLibraryIndex;
                                 blockLibraryDelete[addEventListenerMethod](clickEvent, function() {
                                     var blockLibraryItemsToDelete = readBlockLibrary();
@@ -718,6 +732,7 @@
                                 });
                                 blockLibraryItem[appendChildMethod](blockLibraryName);
                                 blockLibraryItem[appendChildMethod](blockLibraryInsert);
+                                blockLibraryItem[appendChildMethod](blockLibraryUpdate);
                                 blockLibraryItem[appendChildMethod](blockLibraryDelete);
                                 blockLibraryList[appendChildMethod](blockLibraryItem)
                             }
@@ -735,11 +750,25 @@
                             var blockMarkup = sanitizeBlockMarkup(blockTarget[outerHTMLProperty]);
                             if (!blockMarkup) return;
                             var blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || ''),
-                                blockName = windowObject.prompt(blockLibraryRussian ? 'Название блока' : 'Block name', blockTarget[tagNameProperty][toLowerCaseMethod]());
+                                blockName = windowObject.prompt(blockLibraryRussian ? 'Название компонента' : 'Component name', blockTarget[tagNameProperty][toLowerCaseMethod]());
                             if (!blockName) return;
                             var blockLibraryItems = readBlockLibrary();
-                            blockLibraryItems.unshift({name: blockName[substringMethod](0, 60), html: blockMarkup});
+                            blockLibraryItems.unshift({id:'component-' + Date.now(), type:'component', name: blockName[substringMethod](0, 60), html: blockMarkup, created:Date.now(), updated:Date.now()});
                             writeBlockLibrary(blockLibraryItems[sliceMethod](0, 24));
+                            openBlockLibrary()
+                        },
+                        updateBlockPreset = function(blockIndex) {
+                            var blockLibraryItems = readBlockLibrary(),
+                                blockPreset = blockLibraryItems[blockIndex],
+                                blockTarget = runtimeValue127[querySelectorMethod]('[' + focusAttribute + ']') || contextTarget;
+                            if (!blockPreset || !blockTarget || blockTarget == runtimeValue127.body) return;
+                            var blockMarkup = sanitizeBlockMarkup(blockTarget[outerHTMLProperty]),
+                                blockLibraryRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '');
+                            if (!blockMarkup || !windowObject.confirm(blockLibraryRussian ? 'Обновить этот компонент текущим выделением?' : 'Update this component with the current selection?')) return;
+                            blockPreset.html = blockMarkup;
+                            blockPreset.type = 'component';
+                            blockPreset.updated = Date.now();
+                            writeBlockLibrary(blockLibraryItems.slice(0, 24));
                             openBlockLibrary()
                         },
                         insertBlockPreset = function(blockIndex) {
@@ -1353,7 +1382,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить в библиотеку' : 'Save to library', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';

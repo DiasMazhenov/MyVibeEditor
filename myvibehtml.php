@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.57 */
+<?php /* MyVibeHTML v0.58 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -358,7 +358,7 @@ final class MyVibeHTMLConfig
         $this->templates['h'] = str_replace('</div>{mode}<ul>', '<div class="myvibehtml-preview-controls" data-preview-controls role="group" aria-label="{preview_size}"><button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button></div></div>{mode}<ul>', $this->templates['h']);
         $this->templates['h'] = str_replace(
             '<button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button>',
-            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{blocks}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button>',
+            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{components}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button>',
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
@@ -595,7 +595,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.57';
+    const VERSION = '0.58';
     private $config;
     private $request;
     private $response;

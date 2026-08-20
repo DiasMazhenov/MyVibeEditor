@@ -1,6 +1,6 @@
-# Архитектура v0.57
+# Архитектура v0.58
 
-v0.57 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.58 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -16,6 +16,10 @@ v0.57 сохраняет безопасные модульные границы 
 ## История изменений
 
 `writeSourceDraft()` — единая точка фиксации draft после visual/source-операций. Она сохраняет текущий draft и добавляет снимок в `myvibehtml:timeline:<file>` в localStorage. В текстовом редакторе `sourceHistoryOpenTimeline()` показывает последние 40 снимков и восстанавливает выбранный source через существующий renderer, поэтому новая модель не дублирует Undo/Redo и не меняет серверный протокол.
+
+## Reusable Components
+
+Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию после выбранного узла, а `updateBlockPreset()` обновляет запись текущим выделением. Серверный HTML и внешние библиотеки для этого не нужны.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 

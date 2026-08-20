@@ -62,6 +62,8 @@ CSS-инспектор используют `createStyleInspector()` и `renderS
 
 `readEditorTimeline()`, `writeEditorTimeline()` и `recordEditorTimeline()` обслуживают постоянную локальную историю снимков visual/source draft. `sourceHistoryOpenTimeline()` строит доступный диалог истории и передаёт восстановление в существующий `sourceHistoryRender()`; максимум хранится 40 снимков на файл.
 
+`readBlockLibrary()`, `writeBlockLibrary()` и `sanitizeBlockMarkup()` обслуживают локальное безопасное хранилище компонентов. `saveBlockPreset()` создаёт компонент, `insertBlockPreset()` вставляет независимую копию, а `updateBlockPreset()` заменяет markup сохранённого компонента текущим выделением; старые записи библиотеки мигрируют в память с `id/type` без потери данных.
+
 ## Полный именной inventory PHP
 
 Ниже перечислены все функции и методы, присутствующие в `myvibehtml.php`; одинаковые имена `__construct()` и `writeFileAtomically()` относятся к разным классам.

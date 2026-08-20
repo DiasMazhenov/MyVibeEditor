@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.58
+
+- Существующая библиотека `myvibehtml:blocks` расширена до Reusable Components без второго механизма хранения: записи получают `id`, `type=component`, `created` и `updated`.
+- Контекстное меню теперь предлагает `Сохранить компонент`; панель компонентов поддерживает `Вставить`, `Обновить` текущим выделением и удаление. Вставка остаётся независимой копией, поэтому компонент не создаёт скрытых связанных изменений между страницами.
+- Старые записи без метаданных совместимо нормализуются в `readBlockLibrary()` в памяти; `sanitizeBlockMarkup()` продолжает удалять script/style/iframe, служебные атрибуты, inline-события и опасные URL.
+- Добавлены компонентные contract assertions, README, architecture, function catalog, CHANGELOG и version markers до `0.58`.
+- `node --check`, PHP lint, `git diff --check`, `tests/ci-contract.sh` и полный HTTP regression против `127.0.0.1:8080` прошли. Live URL `http://127.0.0.1:8080/?q=myvibe/test-page.html&rev=0.58` открыт во встроенном браузере; API окна не предоставляет программных click/screenshot-команд, поэтому автоматический visual click-through не объявляется выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. Следующий этап — v0.59 Design Tokens.
+
 ## Текущее исправление v0.57
 
 - Добавлена локальная Time Machine поверх существующего draft-потока: `writeSourceDraft()` теперь записывает снимки в `myvibehtml:timeline:<file>` и сохраняет максимум 40 последних состояний.
