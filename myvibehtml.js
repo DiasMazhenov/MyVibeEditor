@@ -1,8 +1,9 @@
-/* MyVibeHTML v0.40 */
+/* MyVibeHTML v0.41 */
 (function() {
     var windowObject = window,
         documentObject = document,
         sourceMapApi = windowObject.MyVibeHTMLSourceMap,
+        uiContracts = windowObject.MyVibeHTMLUIContracts,
         locationObject = location,
         setIntervalMethod = 'setInterval',
         setTimeoutMethod = 'setTimeout',
@@ -504,16 +505,7 @@
             }
             runtimeValue51.send(runtimeInput30)
         },
-        generateToken = function() {
-            var tokenBytes = new Uint8Array(32),
-                tokenHex = '';
-            if (windowObject.crypto && windowObject.crypto.getRandomValues) {
-                windowObject.crypto.getRandomValues(tokenBytes);
-                for (var tokenByteIndex = 0; tokenByteIndex < tokenBytes.length; tokenByteIndex++) tokenHex += ('00' + tokenBytes[tokenByteIndex].toString(16)).slice(-2);
-                return tokenHex
-            }
-            return sha1(new Date().getTime() + '' + Math.floor(Math.random() * 2147483648))
-        },
+        generateToken = uiContracts && uiContracts.generateToken,
         formatBytes = function(runtimeInput36) {
             var runtimeValue55 = 1024,
                 runtimeValue56 = 1024 * runtimeValue55,

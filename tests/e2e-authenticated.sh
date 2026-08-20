@@ -13,7 +13,8 @@ status="$(curl -sS -o "$body_file" -w '%{http_code}' -H "Cookie: ${MYVIBEHTML_E2
     echo "authenticated-e2e: expected 2xx, got $status" >&2
     exit 1
 }
-rg -q 'MyVibeHTML|myvibehtml\.js|myvibehtml-source-map\.js' "$body_file"
+rg -q 'MyVibeHTML|myvibehtml\.js|myvibehtml-source-map\.js|myvibehtml-ui-contracts\.js' "$body_file"
+rg -q 'data-context-add-child|data-preview-controls|data-page-validate|data-command-palette' "$body_file"
 if rg -q 'DOCUMENT_ROOT|textolite\.ru|ERR_TOO_MANY_REDIRECTS' "$body_file"; then
     echo "authenticated-e2e: unsafe/error response detected" >&2
     exit 1

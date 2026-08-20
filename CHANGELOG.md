@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.41
+
+- генерация CSRF-токенов вынесена в локальный UI-contract module без внешних зависимостей;
+- CI проверяет PHP 7.4/8.1/8.3, Node 20, модульные границы и полный HTTP regression;
+- authenticated HTTP E2E проверяет актуальный авторизованный panel response только через GitHub Actions secrets.
+
 ## 0.40
 
 - поле `Тег` в HTML/ARIA-инспекторе стало редактируемым через allowlist безопасных структурных тегов;

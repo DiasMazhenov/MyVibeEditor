@@ -7,8 +7,21 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.3']
     steps:
       - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Syntax and unit checks
         run: |
           php -l myvibehtml-runtime.php
@@ -16,9 +29,12 @@ jobs:
           php -l dev-router.php
           node --check myvibehtml.js
           node --check myvibehtml-source-map.js
+          node --check myvibehtml-ui-contracts.js
           node --test tests/source-map.test.js
           node --test tests/deobfuscation.test.js
           node --test tests/accessibility.test.js
+          node --test tests/ui-contracts.test.js
+          sh tests/ci-contract.sh
           sh security-smoke.sh
       - name: HTTP regression
         run: |

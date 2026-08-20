@@ -1,4 +1,16 @@
-# Архитектура v0.30
+# Архитектура v0.41
+
+v0.41 закрепляет безопасные модульные границы без добавления bundler/dependency:
+
+- `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
+- `myvibehtml.php` — HTTP controller, config и server templates;
+- `myvibehtml-source-map.js` — DOM ↔ HTML source-map;
+- `myvibehtml-ui-contracts.js` — независимые browser transport/UI contracts, сейчас генератор CSRF-токенов;
+- `myvibehtml.js` — оркестрация UI/editor; его крупный closure остаётся следующим extraction seam, потому что физический распил без отдельного DOM contract создаст регрессию;
+- `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback;
+- `tests/` — unit, security, regression, CI contract и optional authenticated E2E.
+
+Новый UI-модуль загружается до основного editor runtime и не имеет внешних запросов. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 
 v0.29 фиксирует границы runtime без добавления библиотек:
 

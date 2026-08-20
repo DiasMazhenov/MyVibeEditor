@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.41
+
+- Вынесен общий генератор CSRF-токенов из основного IIFE в локальный `myvibehtml-ui-contracts.js`; модуль загружается между source-map и `myvibehtml.js`, не использует внешние библиотеки или домены.
+- Существующие PHP runtime и JS source-map границы сохранены. Полный физический распил `myvibehtml.js` не имитировался: основной closure пока остаётся extraction seam, потому что его части используют общий DOM/editor state и требуют отдельного DOM contract.
+- CI расширен матрицей PHP `7.4`, `8.1`, `8.3` и Node `20`; добавлены `tests/ci-contract.sh` и `tests/ui-contracts.test.js`. Optional authenticated HTTP E2E теперь проверяет UI-contract и текущие panel markers через GitHub Actions secrets, без секретов делает явный SKIP.
+- Версия синхронно поднята до `0.41` в PHP, JS, runtime/source-map, UI-contract, fallback, README, CHANGELOG и HTTP regression.
+- Проверки v0.41: PHP lint для runtime/controller/router, `node --check` для трёх JS-модулей, source-map/deobfuscation/accessibility/UI-contract tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8096` — PASS. GitHub Actions matrix в текущем окружении не запускалась; browser runner также недоступен, поэтому визуальный screenshot acceptance не заявляется.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Следующий номер — `0.42`: keyboard/focus accessibility, CSS consolidation и performance/documentation cleanup.
+
 ## Текущее исправление v0.30
 
 - CSS consolidation: удалён дублирующий mobile panel cascade `max-width:700px` из theme-слоя; fallback сохраняет только критические правила. Добавлены единые focus-visible, `prefers-contrast: more` и `prefers-reduced-motion` правила в theme/fallback.
