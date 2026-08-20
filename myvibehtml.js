@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.52 */
+/* MyVibeHTML v0.53 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -148,6 +148,179 @@
         base64UrlEncode = transport.base64UrlEncode,
         ajaxRequest = transport.ajaxRequest,
         generateToken = transport.generateToken,
+        animateValue = function(runtimeInput8, runtimeInput9, runtimeInput10, runtimeInput11, runtimeInput12, runtimeInput13, runtimeInput14) {
+            var runtimeValue15, runtimeValue16 = new Date(),
+                runtimeValue17 = windowObject[setIntervalMethod](function() {
+                    runtimeValue15 = (new Date() - runtimeValue16) / runtimeInput11;
+                    if (runtimeValue15 < 1) runtimeInput13.call(runtimeInput8, (runtimeInput10 - runtimeInput9) * runtimeInput12(runtimeValue15) + runtimeInput9);
+                    else {
+                        runtimeInput13.call(runtimeInput8, runtimeInput10);
+                        var animateValueValue1 = runtimeInput8.a[lengthProperty];
+                        if (animateValueValue1 > 1) {
+                            while (animateValueValue1--)
+                                if (runtimeInput8.a[animateValueValue1] == runtimeValue17) delete runtimeInput8.a[animateValueValue1]
+                        } else delete runtimeInput8.a;
+                        windowObject[clearIntervalMethod](runtimeValue17);
+                        if (runtimeInput14) runtimeInput14.call(runtimeInput8)
+                    }
+                }, 10);
+            if (!runtimeInput8.a) runtimeInput8.a = [runtimeValue17];
+            else runtimeInput8.a[runtimeInput8.a[lengthProperty]] = runtimeValue17
+        },
+        fadeIn = function(runtimeInput15, runtimeInput16) {
+            if (windowObject[getComputedStyleMethod](runtimeInput15)[displayProperty] == noneValue) {
+                runtimeInput15[styleProperty][opacityProperty] = '0';
+                runtimeInput15[styleProperty][displayProperty] = blockValue;
+                animateValue(runtimeInput15, 0, 1, 400, function(fadeInArgument1) {
+                    return ((-Math.cos(fadeInArgument1 * Math.PI) / 2) + 0.5)
+                }, function(fadeInArgument2) {
+                    runtimeInput15[styleProperty][opacityProperty] = fadeInArgument2[toFixedMethod](1)
+                }, function() {
+                    runtimeInput15[styleProperty][opacityProperty] = '';
+                    if (runtimeInput16) runtimeInput16.call(runtimeInput15)
+                })
+            }
+        },
+        fadeOut = function(runtimeInput17, runtimeInput18) {
+            if (runtimeInput17[styleProperty][overflowProperty] != hiddenValue && windowObject[getComputedStyleMethod](runtimeInput17)[displayProperty] != noneValue) {
+                animateValue(runtimeInput17, 1, 0, 300, function(fadeOutArgument1) {
+                    return ((-Math.cos(fadeOutArgument1 * Math.PI) / 2) + 0.5)
+                }, function(fadeOutArgument2) {
+                    runtimeInput17[styleProperty][opacityProperty] = fadeOutArgument2[toFixedMethod](1)
+                }, function() {
+                    runtimeInput17[styleProperty][displayProperty] = noneValue;
+                    runtimeInput17[styleProperty][opacityProperty] = '';
+                    if (runtimeInput18) runtimeInput18.call(runtimeInput17)
+                })
+            }
+        },
+        slideDown = function(runtimeInput19, runtimeInput20) {
+            if (windowObject[getComputedStyleMethod](runtimeInput19)[displayProperty] == noneValue) {
+                runtimeInput19[styleProperty][opacityProperty] = '0';
+                runtimeInput19[styleProperty][positionProperty] = absoluteValue;
+                runtimeInput19[styleProperty][displayProperty] = blockValue;
+                var runtimeValue21 = runtimeInput19[clientHeightProperty],
+                    runtimeValue22 = parseInt(windowObject[getComputedStyleMethod](runtimeInput19)[paddingTopProperty]);
+                runtimeInput19[styleProperty][heightProperty] = '0';
+                runtimeInput19[styleProperty][positionProperty] = '';
+                runtimeInput19[styleProperty][overflowProperty] = hiddenValue;
+                runtimeInput19[styleProperty][marginLeftProperty] = '-' + windowObject[getComputedStyleMethod](runtimeInput19[firstElementChildProperty])[paddingLeftProperty];
+                if (runtimeValue22) {
+                    runtimeValue21 = runtimeValue21 - runtimeValue22;
+                    animateValue(runtimeInput19, 0, runtimeValue22, 200, function(slideDownArgument1) {
+                        return ((-Math.cos(slideDownArgument1 * Math.PI) / 2) + 0.5)
+                    }, function(slideDownArgument2) {
+                        runtimeInput19[styleProperty][paddingTopProperty] = slideDownArgument2[toFixedMethod](0) + 'px'
+                    })
+                }
+                animateValue(runtimeInput19, 0, runtimeValue21, 200, function(slideDownArgument3) {
+                    return ((-Math.cos(slideDownArgument3 * Math.PI) / 2) + 0.5)
+                }, function(slideDownArgument4) {
+                    runtimeInput19[styleProperty][heightProperty] = slideDownArgument4[toFixedMethod](0) + 'px'
+                });
+                animateValue(runtimeInput19, parseInt(runtimeInput19[styleProperty][marginLeftProperty]), 0, 400, function(slideDownArgument5) {
+                    return ((-Math.cos(slideDownArgument5 * Math.PI) / 2) + 0.5)
+                }, function(slideDownArgument6) {
+                    runtimeInput19[styleProperty][marginLeftProperty] = slideDownArgument6[toFixedMethod](0) + 'px'
+                });
+                animateValue(runtimeInput19, 0, 1, 600, function(slideDownArgument7) {
+                    return ((-Math.cos(slideDownArgument7 * Math.PI) / 2) + 0.5)
+                }, function(slideDownArgument8) {
+                    runtimeInput19[styleProperty][opacityProperty] = slideDownArgument8[toFixedMethod](1)
+                }, function() {
+                    runtimeInput19[styleProperty][heightProperty] = '';
+                    runtimeInput19[styleProperty][marginLeftProperty] = '';
+                    runtimeInput19[styleProperty][paddingTopProperty] = '';
+                    runtimeInput19[styleProperty][opacityProperty] = '';
+                    runtimeInput19[styleProperty][overflowProperty] = '';
+                    if (runtimeInput20) runtimeInput20.call(runtimeInput19)
+                })
+            }
+        },
+        slideUp = function(runtimeInput21, runtimeInput22) {
+            if (runtimeInput21[styleProperty][overflowProperty] != hiddenValue && windowObject[getComputedStyleMethod](runtimeInput21)[displayProperty] != noneValue) {
+                var runtimeValue23 = runtimeInput21[clientHeightProperty],
+                    runtimeValue24 = parseInt(windowObject[getComputedStyleMethod](runtimeInput21)[paddingTopProperty]);
+                runtimeInput21[styleProperty][overflowProperty] = hiddenValue;
+                if (runtimeValue24) {
+                    runtimeValue23 = runtimeValue23 - runtimeValue24;
+                    animateValue(runtimeInput21, runtimeValue24, 0, 400, function(slideUpArgument1) {
+                        return ((-Math.cos(slideUpArgument1 * Math.PI) / 2) + 0.5)
+                    }, function(slideUpArgument2) {
+                        runtimeInput21[styleProperty][paddingTopProperty] = slideUpArgument2[toFixedMethod](0) + 'px'
+                    })
+                }
+                animateValue(runtimeInput21, runtimeInput21[clientHeightProperty], 0, 420, function(slideUpArgument3) {
+                    return ((-Math.cos(slideUpArgument3 * Math.PI) / 2) + 0.5)
+                }, function(slideUpArgument4) {
+                    runtimeInput21[styleProperty][heightProperty] = slideUpArgument4[toFixedMethod](0) + 'px'
+                }, function() {
+                    runtimeInput21[styleProperty][displayProperty] = noneValue;
+                    runtimeInput21[styleProperty][opacityProperty] = '';
+                    runtimeInput21[styleProperty][marginLeftProperty] = '';
+                    runtimeInput21[styleProperty][heightProperty] = '';
+                    runtimeInput21[styleProperty][overflowProperty] = '';
+                    if (runtimeInput22) runtimeInput22.call(runtimeInput21)
+                });
+                animateValue(runtimeInput21, 0, parseInt('-' + windowObject[getComputedStyleMethod](runtimeInput21[firstElementChildProperty])[paddingLeftProperty]), 400, function(slideUpArgument5) {
+                    return ((-Math.cos(slideUpArgument5 * Math.PI) / 2) + 0.5)
+                }, function(slideUpArgument6) {
+                    runtimeInput21[styleProperty][marginLeftProperty] = slideUpArgument6[toFixedMethod](0) + 'px'
+                });
+                animateValue(runtimeInput21, 1, 0, 200, function(slideUpArgument7) {
+                    return ((-Math.cos(slideUpArgument7 * Math.PI) / 2) + 0.5)
+                }, function(slideUpArgument8) {
+                    runtimeInput21[styleProperty][opacityProperty] = slideUpArgument8[toFixedMethod](1)
+                })
+            }
+        },
+        showPanel = function(runtimeInput23, runtimeInput24) {
+            if (windowObject[getComputedStyleMethod](runtimeInput23)[displayProperty] == noneValue) {
+                runtimeInput23[styleProperty][opacityProperty] = '0';
+                runtimeInput23[styleProperty][positionProperty] = absoluteValue;
+                runtimeInput23[styleProperty][displayProperty] = blockValue;
+                var runtimeValue25 = runtimeInput23[clientHeightProperty];
+                runtimeInput23[styleProperty][heightProperty] = '0';
+                runtimeInput23[styleProperty][positionProperty] = '';
+                runtimeInput23[styleProperty][overflowProperty] = hiddenValue;
+                animateValue(runtimeInput23, 0, runtimeValue25, 150, function(showPanelArgument1) {
+                    return ((-Math.cos(showPanelArgument1 * Math.PI) / 2) + 0.5)
+                }, function(showPanelArgument2) {
+                    runtimeInput23[styleProperty][heightProperty] = showPanelArgument2[toFixedMethod](0) + 'px'
+                });
+                animateValue(runtimeInput23, 0, 1, 300, function(showPanelArgument3) {
+                    return ((-Math.cos(showPanelArgument3 * Math.PI) / 2) + 0.5)
+                }, function(showPanelArgument4) {
+                    runtimeInput23[styleProperty][opacityProperty] = showPanelArgument4[toFixedMethod](1)
+                }, function() {
+                    runtimeInput23[styleProperty][heightProperty] = '';
+                    runtimeInput23[styleProperty][opacityProperty] = '';
+                    runtimeInput23[styleProperty][overflowProperty] = '';
+                    if (runtimeInput24) runtimeInput24.call(runtimeInput23)
+                })
+            }
+        },
+        hidePanel = function(runtimeInput25, runtimeInput26) {
+            if (runtimeInput25[styleProperty][overflowProperty] != hiddenValue && windowObject[getComputedStyleMethod](runtimeInput25)[displayProperty] != noneValue) {
+                runtimeInput25[styleProperty][overflowProperty] = hiddenValue;
+                animateValue(runtimeInput25, runtimeInput25[clientHeightProperty], 0, 200, function(hidePanelArgument1) {
+                    return ((-Math.cos(hidePanelArgument1 * Math.PI) / 2) + 0.5)
+                }, function(hidePanelArgument2) {
+                    runtimeInput25[styleProperty][heightProperty] = hidePanelArgument2[toFixedMethod](0) + 'px'
+                }, function() {
+                    runtimeInput25[styleProperty][displayProperty] = noneValue;
+                    runtimeInput25[styleProperty][opacityProperty] = '';
+                    runtimeInput25[styleProperty][heightProperty] = '';
+                    runtimeInput25[styleProperty][overflowProperty] = '';
+                    if (runtimeInput26) runtimeInput26.call(runtimeInput25)
+                });
+                animateValue(runtimeInput25, 1, 0, 150, function(hidePanelArgument3) {
+                    return ((-Math.cos(hidePanelArgument3 * Math.PI) / 2) + 0.5)
+                }, function(hidePanelArgument4) {
+                    runtimeInput25[styleProperty][opacityProperty] = hidePanelArgument4[toFixedMethod](1)
+                })
+            }
+        },
         formatBytes = function(bytes) {
             var kilobyte = 1024,
                 megabyte = 1024 * kilobyte,

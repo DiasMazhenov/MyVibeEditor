@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.53
+
+- Исправлен блокер авторизации: при v0.52 extraction transport-модуля случайно удалились `animateValue`, `fadeIn`, `fadeOut`, `slideDown`, `slideUp`, `showPanel`, `hidePanel`; из-за отсутствующего `fadeIn()` flow останавливался на «Создание хеша» до AJAX.
+- Animation primitives восстановлены в editor runtime; transport-примитивы остаются в `myvibehtml-transport.js`.
+- Исправлено наложение индикатора загрузки на текст авторизации: статус и spinner теперь раскладываются через flex с отдельной ячейкой для иконки в theme/fallback.
+- Версия поднята до `0.53`; страница открыта во встроенном браузере через `?q=myvibe/test-page.html&rev=0.53`. Программных click/screenshot-команд у API окна нет, поэтому автоматический ручной ввод пароля во встроенном окне не объявляется выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit.
+
 ## Текущее исправление v0.52
 
 - Transport-примитивы `writeCookie`, `removeCookie`, `readCookie`, SHA-1/Base64, `base64UrlEncode`, AJAX и `generateToken` вынесены в `myvibehtml-transport.js`; `myvibehtml.js` получает их через явный `MyVibeHTMLTransport`-контракт.

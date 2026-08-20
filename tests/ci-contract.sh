@@ -11,7 +11,7 @@ test -x tests/e2e-authenticated.sh
 test -s myvibehtml-transport.js
 rg -q "myvibehtml-source-map\.js.*myvibehtml-ui-contracts\.js.*myvibehtml-transport\.js.*myvibehtml\.js.*myvibehtml-shell-controls\.js" myvibehtml.php
 rg -q "MyVibeHTMLUIContracts|generateToken" myvibehtml-ui-contracts.js myvibehtml.js
-rg -q "MyVibeHTML v0\.52|const VERSION = '0\.52'" myvibehtml.php myvibehtml.js myvibehtml-runtime.php myvibehtml-source-map.js myvibehtml-ui-contracts.js myvibehtml-shell-controls.js myvibehtml-transport.js
+rg -q "MyVibeHTML v0\.53|const VERSION = '0\.53'" myvibehtml.php myvibehtml.js myvibehtml-runtime.php myvibehtml-source-map.js myvibehtml-ui-contracts.js myvibehtml-shell-controls.js myvibehtml-transport.js
 if rg -q -- '--mv-bg:' myvibehtml-theme.css; then
     echo "ci-contract: theme must consume fallback-owned tokens" >&2
     exit 1

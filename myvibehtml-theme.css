@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.52: graphite, teal and amber UI theme. Tokens are owned by the fallback layer. */
+/* MyVibeHTML v0.53: graphite, teal and amber UI theme. Tokens are owned by the fallback layer. */
 #a{min-height:100vh;box-sizing:border-box;padding:28px 16px;background:radial-gradient(circle at 15% 0,rgba(20,184,166,.16),transparent 32%),radial-gradient(circle at 90% 100%,rgba(245,158,11,.1),transparent 28%),var(--mv-bg);color:var(--mv-text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-shadow:none}
 #a body{position:relative;top:auto;left:auto;width:min(100%,430px);margin:0 auto;padding:32px;box-sizing:border-box;border:1px solid var(--mv-border);border-radius:20px;background:linear-gradient(145deg,rgba(27,39,50,.98),rgba(20,28,36,.98));box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);color:var(--mv-text)}
 #a body:before{content:"";position:absolute;inset:10px;border:1px solid rgba(94,234,212,.08);border-radius:14px;pointer-events:none}
@@ -12,6 +12,10 @@
 #a .myvibehtml-auth-status{min-height:20px;margin:0 0 18px;padding:0!important}
 #a .myvibehtml-auth-status samp{display:block!important;height:auto!important;padding:0!important;font-size:12px;line-height:18px;color:var(--mv-muted);white-space:normal}
 #a .myvibehtml-auth-status samp:before{margin-right:7px;font-size:14px}
+#a .myvibehtml-auth-status{display:flex!important;align-items:center;gap:8px}
+#a .myvibehtml-auth-status>i{display:none!important}
+#a .myvibehtml-auth-status>i:before{font-family:myvibehtml;font-size:14px}
+#a .myvibehtml-auth-status>samp.b~i{display:block!important;clear:none!important;float:none!important;position:static!important;box-sizing:border-box;width:16px;height:16px;margin:0!important;padding:0!important;flex:0 0 16px;line-height:16px}
 #a .myvibehtml-password-row{position:relative;margin:0;padding:0!important}
 #a .myvibehtml-password-row label{display:block;margin:0 0 8px;font-size:12px;font-weight:600;line-height:18px;color:#d9e2e9}
 #a .myvibehtml-password-row input{float:none!important;box-sizing:border-box;width:100%!important;height:48px!important;margin:0!important;padding:0 48px 0 14px!important;border:1px solid var(--mv-border)!important;border-radius:10px!important;background:rgba(12,17,23,.76)!important;color:#fff!important;font:500 16px/48px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-shadow:none!important;transition:border-color .2s,box-shadow .2s,background .2s}

@@ -15,6 +15,7 @@ test('semantic runtime names replace generated local prefixes', () => {
     assert.match(runtime, /function myvibehtml_atomic_write/);
     assert.match(transport, /function base64UrlEncode/);
     assert.doesNotMatch(js, /function (?:sha1|base64Decode|ajaxRequest)|base64UrlEncode\s*=\s*function/);
+    assert.match(js, /animateValue\s*=|fadeIn\s*=/);
 });
 
 test('transport keeps legacy hash and encoding contracts', () => {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.53
+
+- восстановлены animation primitives после extraction transport-модуля, чтобы auth и панели не падали на `fadeIn()`;
+- статус авторизации переведён в flex-раскладку: индикатор загрузки занимает отдельную ячейку и больше не наезжает на текст.
+
 ## 0.52
 
 - transport-примитивы cookies, совместимый SHA-1/Base64 слой и AJAX вынесены в `myvibehtml-transport.js`;
