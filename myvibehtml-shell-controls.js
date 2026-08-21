@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.74 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.75 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -164,6 +164,47 @@
         if (!panel) return;
         syncMobileShell();
         window.addEventListener('resize', syncMobileShell);
+
+        var menuToggle = document.querySelector('#myvibehtml-mobile-menu-toggle'),
+            menu = document.querySelector('#myvibehtml-mobile-menu');
+        if (menuToggle && menu) {
+            var menuItems = menu.querySelectorAll('[data-mobile-target]'),
+                setMenuState = function(open) {
+                    menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    menu.setAttribute('aria-hidden', open ? 'false' : 'true')
+                };
+            setMenuState(false);
+            for (var itemIndex = 0; itemIndex < menuItems.length; itemIndex++) {
+                var item = menuItems[itemIndex], target = panel.querySelector(item.getAttribute('data-mobile-target'));
+                if (!target) {
+                    item.hidden = true;
+                    continue
+                }
+                item.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var target = panel.querySelector(this.getAttribute('data-mobile-target'));
+                    if (target && !target.disabled) {
+                        if (target.tagName == 'A') target.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, view:window}));
+                        else if (target.click) target.click()
+                    }
+                    setMenuState(false)
+                })
+            }
+            menuToggle.addEventListener('click', function(event) {
+                event.preventDefault();
+                setMenuState(menu.getAttribute('aria-hidden') == 'true')
+            });
+            document.addEventListener('click', function(event) {
+                if (event.target != menuToggle && !menuToggle.contains(event.target) && event.target != menu && !menu.contains(event.target)) setMenuState(false)
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key == 'Escape') {
+                    setMenuState(false);
+                    menuToggle.focus()
+                }
+            })
+        }
+
         previewControls = panel.querySelector('[data-preview-controls]');
         previewFrame = document.querySelector('#d iframe');
         if (previewControls && previewFrame && document.documentElement.id == 'd') {
@@ -194,43 +235,6 @@
             setPreviewSize(initialPreviewSize)
         }
 
-        var menuToggle = document.querySelector('#myvibehtml-mobile-menu-toggle'),
-            menu = document.querySelector('#myvibehtml-mobile-menu');
-        if (!menuToggle || !menu) return;
-        var menuItems = menu.querySelectorAll('[data-mobile-target]'),
-            setMenuState = function(open) {
-                menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-                menu.setAttribute('aria-hidden', open ? 'false' : 'true')
-            };
-        for (var itemIndex = 0; itemIndex < menuItems.length; itemIndex++) {
-            var item = menuItems[itemIndex], target = panel.querySelector(item.getAttribute('data-mobile-target'));
-            if (!target) {
-                item.hidden = true;
-                continue
-            }
-            item.addEventListener('click', function(event) {
-                event.preventDefault();
-                var target = panel.querySelector(this.getAttribute('data-mobile-target'));
-                if (target && !target.disabled) {
-                    if (target.tagName == 'A') target.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, view:window}));
-                    else if (target.click) target.click()
-                }
-                setMenuState(false)
-            })
-        }
-        menuToggle.addEventListener('click', function(event) {
-            event.preventDefault();
-            setMenuState(menu.getAttribute('aria-hidden') == 'true')
-        });
-        document.addEventListener('click', function(event) {
-            if (event.target != menuToggle && !menuToggle.contains(event.target) && event.target != menu && !menu.contains(event.target)) setMenuState(false)
-        });
-        document.addEventListener('keydown', function(event) {
-            if (event.key == 'Escape') {
-                setMenuState(false);
-                menuToggle.focus()
-            }
-        })
     });
 
     document.addEventListener('DOMContentLoaded', function() {

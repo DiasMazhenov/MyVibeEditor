@@ -36,6 +36,7 @@ test('mobile navigation exposes the burger and clear editor mode labels', () => 
     assert.match(fallback, /@media\(max-width:900px\)\{#e #myvibehtml-mobile-menu-toggle\{display:grid!important/);
     assert.match(fallback, /#d\[data-myvibehtml-preview-size="mobile"\] #e #myvibehtml-mobile-menu-toggle\{display:grid!important/);
     assert.match(shell, /data-myvibehtml-mobile-shell/);
+    assert.match(shell, /if \(menuToggle && menu\) \{[\s\S]*menuToggle\.addEventListener\('click'/);
     assert.match(fallback, /#e\[data-myvibehtml-mobile-shell="true"\].*#myvibehtml-mobile-menu-toggle\{display:grid!important/);
 });
 

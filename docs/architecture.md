@@ -1,6 +1,6 @@
-# Архитектура v0.74
+# Архитектура v0.75
 
-v0.74 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
+v0.75 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers и ограниченный CSP-report endpoint;
 - `myvibehtml.php` — HTTP controller, config и server templates;

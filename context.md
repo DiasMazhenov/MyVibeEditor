@@ -1,5 +1,12 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.75
+
+- Инициализация mobile menu перенесена сразу после проверки панели, до preview-controls; меню получает начальное состояние через `setMenuState(false)`, а обработчик burger подключается независимо от preview-flow.
+- Добавлен feature contract на наличие `menuToggle.addEventListener('click', ...)`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Версия синхронно поднята до `0.75`; 25 Node-тестов, syntax/lint, CI contract, security smoke, HTTP regression и `git diff --check` проходят.
+- Во встроенном браузере открыт `rev=0.75`: после клика по burger меню визуально открылось с шестью пунктами, повторный клик визуально закрыл его. Скриншоты: `/tmp/myvibe-browser-075-after-logical-click.png` и `/tmp/myvibe-browser-075-after-toggle-close.png`.
+
 ## Текущее исправление v0.74
 
 - После live-проверки симптома «burger не появился» найден root cause: прежняя вставка искала `</span></a></div>`, но предыдущий `str_replace` уже добавлял между ними preview-controls. Burger перенесён в финальную замену шаблона после preview-controls.

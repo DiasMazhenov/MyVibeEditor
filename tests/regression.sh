@@ -121,21 +121,21 @@ node --test tests/ui-contracts.test.js
 node --test tests/module-boundaries.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.74" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.74" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.75" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.75" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.74"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.75"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
-curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.74"
+curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.75"
 grep -Eiq '^Content-Security-Policy:.*script-src' "$TMP_DIR/auth-headers"
 grep -Eiq 'report-uri \?csp-report=1' "$TMP_DIR/auth-headers"
 report_status="$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/reports+json' --data '{"csp-report":{"violated-directive":"script-src"}}' "$BASE_URL/?csp-report=1")"
