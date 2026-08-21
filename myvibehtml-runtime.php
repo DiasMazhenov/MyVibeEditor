@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.69 runtime module */
+<?php /* MyVibeHTML v0.70 runtime module */
 
 function myvibehtml_runtime_directory($documentRoot = false)
 {
@@ -73,4 +73,20 @@ function myvibehtml_base64_decode($value)
     $padding = strlen($value) % 4;
     if ($padding) $value .= str_repeat('=', 4 - $padding);
     return base64_decode($value, true);
+}
+
+function myvibehtml_record_csp_report($payload)
+{
+    if (!is_string($payload) || $payload === '' || strlen($payload) > 16384) return false;
+    $decoded = json_decode($payload, true);
+    if (!is_array($decoded)) return false;
+    $report = isset($decoded['csp-report']) && is_array($decoded['csp-report']) ? $decoded['csp-report'] : (isset($decoded['body']) && is_array($decoded['body']) ? $decoded['body'] : $decoded);
+    $safeReport = [];
+    foreach (['effective-directive', 'violated-directive', 'blocked-uri', 'document-uri', 'source-file', 'disposition'] as $field) {
+        if (isset($report[$field]) && is_scalar($report[$field])) $safeReport[$field] = substr((string)$report[$field], 0, 300);
+    }
+    foreach (['line-number', 'column-number'] as $field) if (isset($report[$field]) && is_numeric($report[$field])) $safeReport[$field] = (int)$report[$field];
+    if (!$safeReport) return false;
+    $encoded = json_encode($safeReport, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    return $encoded !== false && error_log('[MyVibeHTML CSP] ' . $encoded);
 }

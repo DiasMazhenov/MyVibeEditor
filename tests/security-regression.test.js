@@ -34,3 +34,15 @@ test('runtime state writes JSON and directory scans are bounded', () => {
     assert.match(php, /directoryDepth/);
     assert.match(php, /directoryDeadline/);
 });
+
+test('CSP enforces safe surfaces and collects bounded reports', () => {
+    assert.match(php, /setCspMode\('enforce'\)/);
+    assert.match(php, /setCspMode\(getenv\('MYVIBEHTML_CSP_VISUAL_ENFORCE'\)/);
+    assert.match(php, /Content-Security-Policy-Report-Only:/);
+    assert.match(php, /Content-Security-Policy:/);
+    assert.match(php, /report-uri \?csp-report=1/);
+    assert.match(php, /csp-report.*REQUEST_METHOD/);
+    assert.match(runtime, /function myvibehtml_record_csp_report/);
+    assert.match(runtime, /strlen\(\$payload\) > 16384/);
+    assert.match(runtime, /\['effective-directive', 'violated-directive', 'blocked-uri'/);
+});

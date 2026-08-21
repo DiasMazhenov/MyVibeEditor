@@ -14,6 +14,9 @@ if rg -n -S 'textolite\.ru|withCredentials\s*=|buildServiceUrl|install=|activate
 fi
 
 rg -q 'Content-Security-Policy-Report-Only:' myvibehtml.php
+rg -q 'Content-Security-Policy:' myvibehtml.php
+rg -q 'report-uri \?csp-report=1' myvibehtml.php
+rg -q 'myvibehtml_record_csp_report' myvibehtml-runtime.php
 rg -q 'Strict-Transport-Security:max-age=31536000' myvibehtml.php
 rg -q 'MYVIBEHTML_TRUST_PROXY' myvibehtml.php
 if rg -q '\$authenticate9\b' myvibehtml.php; then
@@ -24,7 +27,7 @@ rg -q 'SETTING_SESSION_EXPIRES_AT' myvibehtml.php
 rg -q 'SETTING_ALLOW_PHP' myvibehtml.php
 rg -q 'X-Permitted-Cross-Domain-Policies:none' myvibehtml.php
 rg -q 'myvibehtml_atomic_write' myvibehtml.php
-rg -q 'myvibehtml_unserialize_array' myvibehtml.php
+rg -q 'myvibehtml_unserialize_array' myvibehtml.php myvibehtml-runtime.php
 rg -q 'replaceFileListFragment' myvibehtml.js
 if rg -n 'runtimeValue(9|165|236)\[innerHTMLProperty\]' myvibehtml.js; then
     echo "security-smoke: status sink still uses innerHTML" >&2

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.69 */
+<?php /* MyVibeHTML v0.70 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -20,6 +20,7 @@ define('REQUEST_SCRIPT_FILENAME', 'script_filename');
 define('REQUEST_SCRIPT_NAME', 'script_name');
 define('REQUEST_SERVER_NAME', 'server_name');
 define('REQUEST_SERVER_PROTOCOL', 'server_protocol');
+define('REQUEST_METHOD', 'request_method');
 define('SETTING_LANGUAGE', 'lang');
 define('SETTING_PASSWORD', 'password');
 define('SETTING_SESSION', 'session');
@@ -231,6 +232,7 @@ final class MyVibeHTMLResponse
     private $cookies;
     private $body;
     private $secureTransport;
+    private $cspPolicy;
 
     public function __construct($construct1, $construct2 = false)
     {
@@ -243,8 +245,18 @@ final class MyVibeHTMLResponse
         $this->addHeader('Permissions-Policy:camera=(), microphone=(), geolocation=()');
         $this->addHeader('X-Permitted-Cross-Domain-Policies:none');
         $this->addHeader('Cache-Control:no-store, max-age=0');
-        $this->addHeader("Content-Security-Policy-Report-Only:default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self'");
+        $this->cspPolicy = "default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self' 'unsafe-inline';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self';report-uri ?csp-report=1";
+        $this->setCspMode('report-only');
         if ($this->secureTransport) $this->addHeader('Strict-Transport-Security:max-age=31536000; includeSubDomains');
+    }
+
+    public function setCspMode($mode)
+    {
+        $this->headers = array_values(array_filter($this->headers, function ($header) {
+            return stripos($header, 'Content-Security-Policy:') !== 0 && stripos($header, 'Content-Security-Policy-Report-Only:') !== 0;
+        }));
+        $headerName = $mode === 'enforce' ? 'Content-Security-Policy:' : 'Content-Security-Policy-Report-Only:';
+        return $this->addHeader($headerName . $this->cspPolicy);
     }
 
     public function addHeader($addheader1)
@@ -600,7 +612,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.69';
+    const VERSION = '0.70';
     private $config;
     private $request;
     private $response;
@@ -816,6 +828,7 @@ final class MyVibeHTMLController
                         $authenticate13[SETTING_PASSWORD_COMPLEXITY] = $this->config->getSetting(SETTING_PASSWORD_COMPLEXITY_JS);
                         $authenticate13['language'] = $this->language;
                         $authenticate13[PLACEHOLDER_VERSION] = self::VERSION;
+                        $this->response->setCspMode('enforce');
                         $authenticate14 = $this->config->getTemplate('a');
                         $authenticate14 = $this->config->replacePlaceholders($authenticate14, $authenticate13);
                         $authenticate14 = $this->config->localizeTemplate($authenticate14, $this->language);
@@ -1046,6 +1059,7 @@ final class MyVibeHTMLController
 
     public function renderVisualEditor($rendervisualeditor1)
     {
+        $this->response->setCspMode(getenv('MYVIBEHTML_CSP_VISUAL_ENFORCE') === '1' ? 'enforce' : 'report-only');
         $rendervisualeditor2[PLACEHOLDER_TITLE] = $this->config->translate('visual_editor', $this->language);
         $rendervisualeditor2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
         $rendervisualeditor2[PLACEHOLDER_VERSION] = self::VERSION;
@@ -1069,6 +1083,7 @@ final class MyVibeHTMLController
 
     public function renderSourceEditor($rendersourceeditor1)
     {
+        $this->response->setCspMode('enforce');
         $rendersourceeditor2[PLACEHOLDER_TITLE] = $this->config->translate('source_editor', $this->language);
         $rendersourceeditor2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
         $rendersourceeditor2[PLACEHOLDER_VERSION] = self::VERSION;
@@ -1091,6 +1106,7 @@ final class MyVibeHTMLController
 
     public function renderErrorPage($rendererrorpage1)
     {
+        $this->response->setCspMode('enforce');
         $rendererrorpage2[PLACEHOLDER_CODE] = $rendererrorpage1;
         $rendererrorpage2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
         $rendererrorpage2[PLACEHOLDER_VERSION] = self::VERSION;
@@ -1103,6 +1119,7 @@ final class MyVibeHTMLController
 
     public function handleException($handleexception1)
     {
+        $this->response->setCspMode('enforce');
         $this->response->setStatus($handleexception1->getCode(), $this->config->translate($handleexception1->getCode(), 'en'));
         if ($handleexception2 = $handleexception1->getMessage()) $this->response->redirect($handleexception2);
         $handleexception3[PLACEHOLDER_CODE] = $handleexception1->getCode();
@@ -1949,6 +1966,13 @@ $response = new MyVibeHTMLResponse($request->getServer(REQUEST_SERVER_PROTOCOL),
 if (!$secureTransport && !$localRequest) {
     $response->setStatus(400, 'Bad Request');
     $response->setBody('HTTPS is required outside local development.');
+    $response->send();
+    exit;
+}
+if ($request->getQuery('csp-report') === '1' && $request->getServer(REQUEST_METHOD) === 'POST') {
+    myvibehtml_record_csp_report((string)file_get_contents('php://input'));
+    $response->setStatus(204, 'No Content');
+    $response->setBody('');
     $response->send();
     exit;
 }

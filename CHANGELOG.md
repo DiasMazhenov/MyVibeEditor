@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.70
+
+- CSP enforcement включён для auth/source/error-поверхностей, а visual preview сохраняет совместимый Report-Only режим с явным opt-in `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`;
+- добавлен локальный `?csp-report=1` endpoint с ограниченным сбором CSP-нарушений без записи raw payload;
+- добавлены security regression-проверки для заголовков, режима visual preview и лимита отчёта.
+
 ## 0.69
 
 - навигация по страницам получила локальную иконку Tabler `map-2`, отличимую от библиотеки блоков;

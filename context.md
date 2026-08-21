@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.70
+
+- P4 CSP выполнен по совместимой границе: auth/source/error surfaces получают настоящий `Content-Security-Policy`; visual preview по умолчанию остаётся `Content-Security-Policy-Report-Only`, потому что его same-origin iframe может содержать пользовательские inline-скрипты и стили.
+- Для явной проверки visual enforcement добавлен opt-in `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`; без него visual editor не ломает существующий preview-поток.
+- Добавлен локальный POST endpoint `?csp-report=1`: payload ограничен 16 KiB, в server log записываются только whitelisted CSP-поля, raw report не сохраняется.
+- Обновлены `README.md`, `docs/architecture.md`, `docs/browser-acceptance.md`, `CHANGELOG.md`, CI, regression и security-smoke до v0.70; исправлен устаревший smoke-путь для runtime helper.
+- Проверки v0.70: PHP lint для runtime/controller/router, JS syntax, source-map/security/deobfuscation/accessibility/UI/module/feature/snapshot tests, `security-smoke.sh`, `git diff --check` и полный `MYVIBEHTML_BASE_URL=http://127.0.0.1:8097 sh tests/regression.sh` — PASS. Live HTTP отдельно подтвердил auth `Content-Security-Policy` и report endpoint `204`.
+- Визуальный интерфейс не менялся; встроенный браузерный screenshot acceptance для P4 не требуется и не заявляется. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохранены вне коммита.
+- Следующий этап после P4: authenticated browser E2E и ручная проверка visual preview с обычным Report-Only режимом, затем при необходимости отдельная совместимость для `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`.
+
 ## Текущее исправление v0.69
 
 - Навигация по страницам получила отдельную локальную иконку `map-2.svg` из Tabler через Iconify; иконка больше не дублирует визуальный смысл библиотеки блоков.
