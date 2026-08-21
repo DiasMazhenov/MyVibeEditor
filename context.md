@@ -1,14 +1,23 @@
 # MyVibeHTML plugin context
 
-## Текущее исправление v0.77
+## Текущее исправление v0.78
+
+- В верхнюю панель добавлена отдельная ссылка с иконкой Dashboard на защищённую админку. После успешного входа одноразовый redirect-cookie возвращает пользователя в редактор, а не оставляет на `/admin`.
+- Админка остаётся отдельной страницей по `?admin=1` или `/admin` и получила разделы Overview, Pages, Media, Files, Settings и Health. Список Pages показывает HTML-файлы и открывает выбранный файл в редакторе; для проверки добавлены `demo-about.html` и `demo-contact.html`.
+- Media показывает локальные изображения/медиа карточками с preview, размером и ссылкой открытия. Files стал обозревателем каталогов с ограниченной CSRF-сессией: upload разрешённых текстовых и media-расширений, новая папка, copy/paste, duplicate, rename и delete.
+- Исправлен общий `createBackup()`: runtime backup-каталог и текущая точка восстановления теперь создаются до `opendir()`. Поэтому удаление через админку не теряет защитную backup-точку и больше не возвращает ложный `operation_failed` на чистом runtime.
+- JS-обработчики строк используют собственные пути элементов, поэтому Copy/Duplicate/Rename/Delete и переход в папки не замыкаются на последнюю строку списка. Устаревший popup Dashboard не возвращён.
+- Используется адаптивная graphite/teal-сетка: desktop sidebar, mobile off-canvas menu, hash-навигация, таблицы с горизонтальным overflow и media cards. Встроенные CSS/JS-ассеты без внешних runtime-библиотек.
+- Версия `0.78` синхронизирована в runtime, cache-busting, документации и тестах. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Проверки: `node --test tests/*.test.js` (28 PASS), PHP lint для controller/runtime/router, `tests/ci-contract.sh`, `tests/security-smoke.sh`, полный `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` и `git diff --check`. Авторизованный HTTP smoke подтвердил 200 для списка и успешный delete временного тестового файла с созданием backup-точки. Встроенный браузер открыт на админке для live-проверки; программного click/screenshot API в текущем приложении нет, поэтому визуальный authenticated acceptance не подменяется статическим тестом.
+- Следующие этапы: v0.79 — каталог контента; v0.80 — массовые операции; v0.81 — расширенный медиаменеджер.
+
+## Предыдущее исправление v0.77
 
 - Dashboard вынесен из popup-слоя в отдельную защищённую страницу по `?admin=1`; дополнительно распознаётся путь `/admin` при серверной rewrite-конфигурации. Доступ проходит через существующую проверку сессии, поэтому не создаётся новый auth-flow.
 - `renderAdminDashboard()` серверно отдаёт полноценную HTML-страницу с разделами Overview, Files, Settings и Health; файловый список ограничен 12 последними entries, глубиной 16 и бюджетом сканирования 0.5 секунды.
 - Добавлены `myvibehtml-admin.css` и `myvibehtml-admin.js`: адаптивный graphite/teal layout, desktop sidebar, mobile off-canvas menu, hash-навигация, поиск по файлам, ссылки в редактор/на публичный сайт и keyboard/focus semantics.
 - Иконка Dashboard в редакторе теперь выполняет переход по `data-dashboard-url`, старый DOM popup больше не создаётся; неиспользуемые popup CSS-правила также удалены из fallback-слоя.
-- Добавлены feature/UI snapshot/CI/regression contracts для отдельной страницы, `?admin=1`, новых admin assets и отсутствия popup JS. README, architecture, deployment, accessibility, browser acceptance, function catalog и CHANGELOG синхронизированы до `0.77`; план сдвинут на v0.78–v0.80.
-- Локализация admin actions и health statuses добавлена в ru/en, чтобы русская админка не показывала английские fallback-строки.
-- Проверки: PHP lint, Node syntax/tests, source-map, security-smoke, `tests/ci-contract.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` проходят. HTTP server поднят на `127.0.0.1:8080`; `?admin=1` без session cookie корректно закрыт auth/bot policy. URL админки открыт во встроенном браузере, но визуальный authenticated acceptance нужно завершить в вкладке с действующей cookie; Playwright/Raven Chromium не использовались.
 - Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
 
 ## Предыдущее исправление v0.76

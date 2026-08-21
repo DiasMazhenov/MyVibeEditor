@@ -95,6 +95,30 @@ test('Project dashboard is a protected standalone page with responsive navigatio
     assert.match(adminJs, /location\.hash/);
 });
 
+test('Admin content workspace exposes pages, media previews and guarded file operations', () => {
+    assert.match(php, /id="myvibehtml-admin-link" data-dashboard data-dashboard-url="\{admin_url\}"/);
+    assert.match(php, /data-admin-section="pages"/);
+    assert.match(php, /data-admin-section="media"/);
+    assert.match(php, /data-admin-section="browser"/);
+    assert.match(php, /private function dispatchAdminRequest\(\)/);
+    assert.match(php, /admin_action/);
+    assert.match(php, /collectAdminBrowserEntries/);
+    assert.match(adminJs, /data-admin-upload-submit/);
+    assert.match(adminJs, /data-admin-browser-duplicate|operate\('duplicate'/);
+    assert.match(adminJs, /operate\('rename'/);
+    assert.match(adminJs, /data-admin-browser-delete|operate\('delete'/);
+    assert.match(php, /preg_match\('\~\^\(\?:avif\|gif\|jpe\?g\|png\|svg\|webp\|ico\|mp4\|webm\|mp3\|wav\)\$\~'/);
+    assert.match(adminCss, /myvibehtml-admin-media-grid/);
+    assert.equal(fs.existsSync('demo-about.html'), true);
+    assert.equal(fs.existsSync('demo-contact.html'), true);
+});
+
+test('Successful login leaves the admin URL and opens the editor', () => {
+    assert.match(php, /COOKIE_PREFIX \. 'auth_redirect'/);
+    assert.match(php, /clearCookie\(COOKIE_PREFIX \. 'auth_redirect'/);
+    assert.match(php, /if \(\$this->request->getCookie\(COOKIE_PREFIX \. 'auth_redirect'\) === '1'\)/);
+});
+
 test('Page Health adds local SEO, structure and resource checks', () => {
     assert.match(editor, /validationDescription/);
     assert.match(editor, /validationResourceCount/);

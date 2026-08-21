@@ -21,6 +21,12 @@ rg -q "MyVibeHTML v0\.77" myvibehtml.php myvibehtml.js myvibehtml-fallback.css m
 rg -q "const VERSION = '0\.77'" myvibehtml.php
 rg -q "data-dashboard-url=\"\{admin_url\}\"|myvibehtml-admin\.css|myvibehtml-admin\.js" myvibehtml.php
 rg -q "private function isAdminRequest|private function renderAdminDashboard" myvibehtml.php
+rg -q 'id="myvibehtml-admin-link" data-dashboard data-dashboard-url="\{admin_url\}"|data-admin-section="pages"|data-admin-section="media"|data-admin-section="browser"' myvibehtml.php
+rg -q "private function dispatchAdminRequest|admin_action|collectAdminBrowserEntries|issueAdminToken" myvibehtml.php
+rg -q "data-admin-upload-submit|operate\('duplicate'|operate\('delete'|data-admin-paste" myvibehtml-admin.js myvibehtml.php
+test -s demo-about.html
+test -s demo-contact.html
+rg -q "auth_redirect" myvibehtml.php
 rg -q '<strong>MyVibeHTML <em>v\{version\}</em>' myvibehtml.php
 rg -q 'myvibehtml-panel-brand h1 span\{display:inline\}' myvibehtml-theme.css myvibehtml-fallback.css
 rg -q '<html id="[a-d]" lang="\{language\}"|<iframe title="\{title\}"' myvibehtml.php
@@ -123,23 +129,23 @@ node --test tests/ui-contracts.test.js
 node --test tests/module-boundaries.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.77" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.77" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.78" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.78" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.77"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.78"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
-curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.77"
+curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.78"
 grep -Eiq '^Content-Security-Policy:.*script-src' "$TMP_DIR/auth-headers"
 grep -Eiq 'report-uri \?csp-report=1' "$TMP_DIR/auth-headers"
 report_status="$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/reports+json' --data '{"csp-report":{"violated-directive":"script-src"}}' "$BASE_URL/?csp-report=1")"
