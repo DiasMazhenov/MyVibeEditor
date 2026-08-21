@@ -87,6 +87,7 @@ test('Project dashboard is a protected standalone page with responsive navigatio
     assert.match(shell, /getAttribute\('data-dashboard-url'\)/);
     assert.match(shell, /window\.location\.href = target/);
     assert.doesNotMatch(shell, /myvibehtml-dashboard/);
+    assert.doesNotMatch(fallback, /#myvibehtml-dashboard/);
     assert.match(adminCss, /\.myvibehtml-admin-shell/);
     assert.match(adminCss, /@media \(max-width: 900px\)/);
     assert.match(adminJs, /data-admin-file-search/);
