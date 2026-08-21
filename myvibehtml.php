@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.77 */
+<?php /* MyVibeHTML v0.79 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.78';
+    const VERSION = '0.79';
     private $config;
     private $request;
     private $response;
@@ -947,13 +947,13 @@ final class MyVibeHTMLController
         if ($action === 'mkdir') {
             $name = $this->normalizeManagerName($this->request->getPost('name'));
             $target = $name ? $this->getSafeSitePath($path === '' ? $name : $path . '/' . $name, true) : false;
-            $ok = $target && !file_exists($target) && @mkdir($target, 0755);
+            $operationSucceeded = $target && !file_exists($target) && @mkdir($target, 0755);
         } else if ($action === 'upload') {
             $file = $this->request->getFile(FILE_CONTENT);
             $name = isset($file[FILE_NAME]) ? $this->normalizeUploadFilename($file[FILE_NAME]) : false;
             $target = $name ? $this->getSafeSitePath($path === '' ? $name : $path . '/' . $name, true) : false;
             $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-            $ok = $target && isset($file[FILE_TMP_NAME]) && (int)$file[FILE_ERROR] === 0 && ($this->isAllowedExtension($extension) || (bool)preg_match('~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~', $extension)) && !file_exists($target) && move_uploaded_file($file[FILE_TMP_NAME], $target);
+            $operationSucceeded = $target && isset($file[FILE_TMP_NAME]) && (int)$file[FILE_ERROR] === 0 && ($this->isAllowedExtension($extension) || (bool)preg_match('~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~', $extension)) && !file_exists($target) && move_uploaded_file($file[FILE_TMP_NAME], $target);
         } else if ($action === 'duplicate') {
             $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
             $sourcePath = $source === false ? false : $this->getSafeSitePath($source);
@@ -962,23 +962,23 @@ final class MyVibeHTMLController
                 $sourceInfo = pathinfo($sourcePath);
                 $name = $sourceInfo['filename'] . '-copy' . (isset($sourceInfo['extension']) && $sourceInfo['extension'] !== '' ? '.' . $sourceInfo['extension'] : '');
             }
-            $target = $source !== false && $name ? $this->getSafeSitePath((dirname($source) === '.' ? $name : dirname($source) . '/' . $name), true) : false;
-            $ok = $sourcePath && $target && is_file($sourcePath) && !file_exists($target) && @copy($sourcePath, $target);
+            $target = $name ? $this->getSafeSitePath($path === '' ? $name : $path . '/' . $name, true) : false;
+            $operationSucceeded = $sourcePath && $target && is_file($sourcePath) && !file_exists($target) && @copy($sourcePath, $target);
         } else if ($action === 'delete') {
             $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
             $target = $source === false ? false : $this->getSafeSitePath($source);
-            $ok = $target && $source !== '' && ((is_file($target) && $this->createBackup($source) && @unlink($target)) || (is_dir($target) && @rmdir($target)));
+            $operationSucceeded = $target && $source !== '' && ((is_file($target) && $this->createBackup($source) && @unlink($target)) || (is_dir($target) && @rmdir($target)));
         } else if ($action === 'rename') {
             $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
             $name = $this->normalizeManagerName($this->request->getPost('name'));
             $sourcePath = $source === false ? false : $this->getSafeSitePath($source);
             $target = $source !== false && $name ? $this->getSafeSitePath((dirname($source) === '.' ? $name : dirname($source) . '/' . $name), true) : false;
-            $ok = $sourcePath && $target && $source !== '' && !file_exists($target) && @rename($sourcePath, $target);
+            $operationSucceeded = $sourcePath && $target && $source !== '' && !file_exists($target) && @rename($sourcePath, $target);
         } else {
             $this->adminJson(['ok' => false, 'error' => 'unknown_action', 'token' => $this->issueAdminToken()], 422);
             return;
         }
-        if (!$ok) {
+        if (!$operationSucceeded) {
             $this->adminJson(['ok' => false, 'error' => 'operation_failed', 'token' => $this->issueAdminToken()], 422);
             return;
         }
@@ -1012,6 +1012,26 @@ final class MyVibeHTMLController
             if (preg_match('~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~', $extension) && count($mediaEntries) < 100) $mediaEntries[] = $entry;
         }
         closedir($handle);
+    }
+
+    private function renderAdminPagesBrowser()
+    {
+        $defaultPath = $this->normalizeRelativePath((string)$this->config->getSetting(SETTING_DEFAULT_FILE));
+        $directory = $defaultPath === false ? '' : dirname($defaultPath);
+        if ($directory === '.') $directory = '';
+        $listing = $this->collectAdminBrowserEntries($directory);
+        $rows = '';
+        if ($listing) foreach ($listing['entries'] as $entry) {
+            $extension = strtolower(pathinfo($entry['name'], PATHINFO_EXTENSION));
+            if ($entry['type'] !== 'directory' && !preg_match('~^(?:html?|xhtml)$~', $extension)) continue;
+            $name = $this->escapeHtml($entry['name']);
+            $path = $this->escapeHtml($entry['path']);
+            $nameControl = $entry['type'] === 'directory' ? '<button type="button" class="myvibehtml-admin-file-link" data-admin-page-open="' . $path . '">' . $name . '</button>' : '<a class="myvibehtml-admin-file-link" href="' . $this->escapeHtml($this->getEditorUrl($entry['path'])) . '">' . $name . '</a>';
+            $selectControl = $entry['type'] === 'directory' ? '' : '<input type="checkbox" data-admin-page-select="' . $path . '" aria-label="' . $name . '">';
+            $rows .= '<tr data-admin-page-row><td>' . $selectControl . '</td><td>' . $nameControl . '<small>' . $this->escapeHtml($entry['type'] === 'directory' ? $this->adminText('admin_folder', 'Folder') : strtoupper($extension)) . '</small></td><td>' . $this->escapeHtml($entry['type'] === 'directory' ? '—' : $this->formatAdminSize($entry['size'])) . '</td><td>' . $this->escapeHtml($entry['date'] ? date('d.m.Y H:i', $entry['date']) : '—') . '</td></tr>';
+        }
+        if ($rows === '') $rows = '<tr><td colspan="4" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_pages', 'No HTML pages found') . '</td></tr>';
+        return '<section data-admin-section="pages" hidden data-admin-pages-path="' . $this->escapeHtml($listing ? $listing['path'] : $directory) . '"><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_pages', 'Pages') . '</span><h1>' . $this->adminText('admin_pages_title', 'Editable pages') . '</h1><p>' . $this->adminText('admin_pages_subtitle', 'Open HTML pages from the current folder and manage them without leaving the admin page.') . '</p></div><div class="myvibehtml-admin-file-toolbar myvibehtml-admin-pages-toolbar" data-admin-pages-toolbar><button type="button" data-admin-pages-up disabled>← ' . $this->adminText('admin_up', 'Up') . '</button><button type="button" data-admin-pages-copy disabled>' . $this->adminText('admin_copy', 'Copy') . '</button><button type="button" data-admin-pages-paste disabled>' . $this->adminText('admin_paste', 'Paste') . '</button><button type="button" data-admin-pages-duplicate disabled>' . $this->adminText('admin_duplicate', 'Duplicate') . '</button><button type="button" data-admin-pages-rename disabled>' . $this->adminText('admin_rename', 'Rename') . '</button><button type="button" data-admin-pages-delete disabled>' . $this->adminText('admin_delete', 'Delete') . '</button><input type="file" data-admin-pages-upload-file aria-label="' . $this->escapeHtml($this->adminText('admin_upload', 'Upload file')) . '"><button type="button" data-admin-pages-upload-submit>' . $this->adminText('admin_upload', 'Upload') . '</button><button type="button" data-admin-pages-mkdir>' . $this->adminText('admin_new_folder', 'New folder') . '</button></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-browser myvibehtml-admin-page-browser" data-admin-page-browser data-admin-page-browser-path="' . $this->escapeHtml($listing ? $listing['path'] : $directory) . '"><div class="myvibehtml-admin-browser-bar"><strong data-admin-pages-breadcrumb>/</strong><span data-admin-pages-status aria-live="polite"></span></div><div class="myvibehtml-admin-table-wrap"><table><thead><tr><th></th><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th></tr></thead><tbody data-admin-pages-list>' . $rows . '</tbody></table></div></article></section>';
     }
 
     private function renderAdminDashboard()
@@ -1063,9 +1083,10 @@ final class MyVibeHTMLController
         $html .= '<section data-admin-section="files" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_files_title', 'Project files') . '</h1><p>' . $this->adminText('admin_files_subtitle', 'Open editable files in the editor or public assets in a new tab.') . '</p></div><input type="search" data-admin-file-search placeholder="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '" aria-label="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '"></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th><th></th></tr></thead><tbody>' . $rows . '</tbody></table></article></section>';
         $html .= '<section data-admin-section="settings" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_settings', 'Settings') . '</span><h1>' . $this->adminText('admin_settings_title', 'Workspace settings') . '</h1><p>' . $this->adminText('admin_settings_subtitle', 'Review the active editor policy before changing the site.') . '</p></div></header><div class="myvibehtml-admin-settings-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_editor_policy', 'Editor policy') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_default', 'Default file') . '</dt><dd>' . $defaultFile . '</dd></div><div><dt>' . $this->adminText('admin_setting_extensions', 'Editable extensions') . '</dt><dd>' . $this->escapeHtml((string)$this->config->getSetting(SETTING_ALLOWED_EXTENSIONS)) . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_setting_preview', 'Preview behavior') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_scripts', 'Site scripts') . '</dt><dd>' . $this->adminText($scriptsEnabled ? 'admin_enabled' : 'admin_disabled', $scriptsEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_styles', 'Site styles') . '</dt><dd>' . $this->adminText($stylesEnabled ? 'admin_enabled' : 'admin_disabled', $stylesEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_recovery', 'Recovery points') . '</dt><dd>' . $this->escapeHtml($this->config->getSetting(SETTING_RECOVERY_POINTS)) . '</dd></div></dl></article></div><div class="myvibehtml-admin-callout"><span class="myvibehtml-admin-callout-icon">i</span><p>' . $this->adminText('admin_settings_note', 'Use the editor Settings tab for changes. This page is a read-first control surface so policy changes remain explicit.') . '</p><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor_settings', 'Open editor settings') . '</a></div></section>';
         $html .= '<section data-admin-section="health" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_health', 'Health') . '</span><h1>' . $this->adminText('admin_health_title', 'System health') . '</h1><p>' . $this->adminText('admin_health_subtitle', 'Small, actionable checks for a safe local editing session.') . '</p></div></header><div class="myvibehtml-admin-health-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_security_state', 'Security state') . '</h2><ul class="myvibehtml-admin-check-list">' . $health($this->adminText('admin_check_root', 'Document root'), $rootReady, $rootReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_runtime', 'Runtime storage'), $runtimeReady, $runtimeReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_config', 'Configuration'), $writable, $writable ? $this->adminText('admin_writable', 'Writable') : $this->adminText('admin_readonly', 'Read only')) . '</ul></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_session', 'Session') . '</h2><p class="myvibehtml-admin-health-copy">' . $this->adminText('admin_session_hint', 'This page is available only after the existing MyVibeHTML session check.') . '</p><dl><div><dt>' . $this->adminText('admin_version', 'Version') . '</dt><dd>v' . self::VERSION . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article></div></section>';
-        $html .= '<section data-admin-section="pages" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_pages', 'Pages') . '</span><h1>' . $this->adminText('admin_pages_title', 'Editable pages') . '</h1><p>' . $this->adminText('admin_pages_subtitle', 'Open any HTML page directly in the visual editor.') . '</p></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th></tr></thead><tbody>' . $pageRows . '</tbody></table></article></section>';
+        $html .= '<section data-admin-section="pages-legacy" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_pages', 'Pages') . '</span><h1>' . $this->adminText('admin_pages_title', 'Editable pages') . '</h1><p>' . $this->adminText('admin_pages_subtitle', 'Open any HTML page directly in the visual editor.') . '</p></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th></tr></thead><tbody>' . $pageRows . '</tbody></table></article></section>';
         $html .= '<section data-admin-section="media" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_media', 'Media') . '</span><h1>' . $this->adminText('admin_media_title', 'Media browser') . '</h1><p>' . $this->adminText('admin_media_subtitle', 'Preview images and open the original asset in a new tab.') . '</p></div></header><div class="myvibehtml-admin-media-grid">' . $mediaCards . '</div></section>';
         $html .= '<section data-admin-section="browser" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_browser_title', 'File browser') . '</h1><p>' . $this->adminText('admin_browser_subtitle', 'Upload, copy, duplicate and remove project files without leaving the admin page.') . '</p></div><div class="myvibehtml-admin-file-toolbar"><input type="file" data-admin-upload aria-label="' . $this->escapeHtml($this->adminText('admin_upload', 'Upload file')) . '"><button type="button" data-admin-upload-submit>' . $this->adminText('admin_upload', 'Upload') . '</button><button type="button" data-admin-mkdir>' . $this->adminText('admin_new_folder', 'New folder') . '</button></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-browser" data-admin-browser data-admin-browser-path=""><div class="myvibehtml-admin-browser-bar"><button type="button" data-admin-browser-up disabled>← ' . $this->adminText('admin_up', 'Up') . '</button><strong data-admin-browser-breadcrumb>/</strong><span data-admin-browser-status aria-live="polite"></span></div><div class="myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_actions', 'Actions') . '</th></tr></thead><tbody data-admin-browser-list>' . $browserRows . '</tbody></table></div></article></section>';
+        $html .= $this->renderAdminPagesBrowser();
         $html .= '</div></main></div><script src="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.js?v=' . self::VERSION . '"></script></body></html>';
         $this->response->setBody($html);
     }

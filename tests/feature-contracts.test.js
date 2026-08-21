@@ -5,6 +5,7 @@ const test = require('node:test');
 const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const editor = fs.readFileSync('myvibehtml.js', 'utf8');
 const shell = fs.readFileSync('myvibehtml-shell-controls.js', 'utf8');
+const theme = fs.readFileSync('myvibehtml-theme.css', 'utf8');
 const fallback = fs.readFileSync('myvibehtml-fallback.css', 'utf8');
 const adminCss = fs.readFileSync('myvibehtml-admin.css', 'utf8');
 const adminJs = fs.readFileSync('myvibehtml-admin.js', 'utf8');
@@ -98,6 +99,10 @@ test('Project dashboard is a protected standalone page with responsive navigatio
 test('Admin content workspace exposes pages, media previews and guarded file operations', () => {
     assert.match(php, /id="myvibehtml-admin-link" data-dashboard data-dashboard-url="\{admin_url\}"/);
     assert.match(php, /data-admin-section="pages"/);
+    assert.match(php, /data-admin-pages-list/);
+    assert.match(php, /data-admin-pages-up/);
+    assert.match(php, /data-admin-page-select/);
+    assert.match(php, /renderAdminPagesBrowser/);
     assert.match(php, /data-admin-section="media"/);
     assert.match(php, /data-admin-section="browser"/);
     assert.match(php, /private function dispatchAdminRequest\(\)/);
@@ -107,8 +112,15 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.match(adminJs, /data-admin-browser-duplicate|operate\('duplicate'/);
     assert.match(adminJs, /operate\('rename'/);
     assert.match(adminJs, /data-admin-browser-delete|operate\('delete'/);
+    assert.match(adminJs, /pageState/);
+    assert.match(adminJs, /data-admin-pages-paste/);
+    assert.match(adminJs, /loadListing\(parentPath\(pageState\.path\), 'pages'\)/);
+    assert.match(adminJs, /operate\('duplicate', \{source: pageState\.clipboardPath\}/);
     assert.match(php, /preg_match\('\~\^\(\?:avif\|gif\|jpe\?g\|png\|svg\|webp\|ico\|mp4\|webm\|mp3\|wav\)\$\~'/);
     assert.match(adminCss, /myvibehtml-admin-media-grid/);
+    assert.match(adminCss, /myvibehtml-admin-page-browser input\[type="checkbox"\]/);
+    assert.match(theme, /#a\{display:grid;place-items:center/);
+    assert.match(fallback, /#a\{display:grid;place-items:center/);
     assert.equal(fs.existsSync('demo-about.html'), true);
     assert.equal(fs.existsSync('demo-contact.html'), true);
 });
