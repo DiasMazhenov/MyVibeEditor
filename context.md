@@ -1,6 +1,17 @@
 # MyVibeHTML plugin context
 
-## Текущее исправление v0.76
+## Текущее исправление v0.77
+
+- Dashboard вынесен из popup-слоя в отдельную защищённую страницу по `?admin=1`; дополнительно распознаётся путь `/admin` при серверной rewrite-конфигурации. Доступ проходит через существующую проверку сессии, поэтому не создаётся новый auth-flow.
+- `renderAdminDashboard()` серверно отдаёт полноценную HTML-страницу с разделами Overview, Files, Settings и Health; файловый список ограничен 12 последними entries, глубиной 16 и бюджетом сканирования 0.5 секунды.
+- Добавлены `myvibehtml-admin.css` и `myvibehtml-admin.js`: адаптивный graphite/teal layout, desktop sidebar, mobile off-canvas menu, hash-навигация, поиск по файлам, ссылки в редактор/на публичный сайт и keyboard/focus semantics.
+- Иконка Dashboard в редакторе теперь выполняет переход по `data-dashboard-url`, старый DOM popup больше не создаётся. Старые неиспользуемые popup CSS-правила оставлены до отдельной CSS-cleanup задачи, но runtime и feature contract не содержат popup-flow.
+- Добавлены feature/UI snapshot/CI/regression contracts для отдельной страницы, `?admin=1`, новых admin assets и отсутствия popup JS. README, architecture, deployment, accessibility, browser acceptance, function catalog и CHANGELOG синхронизированы до `0.77`; план сдвинут на v0.78–v0.80.
+- Локализация admin actions и health statuses добавлена в ru/en, чтобы русская админка не показывала английские fallback-строки.
+- Проверки: PHP lint, Node syntax/tests, source-map, security-smoke, `tests/ci-contract.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` проходят. HTTP server поднят на `127.0.0.1:8080`; `?admin=1` без session cookie корректно закрыт auth/bot policy. URL админки открыт во встроенном браузере, но визуальный authenticated acceptance нужно завершить в вкладке с действующей cookie; Playwright/Raven Chromium не использовались.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+
+## Предыдущее исправление v0.76
 
 - Добавлен Dashboard проекта на существующем shell-слое: текущий файл, счётчики файлов/папок и HTML/CSS/JS/медиа, статус черновика и быстрые действия в «Файлы», «Настройки», Page Health и preview.
 - Dashboard доступен через локальную иконку `layout-dashboard.svg` из Tabler/Iconify, desktop preview controls, мобильное burger-меню и command palette; третья вкладка не добавлялась, чтобы не ломать текущие tab-селекторы.

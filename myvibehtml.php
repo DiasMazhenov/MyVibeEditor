@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.76 */
+<?php /* MyVibeHTML v0.77 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -375,7 +375,7 @@ final class MyVibeHTMLConfig
         $this->templates['h'] = str_replace('</div>{mode}<ul>', '<div class="myvibehtml-preview-controls" data-preview-controls role="group" aria-label="{preview_size}"><button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button></div></div>{mode}<ul>', $this->templates['h']);
         $this->templates['h'] = str_replace(
             '<button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button>',
-            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{components}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button><button type="button" data-site-map data-site-map-label="{site_map}" data-site-map-empty="{site_map_empty}" data-site-map-open="{site_map_open}" aria-label="{site_map}" title="{site_map}"><span class="myvibehtml-local-icon myvibehtml-icon-map" aria-hidden="true"></span></button><button type="button" data-dashboard data-dashboard-label="{dashboard}" data-dashboard-title="{dashboard_title}" data-dashboard-current-file="{dashboard_current_file}" data-dashboard-files="{dashboard_files}" data-dashboard-folders="{dashboard_folders}" data-dashboard-html="{dashboard_html}" data-dashboard-css="{dashboard_css}" data-dashboard-js="{dashboard_js}" data-dashboard-media="{dashboard_media}" data-dashboard-draft="{dashboard_draft}" data-dashboard-open-files="{dashboard_open_files}" data-dashboard-open-settings="{dashboard_open_settings}" data-dashboard-check="{dashboard_check}" data-dashboard-preview="{dashboard_preview}" data-dashboard-no-draft="{dashboard_no_draft}" data-dashboard-empty="{dashboard_empty}" aria-label="{dashboard}" title="{dashboard}"><span class="myvibehtml-local-icon myvibehtml-icon-dashboard" aria-hidden="true"></span></button>',
+            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{components}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button><button type="button" data-site-map data-site-map-label="{site_map}" data-site-map-empty="{site_map_empty}" data-site-map-open="{site_map_open}" aria-label="{site_map}" title="{site_map}"><span class="myvibehtml-local-icon myvibehtml-icon-map" aria-hidden="true"></span></button><button type="button" data-dashboard data-dashboard-url="{admin_url}" data-dashboard-label="{dashboard}" data-dashboard-title="{dashboard_title}" data-dashboard-current-file="{dashboard_current_file}" data-dashboard-files="{dashboard_files}" data-dashboard-folders="{dashboard_folders}" data-dashboard-html="{dashboard_html}" data-dashboard-css="{dashboard_css}" data-dashboard-js="{dashboard_js}" data-dashboard-media="{dashboard_media}" data-dashboard-draft="{dashboard_draft}" data-dashboard-open-files="{dashboard_open_files}" data-dashboard-open-settings="{dashboard_open_settings}" data-dashboard-check="{dashboard_check}" data-dashboard-preview="{dashboard_preview}" data-dashboard-no-draft="{dashboard_no_draft}" data-dashboard-empty="{dashboard_empty}" aria-label="{dashboard}" title="{dashboard}"><span class="myvibehtml-local-icon myvibehtml-icon-dashboard" aria-hidden="true"></span></button>',
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.76';
+    const VERSION = '0.77';
     private $config;
     private $request;
     private $response;
@@ -787,7 +787,7 @@ final class MyVibeHTMLController
         $sessionValid = $sessionMatches && (($storedSessionExpiresAt > $authenticate2) || (!$storedSessionExpiresAt && $legacySessionExpiresAt > $authenticate2));
         if ($sessionValid) {
             if (!$storedSessionExpiresAt) $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, $legacySessionExpiresAt);
-            $this->dispatch();
+            if ($this->isAdminRequest()) $this->renderAdminDashboard(); else $this->dispatch();
         } else {
             if ($sessionMatches) {
                 $this->config->setSetting(SETTING_SESSION, '');
@@ -842,6 +842,104 @@ final class MyVibeHTMLController
                 } else throw new Exception(false, 403);
             }
         }
+    }
+
+    private function isAdminRequest()
+    {
+        if ($this->request->getQuery('admin') === '1') return true;
+        $requestPath = parse_url((string)$this->request->getServer(REQUEST_URI), PHP_URL_PATH);
+        return is_string($requestPath) && (bool)preg_match('~/admin/?$~i', $requestPath);
+    }
+
+    private function adminText($key, $fallback)
+    {
+        $value = $this->config->translate($key, $this->language);
+        return $value ? $value : $fallback;
+    }
+
+    private function getAdminUrl()
+    {
+        $base = rtrim($this->config->getSiteUrlBase(), '/') . '/';
+        $script = basename(str_replace('\\', '/', (string)$this->request->getServer(REQUEST_SCRIPT_NAME)));
+        return $this->escapeHtml($base . ($script && preg_match('~\.php$~i', $script) ? rawurlencode($script) . '?admin=1' : '?admin=1'));
+    }
+
+    private function getEditorUrl($relativePath)
+    {
+        $relativePath = $this->normalizeRelativePath($relativePath);
+        if ($relativePath === false || $relativePath === '') $relativePath = $this->config->getSetting(SETTING_DEFAULT_FILE);
+        $parts = array_map('rawurlencode', explode('/', $relativePath));
+        return $this->escapeHtml(rtrim($this->config->getSiteUrlBase(), '/') . '/' . ($this->getQueryPrefix() === '?q=' ? '?q=' . implode('/', $parts) : implode('/', $parts)));
+    }
+
+    private function formatAdminSize($bytes)
+    {
+        $bytes = max(0, (int)$bytes);
+        if ($bytes < 1024) return $bytes . ' B';
+        if ($bytes < 1048576) return number_format($bytes / 1024, 1, '.', '') . ' KB';
+        if ($bytes < 1073741824) return number_format($bytes / 1048576, 1, '.', '') . ' MB';
+        return number_format($bytes / 1073741824, 1, '.', '') . ' GB';
+    }
+
+    private function collectAdminEntries($directory, $relativeDirectory, &$stats, &$entries, $deadline, $depth = 0)
+    {
+        if ($depth > 16 || microtime(true) > $deadline || !($handle = @opendir($directory))) return;
+        while (($name = readdir($handle)) !== false && microtime(true) <= $deadline) {
+            if ($name === '.' || $name === '..' || $name[0] === '.') continue;
+            $path = $directory . $name;
+            if (is_link($path)) continue;
+            $relativePath = $relativeDirectory === '' ? $name : $relativeDirectory . '/' . $name;
+            if (is_dir($path)) {
+                $stats['folders']++;
+                $this->collectAdminEntries($path . '/', $relativePath, $stats, $entries, $deadline, $depth + 1);
+                continue;
+            }
+            if (!is_file($path)) continue;
+            $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            $stats['files']++;
+            if (preg_match('~^(?:html?|xhtml)$~', $extension)) $stats['html']++;
+            else if ($extension === 'css') $stats['css']++;
+            else if (preg_match('~^(?:m?js|cjs)$~', $extension)) $stats['js']++;
+            else if (preg_match('~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~', $extension)) $stats['media']++;
+            if (count($entries) < 12) $entries[] = ['name' => $relativePath, 'path' => $path, 'size' => (int)@filesize($path), 'date' => (int)@filemtime($path), 'editable' => $this->isAllowedExtension($extension)];
+        }
+        closedir($handle);
+    }
+
+    private function renderAdminDashboard()
+    {
+        $this->response->setCspMode('enforce');
+        $stats = ['files' => 0, 'folders' => 0, 'html' => 0, 'css' => 0, 'js' => 0, 'media' => 0];
+        $entries = [];
+        $this->collectAdminEntries(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $stats, $entries, microtime(true) + 0.5);
+        usort($entries, function ($left, $right) { return $right['date'] <=> $left['date']; });
+        $adminUrl = $this->getAdminUrl();
+        $editorUrl = $this->getEditorUrl($this->config->getSetting(SETTING_DEFAULT_FILE));
+        $siteUrl = $this->escapeHtml($this->config->getSiteUrl());
+        $defaultFile = $this->escapeHtml($this->config->getSetting(SETTING_DEFAULT_FILE));
+        $writable = $this->config->isWritable();
+        $runtimeReady = (bool)$this->config->getRuntimeDirectory() && is_dir($this->config->getRuntimeDirectory());
+        $rootReady = is_dir($this->config->getSiteRoot());
+        $scriptsEnabled = $this->config->getSetting(SETTING_SITE_SCRIPTS) === '1';
+        $stylesEnabled = $this->config->getSetting(SETTING_SITE_STYLES) === '1';
+        $allowPhp = $this->config->getSetting(SETTING_ALLOW_PHP) === '1';
+        $statusOk = $writable && $runtimeReady && $rootReady;
+        $rows = '';
+        foreach ($entries as $entry) {
+            $href = $entry['editable'] ? $this->getEditorUrl($entry['name']) : $this->escapeHtml($this->getPublicFileUrl($entry['path']));
+            $rows .= '<tr data-admin-file-row><td><span class="myvibehtml-admin-file-name">' . $this->escapeHtml($entry['name']) . '</span><small>' . $this->escapeHtml(strtoupper(pathinfo($entry['name'], PATHINFO_EXTENSION)) ?: $this->adminText('admin_file', 'File')) . '</small></td><td>' . $this->escapeHtml($this->formatAdminSize($entry['size'])) . '</td><td>' . $this->escapeHtml($entry['date'] ? date('d.m.Y H:i', $entry['date']) : '—') . '</td><td><a class="myvibehtml-admin-table-action" href="' . $href . '"' . ($entry['editable'] ? '' : ' target="_blank" rel="noopener"') . '>' . $this->adminText('admin_open', 'Open') . '</a></td></tr>';
+        }
+        if ($rows === '') $rows = '<tr><td colspan="4" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_files', 'No files found') . '</td></tr>';
+        $health = function ($label, $healthState, $detail) {
+            return '<li><span><strong>' . $this->escapeHtml($label) . '</strong><small>' . $this->escapeHtml($detail) . '</small></span><b class="' . ($healthState ? 'is-ok' : 'is-warning') . '">' . $this->adminText($healthState ? 'admin_ok' : 'admin_attention', $healthState ? 'OK' : 'Check') . '</b></li>';
+        };
+        $html = '<!doctype html><html id="myvibehtml-admin" lang="' . $this->escapeHtml($this->language) . '"><head><title>' . $this->escapeHtml($this->adminText('admin_title', 'Project dashboard')) . ' - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.css?v=' . self::VERSION . '"></head><body><div class="myvibehtml-admin-shell"><aside id="myvibehtml-admin-sidebar" class="myvibehtml-admin-sidebar" data-admin-sidebar><a class="myvibehtml-admin-brand" href="' . $adminUrl . '"><span class="myvibehtml-admin-mark" aria-hidden="true"></span><span><strong>MyVibeHTML</strong><small>v' . self::VERSION . '</small></span></a><nav aria-label="' . $this->escapeHtml($this->adminText('admin_navigation', 'Navigation')) . '"><button type="button" data-admin-nav="overview" aria-current="page">' . $this->adminText('admin_overview', 'Overview') . '</button><button type="button" data-admin-nav="files">' . $this->adminText('admin_files', 'Files') . '</button><button type="button" data-admin-nav="settings">' . $this->adminText('admin_settings', 'Settings') . '</button><button type="button" data-admin-nav="health">' . $this->adminText('admin_health', 'Health') . '</button></nav><div class="myvibehtml-admin-sidebar-foot"><span>' . $this->adminText('admin_local_only', 'Local control surface') . '</span><a href="' . $editorUrl . '">' . $this->adminText('admin_back_editor', 'Back to editor') . '</a></div></aside><main class="myvibehtml-admin-main"><header class="myvibehtml-admin-topbar"><button type="button" class="myvibehtml-admin-menu" data-admin-menu aria-expanded="false" aria-controls="myvibehtml-admin-sidebar">' . $this->adminText('admin_menu', 'Menu') . '</button><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_kicker', 'Local administration') . '</span><strong>' . $this->escapeHtml($this->config->getSiteUrl()) . '</strong></div><div class="myvibehtml-admin-top-actions"><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor', 'Open editor') . '</a><a href="' . $siteUrl . '" target="_blank" rel="noopener">' . $this->adminText('admin_open_site', 'Open site') . '</a></div></header><div class="myvibehtml-admin-content">';
+        $html .= '<section data-admin-section="overview"><header class="myvibehtml-admin-hero"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_overview', 'Overview') . '</span><h1>' . $this->escapeHtml($this->adminText('admin_title', 'Project dashboard')) . '</h1><p>' . $this->escapeHtml($this->adminText('admin_subtitle', 'A clear control surface for your local site.')) . '</p></div><span class="myvibehtml-admin-status ' . ($statusOk ? 'is-ok' : 'is-warning') . '">' . $this->adminText($statusOk ? 'admin_status_ready' : 'admin_status_attention', $statusOk ? 'System ready' : 'Needs attention') . '</span></header><div class="myvibehtml-admin-stats"><article><span>' . $this->adminText('dashboard_files', 'Files') . '</span><strong>' . $stats['files'] . '</strong><small>' . $stats['html'] . ' HTML · ' . $stats['css'] . ' CSS · ' . $stats['js'] . ' JS</small></article><article><span>' . $this->adminText('dashboard_folders', 'Folders') . '</span><strong>' . $stats['folders'] . '</strong><small>' . $this->adminText('admin_scanned', 'Scanned locally') . '</small></article><article><span>' . $this->adminText('dashboard_media', 'Media') . '</span><strong>' . $stats['media'] . '</strong><small>' . $this->adminText('admin_assets', 'Images and media') . '</small></article><article><span>' . $this->adminText('admin_version', 'Version') . '</span><strong>v' . self::VERSION . '</strong><small>' . $this->adminText('admin_current', 'Current build') . '</small></article></div><div class="myvibehtml-admin-columns"><article class="myvibehtml-admin-panel myvibehtml-admin-current"><div class="myvibehtml-admin-panel-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('dashboard_current_file', 'Current file') . '</span><h2>' . $defaultFile . '</h2></div><span class="myvibehtml-admin-file-badge">HTML</span></div><p>' . $this->adminText('admin_current_hint', 'The default file opens in the visual editor and remains protected by the current session.') . '</p><div class="myvibehtml-admin-actions"><a class="is-primary" href="' . $editorUrl . '">' . $this->adminText('admin_edit_file', 'Edit file') . '</a><button type="button" data-admin-nav="files">' . $this->adminText('admin_browse_files', 'Browse files') . '</button></div></article><article class="myvibehtml-admin-panel"><div class="myvibehtml-admin-panel-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_health', 'Health') . '</span><h2>' . $this->adminText('admin_health_summary', 'Runtime checks') . '</h2></div><span class="myvibehtml-admin-health-score ' . ($statusOk ? 'is-ok' : 'is-warning') . '">' . ($statusOk ? '4/4' : '3/4') . '</span></div><ul class="myvibehtml-admin-check-list">' . $health($this->adminText('admin_check_root', 'Document root'), $rootReady, $rootReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_runtime', 'Runtime storage'), $runtimeReady, $runtimeReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_config', 'Configuration'), $writable, $writable ? $this->adminText('admin_writable', 'Writable') : $this->adminText('admin_readonly', 'Read only')) . $health($this->adminText('admin_check_scripts', 'Preview scripts'), !$scriptsEnabled, $scriptsEnabled ? $this->adminText('admin_enabled', 'Enabled') : $this->adminText('admin_disabled', 'Disabled')) . '</ul></article></div></section>';
+        $html .= '<section data-admin-section="files" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_files_title', 'Project files') . '</h1><p>' . $this->adminText('admin_files_subtitle', 'Open editable files in the editor or public assets in a new tab.') . '</p></div><input type="search" data-admin-file-search placeholder="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '" aria-label="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '"></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th><th></th></tr></thead><tbody>' . $rows . '</tbody></table></article></section>';
+        $html .= '<section data-admin-section="settings" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_settings', 'Settings') . '</span><h1>' . $this->adminText('admin_settings_title', 'Workspace settings') . '</h1><p>' . $this->adminText('admin_settings_subtitle', 'Review the active editor policy before changing the site.') . '</p></div></header><div class="myvibehtml-admin-settings-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_editor_policy', 'Editor policy') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_default', 'Default file') . '</dt><dd>' . $defaultFile . '</dd></div><div><dt>' . $this->adminText('admin_setting_extensions', 'Editable extensions') . '</dt><dd>' . $this->escapeHtml((string)$this->config->getSetting(SETTING_ALLOWED_EXTENSIONS)) . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_setting_preview', 'Preview behavior') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_scripts', 'Site scripts') . '</dt><dd>' . $this->adminText($scriptsEnabled ? 'admin_enabled' : 'admin_disabled', $scriptsEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_styles', 'Site styles') . '</dt><dd>' . $this->adminText($stylesEnabled ? 'admin_enabled' : 'admin_disabled', $stylesEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_recovery', 'Recovery points') . '</dt><dd>' . $this->escapeHtml($this->config->getSetting(SETTING_RECOVERY_POINTS)) . '</dd></div></dl></article></div><div class="myvibehtml-admin-callout"><span class="myvibehtml-admin-callout-icon">i</span><p>' . $this->adminText('admin_settings_note', 'Use the editor Settings tab for changes. This page is a read-first control surface so policy changes remain explicit.') . '</p><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor_settings', 'Open editor settings') . '</a></div></section>';
+        $html .= '<section data-admin-section="health" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_health', 'Health') . '</span><h1>' . $this->adminText('admin_health_title', 'System health') . '</h1><p>' . $this->adminText('admin_health_subtitle', 'Small, actionable checks for a safe local editing session.') . '</p></div></header><div class="myvibehtml-admin-health-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_security_state', 'Security state') . '</h2><ul class="myvibehtml-admin-check-list">' . $health($this->adminText('admin_check_root', 'Document root'), $rootReady, $rootReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_runtime', 'Runtime storage'), $runtimeReady, $runtimeReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_config', 'Configuration'), $writable, $writable ? $this->adminText('admin_writable', 'Writable') : $this->adminText('admin_readonly', 'Read only')) . '</ul></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_session', 'Session') . '</h2><p class="myvibehtml-admin-health-copy">' . $this->adminText('admin_session_hint', 'This page is available only after the existing MyVibeHTML session check.') . '</p><dl><div><dt>' . $this->adminText('admin_version', 'Version') . '</dt><dd>v' . self::VERSION . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article></div></section>';
+        $html .= '</div></main></div><script src="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.js?v=' . self::VERSION . '"></script></body></html>';
+        $this->response->setBody($html);
     }
 
     public function dispatch()
@@ -1653,6 +1751,7 @@ final class MyVibeHTMLController
         $renderpanel2[PLACEHOLDER_FILE_LIST] = $this->renderSiteStatus();
         $renderpanel2[PLACEHOLDER_SYSTEM_URL] = $this->escapeHtml($this->config->getSiteUrlBase());
         $renderpanel2['site_preview_url'] = $this->escapeHtml($this->getPublicFileUrl($renderpanel1));
+        $renderpanel2['admin_url'] = $this->getAdminUrl();
         $renderpanel2[PLACEHOLDER_VERSION] = self::VERSION;
         $renderpanel2[REQUEST_UPLOAD_MAX_FILESIZE] = $this->parseSize(ini_get(REQUEST_UPLOAD_MAX_FILESIZE));
         $renderpanel2[REQUEST_MAX_FILE_UPLOADS] = ini_get(REQUEST_MAX_FILE_UPLOADS);

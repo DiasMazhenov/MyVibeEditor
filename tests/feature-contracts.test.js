@@ -6,6 +6,8 @@ const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const editor = fs.readFileSync('myvibehtml.js', 'utf8');
 const shell = fs.readFileSync('myvibehtml-shell-controls.js', 'utf8');
 const fallback = fs.readFileSync('myvibehtml-fallback.css', 'utf8');
+const adminCss = fs.readFileSync('myvibehtml-admin.css', 'utf8');
+const adminJs = fs.readFileSync('myvibehtml-admin.js', 'utf8');
 
 test('Time Machine keeps one persistent timeline for visual and source drafts', () => {
     assert.match(editor, /editorTimelineKey = 'myvibehtml:timeline:/);
@@ -76,16 +78,20 @@ test('Page navigation and Responsive Preview Studio reuse shell controls', () =>
     assert.doesNotMatch(php, /data-preview-preset|preview_presets|preview_tablet_landscape/);
 });
 
-test('Project dashboard reuses existing panel actions and stays mobile-accessible', () => {
-    assert.match(php, /data-dashboard/);
-    assert.match(php, /data-dashboard-title="\{dashboard_title\}"/);
-    assert.match(php, /data-mobile-target="\[data-dashboard\]">\{dashboard\}/);
-    assert.match(php, /myvibehtml-icon-dashboard/);
-    assert.match(shell, /myvibehtml-dashboard/);
-    assert.match(shell, /collectStats = function/);
-    assert.match(shell, /data-dashboard-action/);
-    assert.match(shell, /focusTrap/);
-    assert.match(fallback, /#myvibehtml-dashboard\[hidden\]\{display:none!important\}/);
+test('Project dashboard is a protected standalone page with responsive navigation', () => {
+    assert.match(php, /data-dashboard-url="\{admin_url\}"/);
+    assert.match(php, /private function isAdminRequest\(\)/);
+    assert.match(php, /private function renderAdminDashboard\(\)/);
+    assert.match(php, /<html id="myvibehtml-admin"/);
+    assert.match(php, /id="myvibehtml-admin-sidebar"/);
+    assert.match(shell, /getAttribute\('data-dashboard-url'\)/);
+    assert.match(shell, /window\.location\.href = target/);
+    assert.doesNotMatch(shell, /myvibehtml-dashboard/);
+    assert.match(adminCss, /\.myvibehtml-admin-shell/);
+    assert.match(adminCss, /@media \(max-width: 900px\)/);
+    assert.match(adminJs, /data-admin-file-search/);
+    assert.match(adminJs, /data-admin-sidebar-open/);
+    assert.match(adminJs, /location\.hash/);
 });
 
 test('Page Health adds local SEO, structure and resource checks', () => {

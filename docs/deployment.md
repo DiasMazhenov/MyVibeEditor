@@ -27,7 +27,7 @@ CLI-команда не показывает web `DOCUMENT_ROOT`; это нор�
 
 ```sh
 apachectl -t
-curl -I https://example.test/myvibehtml.js?v=0.76
+curl -I https://example.test/myvibehtml.js?v=0.77
 curl -I https://example.test/index.html
 ```
 
@@ -46,7 +46,7 @@ curl -I https://example.test/index.html
 
 ```sh
 nginx -t
-curl -I https://example.test/myvibehtml.js?v=0.76
+curl -I https://example.test/myvibehtml.js?v=0.77
 curl -I https://example.test/myvibehtml.php
 ```
 
@@ -78,9 +78,9 @@ PHP должен иметь запись в document root только там, �
 
 1. войдите через `myvibehtml.php`;
 2. задайте собственный пароль;
-3. проверьте вкладки `html` и `text`;
-4. откройте глаз — он должен вести напрямую на HTML-файл без `?q=`;
-5. откройте `Файлы` и `Настройки`, затем по очереди раскройте все разделы;
+3. откройте `myvibehtml.php?admin=1` и проверьте разделы Overview, Files, Settings и Health;
+4. вернитесь в редактор и проверьте вкладки `visual` и `html`;
+5. откройте глаз — он должен вести напрямую на HTML-файл без `?q=`;
 6. выполните резервную копию перед первой правкой.
 
 ## Диагностика `Проблема с DOCUMENT_ROOT`

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.76 */
+/* MyVibeHTML v0.77 */
 (function() {
     var windowObject = window,
         documentObject = document,

@@ -8,6 +8,8 @@ const js = read('myvibehtml.js');
 const shell = read('myvibehtml-shell-controls.js');
 const theme = read('myvibehtml-theme.css');
 const fallback = read('myvibehtml-fallback.css');
+const adminCss = read('myvibehtml-admin.css');
+const adminJs = read('myvibehtml-admin.js');
 const snapshot = JSON.parse(read('tests/snapshots/ui-surface.snapshot.json'));
 
 const has = (source, pattern) => pattern.test(source);
@@ -22,7 +24,7 @@ const actual = {
         previewSizes: has(php, /data-preview-size="desktop"/) && has(php, /data-preview-size="tablet"/) && has(php, /data-preview-size="mobile"/),
         blockLibrary: has(php, /data-block-library/),
         siteMap: has(php, /data-site-map/),
-        dashboard: has(php, /data-dashboard/) && has(shell, /myvibehtml-dashboard/),
+        dashboard: has(php, /data-dashboard-url="\{admin_url\}"/) && has(php, /<html id="myvibehtml-admin"/) && has(adminCss, /\.myvibehtml-admin-shell/) && has(adminJs, /data-admin-file-search/),
         mobileMenu: has(php, /id="myvibehtml-mobile-menu-toggle"/) && has(php, /id="myvibehtml-mobile-menu"/),
         pageHealth: has(php, /data-page-validate/) && has(js, /myvibehtml-validation-dialog/),
         styleInspector: has(js, /myvibehtml-style-inspector/),
