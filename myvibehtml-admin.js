@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.79 admin page interactions. */
+/* MyVibeHTML v0.80 admin page interactions. */
 (function() {
     'use strict';
 
@@ -79,6 +79,42 @@
                 parts.pop();
                 return parts.join('/')
             },
+            addEntryIcon = function(cell, isFolder) {
+                var name = document.createElement('span');
+                name.className = 'myvibehtml-admin-entry-name';
+                var icon = document.createElement('span');
+                icon.className = isFolder ? 'myvibehtml-admin-folder-icon' : 'myvibehtml-admin-entry-icon-slot';
+                icon.setAttribute('aria-hidden', 'true');
+                name.appendChild(icon);
+                cell.appendChild(name);
+                return name
+            },
+            decoratePageToolbar = function() {
+                var controls = [
+                    ['[data-admin-pages-up]', 'arrow-up.svg'],
+                    ['[data-admin-pages-copy]', 'copy.svg'],
+                    ['[data-admin-pages-paste]', 'clipboard.svg'],
+                    ['[data-admin-pages-duplicate]', 'copy-plus.svg'],
+                    ['[data-admin-pages-rename]', 'pencil.svg'],
+                    ['[data-admin-pages-delete]', 'trash.svg'],
+                    ['[data-admin-pages-upload-submit]', 'upload.svg'],
+                    ['[data-admin-pages-mkdir]', 'folder-plus.svg']
+                ];
+                for (var controlIndex = 0; controlIndex < controls.length; controlIndex++) {
+                    var button = document.querySelector(controls[controlIndex][0]);
+                    if (!button) continue;
+                    var label = button.textContent.replace(/^\s+|\s+$/g, '');
+                    button.textContent = '';
+                    button.title = label;
+                    button.setAttribute('aria-label', label);
+                    var icon = document.createElement('span');
+                    icon.className = 'myvibehtml-admin-action-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    icon.style.webkitMaskImage = 'url("myvibehtml-icons/' + controls[controlIndex][1] + '")';
+                    icon.style.maskImage = 'url("myvibehtml-icons/' + controls[controlIndex][1] + '")';
+                    button.appendChild(icon)
+                }
+            },
             updatePageActions = function() {
                 var hasSelection = !!pageState.selectedPath;
                 if (pageCopy) pageCopy.disabled = !hasSelection;
@@ -89,7 +125,7 @@
                 if (pageUp) pageUp.disabled = !pageState.path;
             },
             renderListing = function(listing) {
-                var index, entry, row, nameCell, nameButton, meta, actions, actionButton, sizeCell;
+                var index, entry, row, nameCell, nameWrap, nameButton, meta, actions, actionButton, sizeCell;
                 if (!browserList) return;
                 if (!paste) {
                     paste = document.createElement('button');
@@ -124,10 +160,13 @@
                             nameButton.href = entryUrl || '#';
                             if (!entryEditable) { nameButton.target = '_blank'; nameButton.rel = 'noopener' }
                         }
-                        nameCell.appendChild(nameButton);
-                        meta = document.createElement('small');
-                        meta.textContent = entryType == 'directory' ? 'Folder' : (entryName.split('.').pop() || 'File').toUpperCase();
-                        nameCell.appendChild(meta);
+                        nameWrap = addEntryIcon(nameCell, entryType == 'directory');
+                        nameWrap.appendChild(nameButton);
+                        if (entryType != 'directory') {
+                            meta = document.createElement('small');
+                            meta.textContent = (entryName.split('.').pop() || 'File').toUpperCase();
+                            nameCell.appendChild(meta)
+                        }
                         row.appendChild(nameCell);
                         sizeCell = document.createElement('td');
                         sizeCell.textContent = entryType == 'directory' ? '—' : formatSize(entrySize || 0);
@@ -150,7 +189,7 @@
                 }
             },
             renderPageListing = function(listing) {
-                var index, entry, extension, row, selectCell, checkbox, nameCell, nameControl, meta, sizeCell, dateCell;
+                var index, entry, extension, row, selectCell, checkbox, nameCell, nameWrap, nameControl, meta, sizeCell, dateCell;
                 if (!pageBrowserList) return;
                 pageState.path = listing.path || '';
                 pageState.selectedPath = '';
@@ -188,10 +227,8 @@
                             nameControl.type = 'button';
                             nameControl.addEventListener('click', function() { loadListing(entryPath, 'pages') })
                         } else nameControl.href = entryUrl || '#';
-                        nameCell.appendChild(nameControl);
-                        meta = document.createElement('small');
-                        meta.textContent = entryType == 'directory' ? 'Folder' : (entryName.split('.').pop() || 'HTML').toUpperCase();
-                        nameCell.appendChild(meta);
+                        nameWrap = addEntryIcon(nameCell, entryType == 'directory');
+                        nameWrap.appendChild(nameControl);
                         row.appendChild(nameCell);
                         sizeCell = document.createElement('td');
                         sizeCell.textContent = entryType == 'directory' ? '—' : formatSize(entrySize || 0);
@@ -277,8 +314,29 @@
         if (pageDuplicate) pageDuplicate.addEventListener('click', function() { if (pageState.selectedPath) operate('duplicate', {source: pageState.selectedPath}, null, 'pages') });
         if (pageRename) pageRename.addEventListener('click', function() { if (pageState.selectedPath) { var name = window.prompt('New name', pageState.selectedPath.split('/').pop()); if (name) operate('rename', {source: pageState.selectedPath, name: name}, null, 'pages') } });
         if (pageDelete) pageDelete.addEventListener('click', function() { if (pageState.selectedPath && window.confirm('Delete ' + pageState.selectedPath.split('/').pop() + '?')) operate('delete', {source: pageState.selectedPath}, null, 'pages') });
-        if (pageUploadSubmit && pageUpload) pageUploadSubmit.addEventListener('click', function() { if (pageUpload.files[0]) operate('upload', {}, pageUpload.files[0], 'pages'); else setPageStatus('Choose a file first', 'warning') });
+        if (pageUploadSubmit && pageUpload) pageUploadSubmit.addEventListener('click', function() { pageUpload.click() });
+        if (pageUpload) pageUpload.addEventListener('change', function() {
+            if (this.files[0]) operate('upload', {}, this.files[0], 'pages');
+            this.value = ''
+        });
+        var pageDropzone = pageBrowser ? pageBrowser.querySelector('.myvibehtml-admin-table-wrap') : null;
+        if (pageDropzone) {
+            pageDropzone.addEventListener('dragover', function(event) { event.preventDefault(); pageDropzone.classList.add('is-dragover') });
+            pageDropzone.addEventListener('dragleave', function(event) { if (event.target == pageDropzone) pageDropzone.classList.remove('is-dragover') });
+            pageDropzone.addEventListener('drop', function(event) {
+                var files = Array.prototype.slice.call(event.dataTransfer.files || []);
+                event.preventDefault();
+                pageDropzone.classList.remove('is-dragover');
+                if (!files.length) return;
+                var uploadDropped = function(index) {
+                    if (index >= files.length) { loadListing(pageState.path, 'pages'); setPageStatus('Uploaded', 'ok'); return }
+                    request('upload', {path: pageState.path}, files[index]).then(function() { uploadDropped(index + 1) }).catch(function(error) { setPageStatus(error.message, 'warning') })
+                };
+                uploadDropped(0)
+            })
+        }
         if (pageMkdir) pageMkdir.addEventListener('click', function() { var name = window.prompt('Folder name'); if (name) operate('mkdir', {name: name}, null, 'pages') });
+        decoratePageToolbar();
         updatePageActions()
     })
 }());

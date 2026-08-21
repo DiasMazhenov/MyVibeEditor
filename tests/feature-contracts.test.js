@@ -116,13 +116,24 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.match(adminJs, /data-admin-pages-paste/);
     assert.match(adminJs, /loadListing\(parentPath\(pageState\.path\), 'pages'\)/);
     assert.match(adminJs, /operate\('duplicate', \{source: pageState\.clipboardPath\}/);
+    assert.match(adminJs, /dataTransfer\.files/);
+    assert.match(adminJs, /dragover/);
+    assert.match(adminJs, /myvibehtml-admin-action-icon/);
+    assert.match(php, /myvibehtml-admin-folder-icon/);
+    assert.match(php, /\$meta = ''/);
+    assert.doesNotMatch(php, /entry\['type'\] === 'directory' \? this->adminText\('admin_folder'/);
     assert.match(php, /preg_match\('\~\^\(\?:avif\|gif\|jpe\?g\|png\|svg\|webp\|ico\|mp4\|webm\|mp3\|wav\)\$\~'/);
     assert.match(adminCss, /myvibehtml-admin-media-grid/);
     assert.match(adminCss, /myvibehtml-admin-page-browser input\[type="checkbox"\]/);
+    assert.match(adminCss, /data-admin-pages-upload-file/);
+    assert.match(adminCss, /is-dragover/);
+    assert.match(adminCss, /border: 0 !important/);
     assert.match(theme, /#a\{display:grid;place-items:center/);
     assert.match(fallback, /#a\{display:grid;place-items:center/);
     assert.equal(fs.existsSync('demo-about.html'), true);
     assert.equal(fs.existsSync('demo-contact.html'), true);
+    assert.equal(fs.existsSync('myvibehtml-icons/folder.svg'), true);
+    assert.equal(fs.existsSync('myvibehtml-icons/folder-plus.svg'), true);
 });
 
 test('Successful login leaves the admin URL and opens the editor', () => {

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.79 */
+<?php /* MyVibeHTML v0.80 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.79';
+    const VERSION = '0.80';
     private $config;
     private $request;
     private $response;
@@ -1026,9 +1026,11 @@ final class MyVibeHTMLController
             if ($entry['type'] !== 'directory' && !preg_match('~^(?:html?|xhtml)$~', $extension)) continue;
             $name = $this->escapeHtml($entry['name']);
             $path = $this->escapeHtml($entry['path']);
-            $nameControl = $entry['type'] === 'directory' ? '<button type="button" class="myvibehtml-admin-file-link" data-admin-page-open="' . $path . '">' . $name . '</button>' : '<a class="myvibehtml-admin-file-link" href="' . $this->escapeHtml($this->getEditorUrl($entry['path'])) . '">' . $name . '</a>';
+            $entryIcon = $entry['type'] === 'directory' ? '<span class="myvibehtml-admin-folder-icon" aria-hidden="true"></span>' : '<span class="myvibehtml-admin-entry-icon-slot" aria-hidden="true"></span>';
+            $nameControl = '<span class="myvibehtml-admin-entry-name">' . $entryIcon . ($entry['type'] === 'directory' ? '<button type="button" class="myvibehtml-admin-file-link" data-admin-page-open="' . $path . '">' . $name . '</button>' : '<a class="myvibehtml-admin-file-link" href="' . $this->escapeHtml($this->getEditorUrl($entry['path'])) . '">' . $name . '</a>') . '</span>';
             $selectControl = $entry['type'] === 'directory' ? '' : '<input type="checkbox" data-admin-page-select="' . $path . '" aria-label="' . $name . '">';
-            $rows .= '<tr data-admin-page-row><td>' . $selectControl . '</td><td>' . $nameControl . '<small>' . $this->escapeHtml($entry['type'] === 'directory' ? $this->adminText('admin_folder', 'Folder') : strtoupper($extension)) . '</small></td><td>' . $this->escapeHtml($entry['type'] === 'directory' ? '—' : $this->formatAdminSize($entry['size'])) . '</td><td>' . $this->escapeHtml($entry['date'] ? date('d.m.Y H:i', $entry['date']) : '—') . '</td></tr>';
+            $meta = '';
+            $rows .= '<tr data-admin-page-row><td>' . $selectControl . '</td><td>' . $nameControl . $meta . '</td><td>' . $this->escapeHtml($entry['type'] === 'directory' ? '—' : $this->formatAdminSize($entry['size'])) . '</td><td>' . $this->escapeHtml($entry['date'] ? date('d.m.Y H:i', $entry['date']) : '—') . '</td></tr>';
         }
         if ($rows === '') $rows = '<tr><td colspan="4" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_pages', 'No HTML pages found') . '</td></tr>';
         return '<section data-admin-section="pages" hidden data-admin-pages-path="' . $this->escapeHtml($listing ? $listing['path'] : $directory) . '"><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_pages', 'Pages') . '</span><h1>' . $this->adminText('admin_pages_title', 'Editable pages') . '</h1><p>' . $this->adminText('admin_pages_subtitle', 'Open HTML pages from the current folder and manage them without leaving the admin page.') . '</p></div><div class="myvibehtml-admin-file-toolbar myvibehtml-admin-pages-toolbar" data-admin-pages-toolbar><button type="button" data-admin-pages-up disabled>← ' . $this->adminText('admin_up', 'Up') . '</button><button type="button" data-admin-pages-copy disabled>' . $this->adminText('admin_copy', 'Copy') . '</button><button type="button" data-admin-pages-paste disabled>' . $this->adminText('admin_paste', 'Paste') . '</button><button type="button" data-admin-pages-duplicate disabled>' . $this->adminText('admin_duplicate', 'Duplicate') . '</button><button type="button" data-admin-pages-rename disabled>' . $this->adminText('admin_rename', 'Rename') . '</button><button type="button" data-admin-pages-delete disabled>' . $this->adminText('admin_delete', 'Delete') . '</button><input type="file" data-admin-pages-upload-file aria-label="' . $this->escapeHtml($this->adminText('admin_upload', 'Upload file')) . '"><button type="button" data-admin-pages-upload-submit>' . $this->adminText('admin_upload', 'Upload') . '</button><button type="button" data-admin-pages-mkdir>' . $this->adminText('admin_new_folder', 'New folder') . '</button></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-browser myvibehtml-admin-page-browser" data-admin-page-browser data-admin-page-browser-path="' . $this->escapeHtml($listing ? $listing['path'] : $directory) . '"><div class="myvibehtml-admin-browser-bar"><strong data-admin-pages-breadcrumb>/</strong><span data-admin-pages-status aria-live="polite"></span></div><div class="myvibehtml-admin-table-wrap"><table><thead><tr><th></th><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th></tr></thead><tbody data-admin-pages-list>' . $rows . '</tbody></table></div></article></section>';
