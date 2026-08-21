@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.63 */
+/* MyVibeHTML v0.64 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -422,7 +422,10 @@
                             validationDescription = validationDocument.querySelector('meta[name="description"]'),
                             validationViewport = validationDocument.querySelector('meta[name="viewport"]'),
                             validationHeadings = validationDocument.querySelectorAll('h1'),
+                            validationHeadingNodes = validationDocument.querySelectorAll('h1,h2,h3,h4,h5,h6'),
                             validationLinks = validationDocument.querySelectorAll('a'),
+                            validationInteractiveNodes = validationDocument.querySelectorAll('button,a,input,select,textarea'),
+                            validationFormControls = validationDocument.querySelectorAll('input,select,textarea'),
                             validationResourceCount = validationDocument.querySelectorAll('img,script,link,iframe,video,audio').length;
                         if (!validationTitle) validationIssues.push({level:'warning',text:validationMessage('validation-title', 'Отсутствует элемент title', 'Missing title element')});
                         else if (!(validationTitle.textContent || '').replace(/^\s+|\s+$/g, '')) validationIssues.push({level:'warning',text:validationMessage('validation-empty-title', 'Заголовок title пустой', 'Title is empty')});
@@ -431,6 +434,37 @@
                         if (!validationViewport) validationIssues.push({level:'warning',text:validationMessage('validation-viewport', 'Отсутствует meta viewport', 'Missing meta viewport')});
                         if (validationHeadings.length != 1) validationIssues.push({level:'warning',text:validationMessage('validation-h1', 'Страница должна содержать один h1', 'The page should contain one h1')});
                         for (validationIndex = 0; validationIndex < validationLinks.length; validationIndex++) if (!validationLinks[validationIndex].hasAttribute('href')) validationIssues.push({level:'warning',text:validationMessage('validation-links', 'Внутренняя ссылка без href', 'Internal link has no href')});
+                        for (validationIndex = 0; validationIndex < validationInteractiveNodes.length; validationIndex++) {
+                            var validationInteractiveNode = validationInteractiveNodes[validationIndex],
+                                validationInteractiveTag = validationInteractiveNode[tagNameProperty][toLowerCaseMethod](),
+                                validationInteractiveType = validationInteractiveNode.getAttribute('type');
+                            if (validationInteractiveTag == 'input' && validationInteractiveType == 'hidden') continue;
+                            var validationAccessibleName = (validationInteractiveNode.getAttribute('aria-label') || validationInteractiveNode.getAttribute('aria-labelledby') || validationInteractiveNode.getAttribute('title') || validationInteractiveNode[textContentProperty] || validationInteractiveNode.getAttribute('alt') || validationInteractiveNode.getAttribute('value') || '').replace(/^\s+|\s+$/g, '');
+                            if (!validationAccessibleName && validationInteractiveTag == 'a') {
+                                var validationLinkImage = validationInteractiveNode.querySelector('img[alt]');
+                                validationAccessibleName = validationLinkImage && validationLinkImage.getAttribute('alt') || ''
+                            }
+                            if (!validationAccessibleName) validationIssues.push({level:'warning',text:validationMessage('validation-accessible-name', 'Интерактивный элемент без доступного имени', 'Interactive element has no accessible name')});
+                        }
+                        for (validationIndex = 0; validationIndex < validationFormControls.length; validationIndex++) {
+                            var validationFormControl = validationFormControls[validationIndex],
+                                validationFormControlType = validationFormControl.getAttribute('type'),
+                                validationHasLabel = validationFormControl.getAttribute('aria-label') || validationFormControl.getAttribute('aria-labelledby'),
+                                validationFormControlId = validationFormControl.getAttribute('id');
+                            if (validationFormControlType == 'hidden') continue;
+                            if (!validationHasLabel && validationFormControl.parentNode && validationFormControl.parentNode[tagNameProperty] && validationFormControl.parentNode[tagNameProperty][toLowerCaseMethod]() == 'label') validationHasLabel = true;
+                            if (!validationHasLabel && validationFormControlId) {
+                                var validationLabels = validationDocument.querySelectorAll('label');
+                                for (var validationLabelIndex = 0; validationLabelIndex < validationLabels.length; validationLabelIndex++) if (validationLabels[validationLabelIndex].getAttribute('for') == validationFormControlId) { validationHasLabel = true; break }
+                            }
+                            if (!validationHasLabel) validationIssues.push({level:'warning',text:validationMessage('validation-form-label', 'Поле формы без подписи', 'Form control has no label')});
+                        }
+                        var validationPreviousHeadingLevel = 0;
+                        for (validationIndex = 0; validationIndex < validationHeadingNodes.length; validationIndex++) {
+                            var validationHeadingLevel = parseInt(validationHeadingNodes[validationIndex][tagNameProperty].charAt(1), 10);
+                            if (validationPreviousHeadingLevel && validationHeadingLevel > validationPreviousHeadingLevel + 1) validationIssues.push({level:'warning',text:validationMessage('validation-heading-order', 'Нарушена последовательность заголовков', 'Heading levels skip a step')});
+                            validationPreviousHeadingLevel = validationHeadingLevel
+                        }
                         if (validationResourceCount > 40 || String(candidateSource || '').split('\n').length > 1000) validationIssues.push({level:'warning',text:validationMessage('validation-heavy', 'Страница содержит слишком много ресурсов или строк', 'The page contains too many resources or lines')});
                     }
                     if (!validationDialog) {

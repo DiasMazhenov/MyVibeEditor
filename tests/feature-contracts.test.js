@@ -58,7 +58,11 @@ test('Page Health adds local SEO, structure and resource checks', () => {
     assert.match(editor, /validationScore/);
     assert.match(editor, /validation-missing-lang/);
     assert.match(editor, /validation-h1/);
+    assert.match(editor, /validation-accessible-name/);
+    assert.match(editor, /validation-form-label/);
+    assert.match(editor, /validation-heading-order/);
     assert.match(php, /data-validation-description/);
+    assert.match(php, /data-validation-accessible-name/);
     assert.match(php, /data-validation-heavy/);
     assert.match(php, /data-validation-score/);
 });

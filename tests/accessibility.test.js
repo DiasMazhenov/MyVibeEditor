@@ -30,3 +30,11 @@ test('context menu supports roving keyboard focus and shared theme tokens', () =
     assert.doesNotMatch(theme, /--mv-bg:/);
     assert.match(fallback, /--mv-bg:/);
 });
+
+test('Page Health exposes local accessible-name and heading checks', () => {
+    assert.match(js, /validationInteractiveNodes/);
+    assert.match(js, /validationFormControls/);
+    assert.match(js, /validation-heading-order/);
+    assert.match(js, /validation-accessible-name/);
+    assert.match(php, /data-validation-form-label/);
+});

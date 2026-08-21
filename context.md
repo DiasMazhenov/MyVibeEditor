@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.64
+
+- Page Health дополнен локальными accessibility-проверками: доступное имя для `button/a/input/select/textarea`, подпись для полей форм через `label`/ARIA и пропуски уровней заголовков.
+- Новые сообщения добавлены в `lang.ini`, проброшены через PHP-шаблон и покрыты `tests/accessibility.test.js` и `tests/feature-contracts.test.js`.
+- Обновлены README, architecture, accessibility, browser acceptance, CHANGELOG, CI, E2E и regression version markers до `0.64`.
+- Пройдены PHP/JS syntax, targeted node tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8080` — PASS. `?q=myvibe/test-page.html&rev=0.63` открыт во встроенном браузере; программных click/screenshot-команд API нет, поэтому ручное прокликивание v0.63 не объявляется визуально принятым.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. Следующий шаг — v0.65 dependency-free visual surface snapshots.
+
 ## Текущее исправление v0.63
 
 - Существующая локальная библиотека компонентов получила кнопку `Связать`: вставка остаётся отдельной копией по умолчанию, а связанная копия получает безопасный `data-myvibe-component-id`.

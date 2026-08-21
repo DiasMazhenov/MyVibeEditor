@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.63 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.64 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
