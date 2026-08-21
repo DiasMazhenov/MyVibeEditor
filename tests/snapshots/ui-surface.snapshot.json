@@ -1,0 +1,38 @@
+{
+  "version": "0.65",
+  "surfaces": {
+    "auth": true,
+    "editor": true,
+    "visual": true,
+    "source": true,
+    "previewControls": true,
+    "previewSizes": true,
+    "blockLibrary": true,
+    "siteMap": true,
+    "mobileMenu": true,
+    "pageHealth": true,
+    "styleInspector": true,
+    "commandPalette": true,
+    "timeline": true
+  },
+  "responsive": {
+    "mobileBreakpoint": true,
+    "narrowBreakpoint": true,
+    "mobilePreviewHidden": true,
+    "inspectorSafeArea": true,
+    "inspectorSingleScroll": true
+  },
+  "accessibility": {
+    "focusVisible": true,
+    "highContrast": true,
+    "nativeButtons": true,
+    "dialogSemantics": true,
+    "liveStatus": true
+  },
+  "interaction": {
+    "commandPaletteKeyboard": true,
+    "contextMenuKeyboard": true,
+    "previewPersistence": true,
+    "linkedComponents": true
+  }
+}

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.65
+
+- Добавлен dependency-free visual surface snapshot ключевых editor/auth/dialog/responsive/accessibility-контрактов.
+- Snapshot подключён к CI и явно отделён от ручной pixel-проверки во встроенном браузере.
+
 ## 0.64
 
 - Page Health дополнен проверками доступных имён интерактивных элементов, подписей полей форм и последовательности заголовков.

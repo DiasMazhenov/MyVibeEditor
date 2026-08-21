@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.65
+
+- Добавлен `tests/ui-snapshot.test.js` и эталон `tests/snapshots/ui-surface.snapshot.json`: dependency-free контракт проверяет auth/editor/source/visual surfaces, Page Health, CSS-инспектор, dialogs, mobile rules, focus/contrast и keyboard/storage seams.
+- Snapshot подключён в CI и документацию; это структурная регрессия UI, не pixel screenshot и не замена ручному прокликиванию во встроенном браузере.
+- Обновлены README, accessibility/browser acceptance, CHANGELOG, CI, E2E и regression version markers до `0.65`.
+- Пройдены PHP/JS syntax, 15 targeted node tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и полный HTTP regression против `127.0.0.1:8080` — PASS. `?q=myvibe/test-page.html&rev=0.65` нужно открыть во встроенном браузере; API не даёт программных click/screenshot-команд, поэтому визуальный manual acceptance не объявляется выполненным.
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` сохраняются вне commit. Следующий этап — после ручного браузерного приёма выбрать следующий функциональный приоритет.
+
 ## Текущее исправление v0.64
 
 - Page Health дополнен локальными accessibility-проверками: доступное имя для `button/a/input/select/textarea`, подпись для полей форм через `label`/ARIA и пропуски уровней заголовков.

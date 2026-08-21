@@ -34,6 +34,7 @@ jobs:
           node --test tests/source-map.test.js
           node --test tests/deobfuscation.test.js
           node --test tests/accessibility.test.js
+          node --test tests/ui-snapshot.test.js
           node --test tests/ui-contracts.test.js
           sh tests/ci-contract.sh
           sh security-smoke.sh
@@ -48,5 +49,5 @@ jobs:
         env:
           MYVIBEHTML_E2E_URL: ${{ secrets.MYVIBEHTML_E2E_URL }}
           MYVIBEHTML_E2E_COOKIE: ${{ secrets.MYVIBEHTML_E2E_COOKIE }}
-          MYVIBEHTML_E2E_VERSION: '0.64'
+          MYVIBEHTML_E2E_VERSION: '0.65'
         run: sh tests/e2e-authenticated.sh
