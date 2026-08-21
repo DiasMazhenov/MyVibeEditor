@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.68 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.69 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -161,15 +161,12 @@
         previewFrame = document.querySelector('#d iframe');
         if (previewControls && previewFrame && document.documentElement.id == 'd') {
             var previewButtons = previewControls.querySelectorAll('[data-preview-size]'),
-                previewPreset = previewControls.querySelector('[data-preview-preset]'),
-                previewStorageKey = 'myvibehtml:preview-preset:' + location.pathname + location.search.replace(/[?&]rev=[^&]*/, ''),
-                previewPresets = {desktop:{size:'desktop',width:null},tablet:{size:'tablet',width:768},'tablet-landscape':{size:'tablet',width:1024},mobile:{size:'mobile',width:390},'mobile-landscape':{size:'mobile',width:812}},
-                setPreviewSize = function(previewPresetName) {
-                    var preset = previewPresets[previewPresetName] || previewPresets.desktop;
-                    document.documentElement.setAttribute('data-myvibehtml-preview-size', preset.size);
-                    document.documentElement.setAttribute('data-myvibehtml-preview-preset', previewPresets[previewPresetName] ? previewPresetName : 'desktop');
-                    if (preset.width) {
-                        previewFrame.style.width = 'min(' + preset.width + 'px, calc(100% - 24px))';
+                previewStorageKey = 'myvibehtml:preview-size:' + location.pathname + location.search.replace(/[?&]rev=[^&]*/, ''),
+                setPreviewSize = function(previewSize) {
+                    previewSize = previewSize == 'tablet' || previewSize == 'mobile' ? previewSize : 'desktop';
+                    document.documentElement.setAttribute('data-myvibehtml-preview-size', previewSize);
+                    if (previewSize != 'desktop') {
+                        previewFrame.style.width = 'min(' + (previewSize == 'tablet' ? 768 : 390) + 'px, calc(100% - 24px))';
                         previewFrame.style.left = '50%';
                         previewFrame.style.right = 'auto';
                         previewFrame.style.transform = 'translateX(-50%)'
@@ -179,16 +176,14 @@
                         previewFrame.style.right = '';
                         previewFrame.style.transform = ''
                     }
-                    if (previewPreset) previewPreset.value = previewPresets[previewPresetName] ? previewPresetName : 'desktop';
-                    if (uiContracts.storageSet) uiContracts.storageSet(window, 'localStorage', previewStorageKey, previewPresets[previewPresetName] ? previewPresetName : 'desktop');
-                    for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == preset.size ? 'true' : 'false')
+                    if (uiContracts.storageSet) uiContracts.storageSet(window, 'localStorage', previewStorageKey, previewSize);
+                    for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == previewSize ? 'true' : 'false')
                 };
             for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].addEventListener('click', function() { setPreviewSize(this.getAttribute('data-preview-size')) });
-            if (previewPreset) previewPreset.addEventListener('change', function() { setPreviewSize(this.value) });
-            var initialPreviewPreset = 'desktop';
-            var storedPreviewPreset = uiContracts.storageGet ? uiContracts.storageGet(window, 'localStorage', previewStorageKey) : null;
-            if (previewPresets[storedPreviewPreset]) initialPreviewPreset = storedPreviewPreset;
-            setPreviewSize(initialPreviewPreset)
+            var initialPreviewSize = 'desktop';
+            var storedPreviewSize = uiContracts.storageGet ? uiContracts.storageGet(window, 'localStorage', previewStorageKey) : null;
+            if (storedPreviewSize == 'tablet' || storedPreviewSize == 'mobile') initialPreviewSize = storedPreviewSize;
+            setPreviewSize(initialPreviewSize)
         }
 
         var menuToggle = document.querySelector('#myvibehtml-mobile-menu-toggle'),

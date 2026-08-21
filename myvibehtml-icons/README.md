@@ -16,6 +16,7 @@
 | `device-tablet.svg` | https://icon-sets.iconify.design/tabler/device-tablet/ | MIT |
 | `device-mobile.svg` | https://icon-sets.iconify.design/tabler/device-mobile/ | MIT |
 | `layout-grid.svg` | https://icon-sets.iconify.design/tabler/layout-grid/ | MIT |
+| `map-2.svg` | https://icon-sets.iconify.design/tabler/map-2/ | MIT |
 
 Iconify API endpoints:
 
@@ -31,5 +32,6 @@ Iconify API endpoints:
 - https://api.iconify.design/tabler/device-tablet.svg
 - https://api.iconify.design/tabler/device-mobile.svg
 - https://api.iconify.design/tabler/layout-grid.svg
+- https://api.iconify.design/tabler/map-2.svg
 
 Tabler Icons распространяются по MIT License; runtime-загрузка внешнего домена не используется.

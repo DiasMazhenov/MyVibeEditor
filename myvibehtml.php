@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.68 */
+<?php /* MyVibeHTML v0.69 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -363,7 +363,7 @@ final class MyVibeHTMLConfig
         $this->templates['h'] = str_replace('</div>{mode}<ul>', '<div class="myvibehtml-preview-controls" data-preview-controls role="group" aria-label="{preview_size}"><button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button></div></div>{mode}<ul>', $this->templates['h']);
         $this->templates['h'] = str_replace(
             '<button type="button" data-preview-size="desktop" aria-pressed="true">{preview_desktop}</button><button type="button" data-preview-size="tablet" aria-pressed="false">{preview_tablet}</button><button type="button" data-preview-size="mobile" aria-pressed="false">{preview_mobile}</button><button type="button" data-block-library aria-label="{block_library}" title="{block_library}">{blocks}</button>',
-            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{components}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button><button type="button" data-site-map data-site-map-label="{site_map}" data-site-map-empty="{site_map_empty}" data-site-map-open="{site_map_open}" aria-label="{site_map}" title="{site_map}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button><select data-preview-preset aria-label="{preview_presets}" title="{preview_presets}"><option value="desktop">{preview_desktop}</option><option value="tablet">{preview_tablet}</option><option value="tablet-landscape">{preview_tablet_landscape}</option><option value="mobile">{preview_mobile}</option><option value="mobile-landscape">{preview_mobile_landscape}</option></select>',
+            '<button type="button" data-preview-size="desktop" data-preview-label="{preview_desktop}" aria-pressed="true" aria-label="{preview_desktop}" title="{preview_desktop}"><span class="myvibehtml-local-icon myvibehtml-icon-desktop" aria-hidden="true"></span></button><button type="button" data-preview-size="tablet" data-preview-label="{preview_tablet}" aria-pressed="false" aria-label="{preview_tablet}" title="{preview_tablet}"><span class="myvibehtml-local-icon myvibehtml-icon-tablet" aria-hidden="true"></span></button><button type="button" data-preview-size="mobile" data-preview-label="{preview_mobile}" aria-pressed="false" aria-label="{preview_mobile}" title="{preview_mobile}"><span class="myvibehtml-local-icon myvibehtml-icon-mobile" aria-hidden="true"></span></button><button type="button" data-block-library data-block-label="{components}" aria-label="{block_library}" title="{block_library}"><span class="myvibehtml-local-icon myvibehtml-icon-blocks" aria-hidden="true"></span></button><button type="button" data-site-map data-site-map-label="{site_map}" data-site-map-empty="{site_map_empty}" data-site-map-open="{site_map_open}" aria-label="{site_map}" title="{site_map}"><span class="myvibehtml-local-icon myvibehtml-icon-map" aria-hidden="true"></span></button>',
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
@@ -600,7 +600,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.68';
+    const VERSION = '0.69';
     private $config;
     private $request;
     private $response;

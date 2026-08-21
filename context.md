@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.69
+
+- Навигация по страницам получила отдельную локальную иконку `map-2.svg` из Tabler через Iconify; иконка больше не дублирует визуальный смысл библиотеки блоков.
+- Responsive Preview Studio упрощён до одного источника управления: три кнопки `desktop/tablet/mobile`. Удалены дублирующий `<select>`, landscape-профили, связанные language keys, CSS и JS-обработчики.
+- Ключ localStorage изменён на `myvibehtml:preview-size:<path>`; сохраняются только три поддерживаемых размера, а iframe продолжает менять ширину без перезагрузки.
+- Версия синхронно поднята до `0.69`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Следующий шаг перед коммитом: выполнить syntax/unit/security/HTTP regression и проверить отсутствие старого dropdown-контракта и наличие локальной иконки.
+
 ## Текущее исправление v0.68
 
 - P3 quality: Page Health теперь локализует остаточные сообщения (empty source, duplicate id, unsafe URL, image alt, plural summary), проверяет реальные `id` из каждого `aria-labelledby` и сообщает отсутствующие ссылки.

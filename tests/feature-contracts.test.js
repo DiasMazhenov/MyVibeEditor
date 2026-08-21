@@ -44,13 +44,13 @@ test('Page navigation and Responsive Preview Studio reuse shell controls', () =>
     assert.match(shell, /data-site-map/);
     assert.match(shell, /siteMapButton/);
     assert.match(shell, /new URL\(href, window\.location\.href\)/);
-    assert.match(shell, /data-preview-preset/);
-    assert.match(shell, /tablet-landscape/);
+    assert.doesNotMatch(shell, /data-preview-preset|tablet-landscape|mobile-landscape/);
     assert.match(shell, /previewStorageKey/);
     assert.match(shell, /storageSet\(window, 'localStorage', previewStorageKey/);
     assert.match(shell, /focusTrap/);
     assert.match(php, /data-site-map/);
-    assert.match(php, /preview_tablet_landscape/);
+    assert.match(php, /myvibehtml-icon-map/);
+    assert.doesNotMatch(php, /data-preview-preset|preview_presets|preview_tablet_landscape/);
 });
 
 test('Page Health adds local SEO, structure and resource checks', () => {
