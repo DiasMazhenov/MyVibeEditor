@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.66
+
+- source-map теперь различает диапазон opening-tag и полный диапазон элемента; структурные визуальные операции используют полный диапазон и завершаются без изменения HTML при неоднозначном сопоставлении;
+- сохранение отклоняет повреждённый Base64 до backup/записи с HTTP 422;
+- убрана устаревшая переменная авторизации, добавлены серверный TTL сессии и безопасный allowlist расширений; PHP-редактирование требует явного `allow_php=1`;
+- для production добавлены HSTS, HTTPS-only режим вне localhost и явная поддержка доверенного reverse proxy через `MYVIBEHTML_TRUST_PROXY=1`;
+- добавлены security regression tests и обязательный CI-контракт для новых P1-проверок.
+
 ## 0.65
 
 - Добавлен dependency-free visual surface snapshot ключевых editor/auth/dialog/responsive/accessibility-контрактов.

@@ -27,7 +27,7 @@ CLI-команда не показывает web `DOCUMENT_ROOT`; это нор�
 
 ```sh
 apachectl -t
-curl -I https://example.test/myvibehtml.js?v=0.27
+curl -I https://example.test/myvibehtml.js?v=0.66
 curl -I https://example.test/index.html
 ```
 
@@ -46,11 +46,13 @@ curl -I https://example.test/index.html
 
 ```sh
 nginx -t
-curl -I https://example.test/myvibehtml.js?v=0.27
+curl -I https://example.test/myvibehtml.js?v=0.66
 curl -I https://example.test/myvibehtml.php
 ```
 
 Если PHP-FPM сообщает о `DOCUMENT_ROOT`, сначала проверьте `root`, `SCRIPT_FILENAME` и фактический путь `myvibehtml.php`. Не исправляйте это сменой корня на каталог плагина: так ломается доступ к редактируемым HTML-файлам.
+
+В production редактор принимает только HTTPS-запросы. Если TLS завершается на reverse proxy, передавайте `X-Forwarded-Proto: https` и явно задайте `MYVIBEHTML_TRUST_PROXY=1`; не включайте этот режим, если proxy не принадлежит вашей инфраструктуре. При HTTPS редактор добавляет HSTS и флаг `Secure` для серверных cookies.
 
 ## Локальный PHP-сервер
 

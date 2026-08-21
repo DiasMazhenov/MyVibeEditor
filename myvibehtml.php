@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.65 */
+<?php /* MyVibeHTML v0.66 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -23,6 +23,7 @@ define('REQUEST_SERVER_PROTOCOL', 'server_protocol');
 define('SETTING_LANGUAGE', 'lang');
 define('SETTING_PASSWORD', 'password');
 define('SETTING_SESSION', 'session');
+define('SETTING_SESSION_EXPIRES_AT', 'session_expires_at');
 define('SETTING_PASSWORD_COMPLEXITY', 'pass_complexity');
 define('SETTING_PASSWORD_COMPLEXITY_JS', 'pass_complexity_js');
 define('SETTING_AUTH_TIME', 'auth_time');
@@ -37,6 +38,7 @@ define('SETTING_CODE_UNDO_LIMIT', 'code_undo_limit');
 define('SETTING_CODE_HIGHLIGHTING', 'code_highlighting');
 define('SETTING_VISUAL_EXTENSIONS', 'visual_ext');
 define('SETTING_ALLOWED_EXTENSIONS', 'allowed_ext');
+define('SETTING_ALLOW_PHP', 'allow_php');
 define('SETTING_EDITABLE_EXTENSIONS', 'editable_ext');
 define('SETTING_EDITABLE_ATTRIBUTES', 'editable_attributes');
 define('SETTING_DEFAULT_FILE', 'default_file');
@@ -228,10 +230,12 @@ final class MyVibeHTMLResponse
     private $headers;
     private $cookies;
     private $body;
+    private $secureTransport;
 
-    public function __construct($construct1)
+    public function __construct($construct1, $construct2 = false)
     {
         $this->protocol = $construct1;
+        $this->secureTransport = (bool)$construct2;
         $this->addHeader('Content-type:text/html;charset=utf-8');
         $this->addHeader('X-Content-Type-Options:nosniff');
         $this->addHeader('X-Frame-Options:SAMEORIGIN');
@@ -240,6 +244,7 @@ final class MyVibeHTMLResponse
         $this->addHeader('X-Permitted-Cross-Domain-Policies:none');
         $this->addHeader('Cache-Control:no-store, max-age=0');
         $this->addHeader("Content-Security-Policy-Report-Only:default-src 'self';base-uri 'self';connect-src 'self';font-src 'self' data:;img-src 'self' data: blob:;object-src 'none';script-src 'self';style-src 'self';frame-src 'self' data: blob:;form-action 'self';frame-ancestors 'self'");
+        if ($this->secureTransport) $this->addHeader('Strict-Transport-Security:max-age=31536000; includeSubDomains');
     }
 
     public function addHeader($addheader1)
@@ -284,7 +289,7 @@ final class MyVibeHTMLResponse
         //if (__LINE__ != 1) exit;
         if (isset($this->headers)) foreach ($this->headers as $send1) header($send1);
         if (isset($this->cookies)) foreach ($this->cookies as $send2) {
-            $send3 = $send2['g'] || (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' && $_SERVER['HTTPS'] !== '');
+            $send3 = $send2['g'] || $this->secureTransport;
             $send4 = $send2['e'] ? $send2['e'] : '/';
             setcookie($send2['a'], $send2['b'], ['expires' => $send2['d'], 'path' => $send4, 'domain' => $send2['f'] ? $send2['f'] : '', 'secure' => (bool)$send3, 'httponly' => (bool)$send2['c'], 'samesite' => 'Lax']);
         }
@@ -595,7 +600,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.65';
+    const VERSION = '0.66';
     private $config;
     private $request;
     private $response;
@@ -758,8 +763,19 @@ final class MyVibeHTMLController
     {
         $authenticate1 = $this->request->getCookie(COOKIE_PREFIX . SETTING_SESSION);
         $storedSession = $this->config->getSetting(SETTING_SESSION);
-        if (is_string($authenticate1) && $authenticate1 !== '' && is_string($storedSession) && $storedSession !== '' && hash_equals($storedSession, $authenticate1)) $this->dispatch(); else {
-            $authenticate2 = time();
+        $authenticate2 = time();
+        $storedSessionExpiresAt = (int)$this->config->getSetting(SETTING_SESSION_EXPIRES_AT);
+        $sessionMatches = is_string($authenticate1) && $authenticate1 !== '' && is_string($storedSession) && $storedSession !== '' && hash_equals($storedSession, $authenticate1);
+        $legacySessionExpiresAt = (int)$this->config->getSetting(SETTING_AUTH_TIME) + max(1, (int)$this->config->getSetting(SETTING_AUTH_SESSION_RESET)) * 60;
+        $sessionValid = $sessionMatches && (($storedSessionExpiresAt > $authenticate2) || (!$storedSessionExpiresAt && $legacySessionExpiresAt > $authenticate2));
+        if ($sessionValid) {
+            if (!$storedSessionExpiresAt) $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, $legacySessionExpiresAt);
+            $this->dispatch();
+        } else {
+            if ($sessionMatches) {
+                $this->config->setSetting(SETTING_SESSION, '');
+                $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, '');
+            }
             $authenticate3 = myvibehtml_unserialize_array(urldecode($this->config->getSetting(SETTING_AUTH_ERROR_LIST)));
             $authenticate4 = $this->config->getSetting(SETTING_AUTH_ERROR_LIMIT);
             $authenticate5 = $this->request->getServer(REQUEST_REMOTE_ADDR);
@@ -777,7 +793,6 @@ final class MyVibeHTMLController
                                 unset($authenticate3[$authenticate5]);
                                 $this->config->setSetting(SETTING_AUTH_ERROR_LIST, urlencode(serialize($authenticate3)));
                             }
-                            if ($authenticate9 < 5) $this->config->setSetting(SETTING_PASSWORD_COMPLEXITY_JS, 15000); else$this->config->setSetting(SETTING_PASSWORD_COMPLEXITY_JS, $authenticate9 - 1);
                             $this->config->setSetting(SETTING_AUTH_TIME, $authenticate2);
                             $this->config->setSetting(SETTING_CACHE, '');
                         } else {
@@ -824,9 +839,13 @@ final class MyVibeHTMLController
         if ($sitePrefix !== '' && stripos($dispatch1, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(SETTING_DEFAULT_FILE), 307);
         if ($this->request->getServer(REQUEST_AJAX_HEADER)) {
             if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($dispatch5 = $this->request->getPost('save')) && $this->isValidPostToken()) {
-                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
                 $dispatch5 = myvibehtml_base64_decode($dispatch5);
-                if ($dispatch2 && $this->isAllowedExtension(strtolower(substr($dispatch2, strripos($dispatch2, '.') + 1)))) {
+                if ($dispatch5 === false) {
+                    $this->response->setStatus(422, 'Unprocessable Entity');
+                } else {
+                    $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                }
+                if ($dispatch5 !== false && $dispatch2 && $this->isAllowedExtension(strtolower(substr($dispatch2, strripos($dispatch2, '.') + 1)))) {
                     if ($this->createBackup($dispatch1)) {
                         if ($this->writeFileAtomically($dispatch2, $dispatch5)) {
                             $this->config->setSetting(SETTING_CACHE, '');
@@ -838,7 +857,7 @@ final class MyVibeHTMLController
                         $this->response->addHeader('X-b:1');
                         $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
-                } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
+                } else if ($dispatch5 !== false) $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
             } else if ($dispatch7 = $this->request->getPost('open')) {
                 $dispatch7 = rawurldecode($dispatch7);
                 $this->response->setBody($this->renderFileList($dispatch7));
@@ -1285,13 +1304,16 @@ final class MyVibeHTMLController
     private function createSession()
     {
         $createsession1 = bin2hex(random_bytes(32));
+        $createsession2 = time() + max(1, (int)$this->config->getSetting(SETTING_AUTH_SESSION_RESET)) * 60;
         $this->config->setSetting(SETTING_SESSION, $createsession1);
+        $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, $createsession2);
         $this->response->setCookie(COOKIE_PREFIX . SETTING_SESSION, $createsession1, time() + 60 * $this->config->getSetting(SETTING_AUTH_SESSION_RESET), $this->config->getSiteUrlBase(), false, false, true);
     }
 
     private function destroySession()
     {
         $this->config->setSetting(SETTING_SESSION, '');
+        $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, '');
         $this->response->clearCookie(COOKIE_PREFIX . SETTING_SESSION, $this->config->getSiteUrlBase());
     }
 
@@ -1323,8 +1345,13 @@ final class MyVibeHTMLController
 
     private function isAllowedExtension($isallowedextension1)
     {
-        $isallowedextension2 = $this->config->getSetting(SETTING_ALLOWED_EXTENSIONS);
-        if (!$isallowedextension2 || preg_match('~(?:^|,\s*)' . $isallowedextension1 . '(?:\s*,|$)~i', $isallowedextension2)) return true;
+        $isallowedextension1 = strtolower(trim((string)$isallowedextension1));
+        if (!preg_match('~^[a-z0-9]{1,10}$~', $isallowedextension1)) return false;
+        if ($isallowedextension1 === 'php' && $this->config->getSetting(SETTING_ALLOW_PHP) !== '1') return false;
+        $isallowedextension2 = trim((string)$this->config->getSetting(SETTING_ALLOWED_EXTENSIONS));
+        if ($isallowedextension2 === '') $isallowedextension2 = 'html,htm,xhtml,css,js,json,xml,svg';
+        if ($isallowedextension1 === 'php' && $this->config->getSetting(SETTING_ALLOW_PHP) === '1') $isallowedextension2 .= ',php';
+        return (bool)preg_match('~(?:^|,\s*)' . preg_quote($isallowedextension1, '~') . '(?:\s*,|$)~i', $isallowedextension2);
     }
 
     private function normalizeManagerName($managerName)
@@ -1911,7 +1938,17 @@ final class MyVibeHTMLController
 }
 
 $request = new MyVibeHTMLRequest();
-$response = new MyVibeHTMLResponse($request->getServer(REQUEST_SERVER_PROTOCOL));
+$secureTransport = isset($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && $_SERVER['HTTPS'] !== '';
+if (!$secureTransport && getenv('MYVIBEHTML_TRUST_PROXY') === '1') $secureTransport = strtolower(trim((string)$request->getServer('http_x_forwarded_proto'))) === 'https';
+$serverName = strtolower(trim((string)$request->getServer(REQUEST_SERVER_NAME)));
+$localRequest = $serverName === '' || $serverName === 'localhost' || $serverName === '127.0.0.1' || $serverName === '::1';
+$response = new MyVibeHTMLResponse($request->getServer(REQUEST_SERVER_PROTOCOL), $secureTransport);
+if (!$secureTransport && !$localRequest) {
+    $response->setStatus(400, 'Bad Request');
+    $response->setBody('HTTPS is required outside local development.');
+    $response->send();
+    exit;
+}
 $config = new MyVibeHTMLConfig(dirname($request->getServer(REQUEST_SCRIPT_FILENAME)) . '/', $request->getServer(REQUEST_DOCUMENT_ROOT));
 $controller = new MyVibeHTMLController($request, $response, $config);
 try {

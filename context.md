@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.66
+
+- По аудиту Terra усилен source-map: `openingRangeFor()` отвечает только за opening-tag, `elementRangeFor()` возвращает полный диапазон узла, парные диапазоны строятся стеком; при неоднозначности структурная операция завершается безопасно и не переписывает HTML.
+- Save отклоняет повреждённый Base64 до backup и записи с HTTP 422; успешная авторизация больше не использует `$authenticate9`, сессии получают серверный `session_expires_at` и очищаются после TTL.
+- Пустой `allowed_ext` теперь означает безопасный allowlist HTML/CSS/JS и смежных текстовых форматов; PHP разрешается только при явном `allow_php=1`.
+- Cookie `Secure` и HSTS вычисляются единым transport-флагом; production вне localhost требует HTTPS, а reverse proxy учитывается только при `MYVIBEHTML_TRUST_PROXY=1`.
+- Добавлен `tests/security-regression.test.js`, обновлены `security-smoke.sh`, CI и HTTP regression. Проверки v0.66: PHP/JS syntax, 19 Node tests, `tests/ci-contract.sh`, `security-smoke.sh`, `git diff --check` и `MYVIBEHTML_BASE_URL=http://127.0.0.1:8080 sh tests/regression.sh` — PASS.
+- Версия runtime, cache-busting и документация подняты до `0.66`. Встроенный браузер пока открыт на `rev=0.65`; live visual acceptance v0.66 нужно выполнить после перезагрузки URL. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Следующий этап: P2 — видимые ошибки localStorage/quota, общий focus-trap для модальных окон и усиление authenticated E2E.
+
 ## Текущее исправление v0.65
 
 - Добавлен `tests/ui-snapshot.test.js` и эталон `tests/snapshots/ui-surface.snapshot.json`: dependency-free контракт проверяет auth/editor/source/visual surfaces, Page Health, CSS-инспектор, dialogs, mobile rules, focus/contrast и keyboard/storage seams.

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.65 */
+/* MyVibeHTML v0.66 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -1310,10 +1310,7 @@
                             styleInspectorTarget = null
                         },
                         getStyleSourceRange = function(initializeVisualEditorArgument2) {
-                            if (sourceMapState) {
-                                var sourceMapRange = sourceMapState.rangeFor(initializeVisualEditorArgument2);
-                                if (sourceMapRange) return sourceMapRange;
-                            }
+                            if (sourceMapState) return sourceMapState.elementRangeFor(initializeVisualEditorArgument2);
                             var visualEditorValue34 = runtimeValue93(initializeVisualEditorArgument2),
                                 visualEditorValue35 = runtimeValue94(initializeVisualEditorArgument2);
                             if (typeof visualEditorValue34 == 'number' && serializedSource[visualEditorValue34] != '<') {
@@ -2358,7 +2355,7 @@
                             if (visualEditorValue145) {
                                 var visualEditorValue146 = runtimeValue93(visualEditorValue145),
                                     visualEditorValue147 = runtimeValue94(visualEditorValue145);
-                                if (visualEditorValue146 && visualEditorValue147) {
+                                if (typeof visualEditorValue146 == 'number' && typeof visualEditorValue147 == 'number') {
                                     var visualEditorValue148 = visualEditorValue145[parentNodeProperty];
                                     serializedSource = serializedSource[sliceMethod](0, visualEditorValue146) + serializedSource[sliceMethod](visualEditorValue147);
                                     runtimeValue83();
@@ -2369,34 +2366,12 @@
                             }
                         },
                         runtimeValue93 = function(initializeVisualEditorArgument21) {
-                            var visualEditorValue149 = initializeVisualEditorArgument21[querySelectorAllMethod]('[' + stringAttribute + ']');
-                            if (visualEditorValue149[lengthProperty]) {
-                                var visualEditorValue150 = runtimeValue102(visualEditorValue149[0]),
-                                    visualEditorValue151 = runtimeValue103('>' + visualEditorValue150 + '<');
-                                if (visualEditorValue151[lengthProperty] - 1) {
-                                    var visualEditorValue152 = runtimeValue122(visualEditorValue150),
-                                        visualEditorValue153 = visualEditorValue152[indexOfMethod](visualEditorValue149[0]);
-                                    if (visualEditorValue151[lengthProperty] == (visualEditorValue152[lengthProperty] + 1) && visualEditorValue153 !== -1) return runtimeValue120(visualEditorValue151[sliceMethod](0, visualEditorValue153 + 1)[joinMethod]('>' + visualEditorValue150 + '<'), runtimeValue104(initializeVisualEditorArgument21)[splitMethod]('>' + visualEditorValue150 + '<')[0][replaceMethod](new RegExp('<edit[\\s\\S]+?' + stringAttribute + '="[\\s\\S]+', 'gi'), ''))
-                                }
-                            } else if (initializeVisualEditorArgument21[tagNameProperty][toLowerCaseMethod]() == 'edit' && initializeVisualEditorArgument21[getAttributeMethod](stringAttribute)) return runtimeValue96(initializeVisualEditorArgument21);
-                            else {
-                                if (initializeVisualEditorArgument21[querySelectorMethod](imageTagName)) return runtimeValue98(initializeVisualEditorArgument21);
-                                else if (initializeVisualEditorArgument21[querySelectorMethod](runtimeValue71)) return runtimeValue100(initializeVisualEditorArgument21)
-                            }
+                            var sourceElementRange = sourceMapState && sourceMapState.elementRangeFor(initializeVisualEditorArgument21);
+                            return sourceElementRange ? sourceElementRange[0] : null
                         },
                         runtimeValue94 = function(initializeVisualEditorArgument22) {
-                            var visualEditorValue154 = initializeVisualEditorArgument22[nextElementSiblingProperty];
-                            if (visualEditorValue154) {
-                                var visualEditorValue155 = visualEditorValue154[tagNameProperty][toLowerCaseMethod]();
-                                if (visualEditorValue155 != scriptTagName && visualEditorValue155 != 'style') {
-                                    if (visualEditorValue155 == 'edit' && visualEditorValue154[getAttributeMethod](stringAttribute)) return runtimeValue96(visualEditorValue154);
-                                    else {
-                                        var visualEditorValue156 = runtimeValue93(visualEditorValue154);
-                                        if (visualEditorValue156) return visualEditorValue156;
-                                        else return runtimeValue95(initializeVisualEditorArgument22)
-                                    }
-                                }
-                            } else return runtimeValue95(initializeVisualEditorArgument22)
+                            var sourceElementRange = sourceMapState && sourceMapState.elementRangeFor(initializeVisualEditorArgument22);
+                            return sourceElementRange ? sourceElementRange[1] : null
                         },
                         runtimeValue95 = function(initializeVisualEditorArgument23) {
                             var visualEditorValue157 = initializeVisualEditorArgument23[querySelectorAllMethod]('[' + stringAttribute + ']');
@@ -3366,7 +3341,7 @@
                         if (visualEditorValue364) {
                             var visualEditorValue365 = runtimeValue93(visualEditorValue364),
                                 visualEditorValue366 = runtimeValue94(visualEditorValue364);
-                            if (visualEditorValue365 && visualEditorValue366) {
+                            if (typeof visualEditorValue365 == 'number' && typeof visualEditorValue366 == 'number') {
                                 serializedSource = serializedSource[sliceMethod](0, visualEditorValue365) + '<fo' + 'cus>' + serializedSource[sliceMethod](visualEditorValue365, visualEditorValue366) + '</fo' + 'cus>' + serializedSource[sliceMethod](visualEditorValue366);
                                 visualEditorValue363 = runtimeValue79()
                             }

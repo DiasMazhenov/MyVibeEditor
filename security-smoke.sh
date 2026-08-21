@@ -14,6 +14,14 @@ if rg -n -S 'textolite\.ru|withCredentials\s*=|buildServiceUrl|install=|activate
 fi
 
 rg -q 'Content-Security-Policy-Report-Only:' myvibehtml.php
+rg -q 'Strict-Transport-Security:max-age=31536000' myvibehtml.php
+rg -q 'MYVIBEHTML_TRUST_PROXY' myvibehtml.php
+if rg -q '\$authenticate9\b' myvibehtml.php; then
+    echo "security-smoke: obsolete authentication variable is still active" >&2
+    exit 1
+fi
+rg -q 'SETTING_SESSION_EXPIRES_AT' myvibehtml.php
+rg -q 'SETTING_ALLOW_PHP' myvibehtml.php
 rg -q 'X-Permitted-Cross-Domain-Policies:none' myvibehtml.php
 rg -q 'myvibehtml_atomic_write' myvibehtml.php
 rg -q 'myvibehtml_unserialize_array' myvibehtml.php
