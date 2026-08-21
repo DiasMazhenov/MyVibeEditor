@@ -76,6 +76,18 @@ test('Page navigation and Responsive Preview Studio reuse shell controls', () =>
     assert.doesNotMatch(php, /data-preview-preset|preview_presets|preview_tablet_landscape/);
 });
 
+test('Project dashboard reuses existing panel actions and stays mobile-accessible', () => {
+    assert.match(php, /data-dashboard/);
+    assert.match(php, /data-dashboard-title="\{dashboard_title\}"/);
+    assert.match(php, /data-mobile-target="\[data-dashboard\]">\{dashboard\}/);
+    assert.match(php, /myvibehtml-icon-dashboard/);
+    assert.match(shell, /myvibehtml-dashboard/);
+    assert.match(shell, /collectStats = function/);
+    assert.match(shell, /data-dashboard-action/);
+    assert.match(shell, /focusTrap/);
+    assert.match(fallback, /#myvibehtml-dashboard\[hidden\]\{display:none!important\}/);
+});
+
 test('Page Health adds local SEO, structure and resource checks', () => {
     assert.match(editor, /validationDescription/);
     assert.match(editor, /validationResourceCount/);

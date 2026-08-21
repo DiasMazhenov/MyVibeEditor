@@ -1,6 +1,6 @@
-# Архитектура v0.75
+# Архитектура v0.76
 
-v0.75 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
+v0.76 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers и ограниченный CSP-report endpoint;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -8,12 +8,14 @@ v0.75 сохраняет безопасные модульные границы 
 - `myvibehtml-ui-contracts.js` — независимые browser transport/UI contracts, сейчас генератор CSRF-токенов;
 - `myvibehtml-transport.js` — cookies, совместимый SHA-1/Base64 слой и AJAX-транспорт; модуль сохраняет существующий протокол без доступа к editor closure;
 - `myvibehtml-auth.js` — отдельный DOM/AJAX-flow авторизации, загружается только на auth-странице после transport;
-- `myvibehtml-shell-controls.js` — изолированные навигация по внутренним ссылкам, command palette, Responsive Preview Studio и mobile menu, работающие только через публичные DOM-контролы панели;
+- `myvibehtml-shell-controls.js` — изолированные Dashboard, навигация по внутренним ссылкам, command palette, Responsive Preview Studio и mobile menu, работающие только через публичные DOM-контролы панели;
 - `myvibehtml.js` — оркестрация visual/source editor, files, settings и общей локальной timeline-истории без auth-flow;
 - `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens и geometry storage-error status объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, module-boundary, security, regression, CI contract и optional authenticated E2E.
 
 ## История изменений
+
+Dashboard v0.76 строится из текущего DOM файловой панели: он показывает текущий файл, количество файлов/папок и базовые типы содержимого, статус черновика и быстрые переходы в существующие «Файлы», «Настройки», Page Health и preview. Серверный API и отдельное хранилище для этого слоя не добавляются.
 
 `writeSourceDraft()` — единая точка фиксации draft после visual/source-операций. Она сохраняет текущий draft и добавляет снимок в `myvibehtml:timeline:<file>` в localStorage. В текстовом редакторе `sourceHistoryOpenTimeline()` показывает последние 40 снимков и восстанавливает выбранный source через существующий renderer, поэтому новая модель не дублирует Undo/Redo и не меняет серверный протокол.
 

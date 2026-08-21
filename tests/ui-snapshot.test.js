@@ -22,6 +22,7 @@ const actual = {
         previewSizes: has(php, /data-preview-size="desktop"/) && has(php, /data-preview-size="tablet"/) && has(php, /data-preview-size="mobile"/),
         blockLibrary: has(php, /data-block-library/),
         siteMap: has(php, /data-site-map/),
+        dashboard: has(php, /data-dashboard/) && has(shell, /myvibehtml-dashboard/),
         mobileMenu: has(php, /id="myvibehtml-mobile-menu-toggle"/) && has(php, /id="myvibehtml-mobile-menu"/),
         pageHealth: has(php, /data-page-validate/) && has(js, /myvibehtml-validation-dialog/),
         styleInspector: has(js, /myvibehtml-style-inspector/),

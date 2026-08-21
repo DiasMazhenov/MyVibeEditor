@@ -1,5 +1,5 @@
 {
-  "version": "0.75",
+  "version": "0.76",
   "surfaces": {
     "auth": true,
     "editor": true,
@@ -9,6 +9,7 @@
     "previewSizes": true,
     "blockLibrary": true,
     "siteMap": true,
+    "dashboard": true,
     "mobileMenu": true,
     "pageHealth": true,
     "styleInspector": true,

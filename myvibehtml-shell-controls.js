@@ -1,6 +1,141 @@
-/* MyVibeHTML v0.75 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.76 shell controls: dashboard, page navigator, command palette and responsive studio */
 (function() {
     'use strict';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var panel = document.querySelector('#e'), dashboardButton, dashboard = null, dashboardBody = null, dashboardFocusCleanup = null;
+        if (!panel) return;
+        dashboardButton = panel.querySelector('[data-dashboard]');
+        if (!dashboardButton) return;
+
+        var text = function(attribute, fallback) {
+                return dashboardButton.getAttribute('data-dashboard-' + attribute) || fallback
+            },
+            dispatch = function(element) {
+                if (!element) return;
+                if (element.tagName == 'A') element.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, view:window}));
+                else if (element.click) element.click()
+            },
+            currentFile = function() {
+                var match = /[?&]q=([^&]+)/.exec(window.location.search), value = match && match[1];
+                if (value) {
+                    try { return decodeURIComponent(value.replace(/\+/g, ' ')) } catch (error) { return value }
+                }
+                return document.title.replace(/\s+-\s+MyVibeHTML.*$/, '')
+            },
+            collectStats = function() {
+                var links = panel.querySelectorAll('#f a[data-cy]'), stats = {files:0, folders:0, html:0, css:0, js:0, media:0}, index, row, rowClass, name;
+                for (index = 0; index < links.length; index++) {
+                    row = links[index].parentNode && links[index].parentNode.parentNode;
+                    rowClass = row && String(row.className || '');
+                    if (rowClass.indexOf('v') == -1) { stats.folders++; continue }
+                    stats.files++;
+                    name = String(links[index].textContent || links[index].getAttribute('data-cy') || '').toLowerCase();
+                    if (/\.(html?|xhtml)(?:$|\?)/.test(name)) stats.html++;
+                    else if (/\.css(?:$|\?)/.test(name)) stats.css++;
+                    else if (/\.(?:js|mjs|cjs)(?:$|\?)/.test(name)) stats.js++;
+                    else if (/\.(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)(?:$|\?)/.test(name)) stats.media++
+                }
+                return stats
+            },
+            addCard = function(container, label, value) {
+                var card = document.createElement('div'), cardLabel = document.createElement('span'), cardValue = document.createElement('strong');
+                card.className = 'myvibehtml-dashboard-card';
+                cardLabel.textContent = label;
+                cardValue.textContent = value;
+                card.appendChild(cardLabel);
+                card.appendChild(cardValue);
+                container.appendChild(card)
+            },
+            close = function() {
+                if (!dashboard) return;
+                dashboard.hidden = true;
+                dashboard.setAttribute('aria-hidden', 'true');
+                if (dashboardFocusCleanup) dashboardFocusCleanup(), dashboardFocusCleanup = null;
+                dashboardButton.focus()
+            },
+            openTarget = function(selector) {
+                var target = panel.querySelector(selector);
+                if (target) dispatch(target);
+                close()
+            },
+            render = function() {
+                if (!dashboardBody) return;
+                dashboardBody.textContent = '';
+                var stats = collectStats(), summary = document.createElement('p'), summaryLabel = document.createElement('span'), summaryValue = document.createElement('strong'), cards = document.createElement('div'), status = document.createElement('p'), actions = document.createElement('div'), filesButton = document.createElement('button'), settingsButton = document.createElement('button'), checkButton = document.createElement('button'), previewButton = document.createElement('button');
+                summary.className = 'myvibehtml-dashboard-current';
+                summaryLabel.textContent = text('current-file', 'Current file');
+                summaryValue.textContent = currentFile();
+                summary.appendChild(summaryLabel);
+                summary.appendChild(summaryValue);
+                dashboardBody.appendChild(summary);
+                cards.className = 'myvibehtml-dashboard-grid';
+                addCard(cards, text('files', 'Files'), stats.files);
+                addCard(cards, text('folders', 'Folders'), stats.folders);
+                addCard(cards, text('html', 'HTML'), stats.html);
+                addCard(cards, text('css', 'CSS'), stats.css);
+                addCard(cards, text('js', 'JavaScript'), stats.js);
+                addCard(cards, text('media', 'Media'), stats.media);
+                dashboardBody.appendChild(cards);
+                status.className = 'myvibehtml-dashboard-status';
+                status.setAttribute('aria-live', 'polite');
+                status.textContent = stats.files ? text('draft', 'Draft status') + ': ' + ((panel.querySelector('[data-source-draft-status]') || {}).textContent || text('no-draft', 'No unsaved changes')).replace(/^\s+|\s+$/g, '') : text('empty', 'Statistics appear after files are loaded');
+                dashboardBody.appendChild(status);
+                actions.className = 'myvibehtml-dashboard-actions';
+                filesButton.type = settingsButton.type = checkButton.type = previewButton.type = 'button';
+                filesButton.setAttribute('data-dashboard-action', 'files');
+                settingsButton.setAttribute('data-dashboard-action', 'settings');
+                checkButton.setAttribute('data-dashboard-action', 'check');
+                previewButton.setAttribute('data-dashboard-action', 'preview');
+                filesButton.textContent = text('open-files', 'Open files');
+                settingsButton.textContent = text('open-settings', 'Open settings');
+                checkButton.textContent = text('check', 'Check page');
+                previewButton.textContent = text('preview', 'Open site');
+                actions.appendChild(filesButton);
+                actions.appendChild(settingsButton);
+                actions.appendChild(checkButton);
+                actions.appendChild(previewButton);
+                dashboardBody.appendChild(actions)
+            },
+            open = function() {
+                if (!dashboard) {
+                    dashboard = document.createElement('aside');
+                    dashboard.id = 'myvibehtml-dashboard';
+                    dashboard.setAttribute('role', 'dialog');
+                    dashboard.setAttribute('aria-modal', 'true');
+                    dashboard.setAttribute('aria-hidden', 'true');
+                    var header = document.createElement('div'), title = document.createElement('h2'), closeButton = document.createElement('button');
+                    header.className = 'myvibehtml-dashboard-header';
+                    title.textContent = text('title', 'Project dashboard');
+                    closeButton.type = 'button';
+                    closeButton.setAttribute('aria-label', (panel.querySelector('[data-validation-close]') || {}).textContent || 'Close');
+                    closeButton.textContent = '×';
+                    closeButton.addEventListener('click', close);
+                    header.appendChild(title);
+                    header.appendChild(closeButton);
+                    dashboard.appendChild(header);
+                    dashboardBody = document.createElement('div');
+                    dashboard.appendChild(dashboardBody);
+                    dashboard.addEventListener('click', function(event) {
+                        var action = event.target.getAttribute && event.target.getAttribute('data-dashboard-action');
+                        if (event.target == dashboard) close();
+                        else if (action == 'files') openTarget('div>ol+ul>li:first-child>a');
+                        else if (action == 'settings') openTarget('div>ol+ul>li+li>a');
+                        else if (action == 'check') openTarget('[data-page-validate]');
+                        else if (action == 'preview') openTarget('#myvibehtml-site-preview')
+                    });
+                    document.body.appendChild(dashboard)
+                }
+                render();
+                dashboard.hidden = false;
+                dashboard.setAttribute('aria-hidden', 'false');
+                if (dashboardFocusCleanup) dashboardFocusCleanup();
+                dashboardFocusCleanup = window.MyVibeHTMLUIContracts && window.MyVibeHTMLUIContracts.focusTrap ? window.MyVibeHTMLUIContracts.focusTrap(dashboard) : null;
+                dashboard.querySelector('button').focus()
+            };
+        dashboardButton.addEventListener('click', open);
+        document.addEventListener('keydown', function(event) { if (event.key == 'Escape' && dashboard && !dashboard.hidden) close() })
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         var panel = document.querySelector('#e'),
@@ -18,7 +153,7 @@
                 return source && source.getAttribute('data-' + attribute) || fallback
             },
             getLabel = function(element, fallback) {
-                return element && (element.getAttribute('data-preview-label') || element.getAttribute('data-block-label') || element.getAttribute('data-site-map-label') || element.textContent.replace(/^\s+|\s+$/g, '')) || fallback
+                return element && (element.getAttribute('data-preview-label') || element.getAttribute('data-block-label') || element.getAttribute('data-site-map-label') || element.getAttribute('data-dashboard-label') || element.textContent.replace(/^\s+|\s+$/g, '')) || fallback
             },
             dispatch = function(element) {
                 if (!element) return;
@@ -39,6 +174,7 @@
                     previewButtons = panel.querySelectorAll('[data-preview-size]'),
                     blockButton = panel.querySelector('[data-block-library]'),
                     siteMapButton = panel.querySelector('[data-site-map]'),
+                    dashboardButton = panel.querySelector('[data-dashboard]'),
                     index;
                 if (modes[0]) addCommand(list, getLabel(modes[0], 'HTML'), 'Ctrl/⌘+1', function() { dispatch(modes[0]) });
                 if (modes[1]) addCommand(list, getLabel(modes[1], 'Text'), 'Ctrl/⌘+2', function() { dispatch(modes[1]) });
@@ -50,6 +186,7 @@
                 if (redoButton) addCommand(list, getLabel(redoButton, 'Redo'), 'Ctrl/⌘+Y', function() { redoButton.click() });
                 if (blockButton) addCommand(list, getLabel(blockButton, 'Blocks'), '', function() { blockButton.click() });
                 if (siteMapButton) addCommand(list, getLabel(siteMapButton, 'Page navigation'), '', function() { siteMapButton.click() });
+                if (dashboardButton) addCommand(list, getLabel(dashboardButton, 'Project dashboard'), '', function() { dashboardButton.click() });
                 for (index = 0; index < previewButtons.length; index++) (function(previewButton) {
                     addCommand(list, getLabel(previewButton, previewButton.getAttribute('data-preview-size')), '', function() { previewButton.click() })
                 })(previewButtons[index]);

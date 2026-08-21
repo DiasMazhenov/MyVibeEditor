@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.76
+
+- Добавлен Dashboard проекта на существующем shell-слое: текущий файл, счётчики файлов/папок и HTML/CSS/JS/медиа, статус черновика и быстрые действия в «Файлы», «Настройки», Page Health и preview.
+- Dashboard доступен через локальную иконку `layout-dashboard.svg` из Tabler/Iconify, desktop preview controls, мобильное burger-меню и command palette; третья вкладка не добавлялась, чтобы не ломать текущие tab-селекторы.
+- Реализация DOM-driven и не вводит новый серверный endpoint или внешнюю runtime-библиотеку; статистика перечитывается при каждом открытии.
+- Добавлены локализация ru/en, feature contract, UI snapshot surface и browser acceptance-пункты. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Версия runtime, cache-busting и документация синхронизированы до `0.76`; v0.77–v0.79 сохранены как следующие этапы: каталог контента, массовые операции и улучшенный медиаменеджер.
+- Таргетированные Node/PHP syntax/module/feature/snapshot проверки, `tests/ci-contract.sh`, security regression и полный HTTP regression проходят. Сервер `127.0.0.1:8080` отвечает, bridge открыт во встроенном браузере; программного click/screenshot API для авторизованного editor-state нет, а Raven browser audit недоступен без Chromium, поэтому ручная визуальная приёмка Dashboard остаётся отдельным pending-шагом и не объявляется выполненной.
+
 ## Текущее исправление v0.75
 
 - Инициализация mobile menu перенесена сразу после проверки панели, до preview-controls; меню получает начальное состояние через `setMenuState(false)`, а обработчик burger подключается независимо от preview-flow.
