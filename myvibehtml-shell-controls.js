@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.71 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.74 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -155,8 +155,15 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        var panel = document.querySelector('#e'), previewControls, previewFrame;
+        var panel = document.querySelector('#e'), previewControls, previewFrame,
+            syncMobileShell = function() {
+                var previewMobile = document.documentElement.id == 'd' && document.documentElement.getAttribute('data-myvibehtml-preview-size') == 'mobile',
+                    viewportMobile = window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+                panel.setAttribute('data-myvibehtml-mobile-shell', previewMobile || viewportMobile ? 'true' : 'false')
+            };
         if (!panel) return;
+        syncMobileShell();
+        window.addEventListener('resize', syncMobileShell);
         previewControls = panel.querySelector('[data-preview-controls]');
         previewFrame = document.querySelector('#d iframe');
         if (previewControls && previewFrame && document.documentElement.id == 'd') {
@@ -165,6 +172,7 @@
                 setPreviewSize = function(previewSize) {
                     previewSize = previewSize == 'tablet' || previewSize == 'mobile' ? previewSize : 'desktop';
                     document.documentElement.setAttribute('data-myvibehtml-preview-size', previewSize);
+                    syncMobileShell();
                     if (previewSize != 'desktop') {
                         previewFrame.style.width = 'min(' + (previewSize == 'tablet' ? 768 : 390) + 'px, calc(100% - 24px))';
                         previewFrame.style.left = '50%';

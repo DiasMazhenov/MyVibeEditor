@@ -20,6 +20,8 @@ test('Time Machine keeps one persistent timeline for visual and source drafts', 
 
 test('source editor renders decoded HTML instead of the Base64 template payload', () => {
     assert.match(editor, /serializedSource = runtimeValue11\[getAttributeMethod\]\('data-encoding'\) == 'base64' \? base64Decode\(runtimeValue11\[textContentProperty\]\) : runtimeValue11\[innerHTMLProperty\]/);
+    assert.match(editor, /runtimeSourceLanguage = runtimeValue2\[getAttributeMethod\]\('data-source-type'\) \|\| runtimeValue2\[innerHTMLProperty\]/);
+    assert.match(php, /<li title="\{visual_editor\}" data-source-type="\{type\}">visual<\/li><li title="\{source_editor\}">html<\/li>/);
     const decodedSourceRender = 'runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(serializedSource))));';
     const encodedSourceRender = 'runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(runtimeValue11[innerHTMLProperty]))));';
     assert.ok(editor.includes(decodedSourceRender));
@@ -27,10 +29,14 @@ test('source editor renders decoded HTML instead of the Base64 template payload'
 });
 
 test('mobile navigation exposes the burger and clear editor mode labels', () => {
-    assert.match(php, /<li title="\{visual_editor\}">visual<\/li><li title="\{source_editor\}">html<\/li>/);
+    assert.match(php, /<li title="\{visual_editor\}" data-source-type="\{type\}">visual<\/li><li title="\{source_editor\}">html<\/li>/);
     assert.match(php, /data-mobile-target="div>div\+ol li:first-child">visual<\/button><button type="button" role="menuitem" data-mobile-target="div>div\+ol li\+li">html<\/button>/);
     assert.match(php, /id="myvibehtml-mobile-menu-toggle"/);
+    assert.match(php, /<\/div><button id="myvibehtml-mobile-menu-toggle" type="button"/);
     assert.match(fallback, /@media\(max-width:900px\)\{#e #myvibehtml-mobile-menu-toggle\{display:grid!important/);
+    assert.match(fallback, /#d\[data-myvibehtml-preview-size="mobile"\] #e #myvibehtml-mobile-menu-toggle\{display:grid!important/);
+    assert.match(shell, /data-myvibehtml-mobile-shell/);
+    assert.match(fallback, /#e\[data-myvibehtml-mobile-shell="true"\].*#myvibehtml-mobile-menu-toggle\{display:grid!important/);
 });
 
 test('Reusable Components extend the existing local block library', () => {

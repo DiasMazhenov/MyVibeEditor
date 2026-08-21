@@ -1,5 +1,24 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.74
+
+- После live-проверки симптома «burger не появился» найден root cause: прежняя вставка искала `</span></a></div>`, но предыдущий `str_replace` уже добавлял между ними preview-controls. Burger перенесён в финальную замену шаблона после preview-controls.
+- Панель получает явный `data-myvibehtml-mobile-shell`, синхронизируемый по `matchMedia('(max-width:900px)')`, resize и состоянию `mobile-preview`.
+- CSS theme/fallback используют этот флаг для показа burger, компактной brand-группы и mobile menu; desktop controls скрываются только в мобильном состоянии.
+- Подсветка HTML сохраняет исправление v0.72: видимая вкладка `visual` не используется как язык, тип файла берётся из `data-source-type`.
+- Версия синхронно поднята до `0.74`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Детерминированная PHP-проверка финального шаблона подтверждает `toggle=1`, `menu=3`, `brand=1`; feature/static/HTTP проверки v0.74 проходят.
+- Встроенный browser визуально проверен после открытия `rev=0.74`: справа в компактной панели одновременно видны версия `v0.74`, eye и burger. Скриншот проверки сохранён как `/tmp/myvibe-browser-074.png`.
+
+## Текущее исправление v0.72
+
+- Исправлен root cause подсветки исходника: первая вкладка отображается как `visual`, а фактический тип файла хранится отдельно в `data-source-type`; source editor использует этот атрибут для HTML/CSS/JS/PHP highlighting.
+- Мобильный burger получил отдельный mobile-preview contract: при `#d[data-myvibehtml-preview-size="mobile"]` панель редактора также переключается на компактную оболочку, показывает burger и скрывает desktop controls.
+- Добавлены feature contracts на `data-source-type`, выбор языка по атрибуту и видимость burger в mobile-preview.
+- Версия синхронно поднята до `0.72`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Локальные проверки v0.72: feature contracts, JS syntax, PHP lint и `git diff --check` — PASS. Полный regression и live embedded-browser visual acceptance ещё не пройдены.
+- Перед финальным сообщением требуется открыть `?q=myvibe/test-page.html&rev=0.72` во встроенном браузере и визуально проверить burger в реальном mobile viewport и после выбора mobile-preview; текущий API не предоставляет программный screenshot/click контроль.
+
 ## Текущее исправление v0.71
 
 - Исправлен root cause режима `text`: `#j[data-encoding="base64"]` декодируется в `serializedSource`, и source editor initial render использует именно его, а не `#j.innerHTML`; HTML-код больше не показывается как Base64.

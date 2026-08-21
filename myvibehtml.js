@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.71 */
+/* MyVibeHTML v0.74 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -3426,9 +3426,10 @@
                         runtimeValue137 = function(initializeSourceEditorArgument3) {
                             return initializeSourceEditorArgument3[replaceMethod](new RegExp('([^>](?:' + closingSpanMarkup + ')*|[^>])</div>', 'gi'), '$1<br></div>')[splitMethod](lineBreakMarkup)[joinMethod]('\n')[splitMethod](caretMarkup)[joinMethod]('&lt;caret&gt;·&lt;/caret&gt;')[replaceMethod](new RegExp('<.*?>', 'gi'), '')[splitMethod]('&lt;')[joinMethod]('<')[splitMethod]('&gt;')[joinMethod]('>')[splitMethod]('&amp;')[joinMethod]('&')[splitMethod](closingScriptTag)[joinMethod]('</_cript')[splitMethod](openingScriptTag)[joinMethod]('<_cript')
                         },
-                        runtimeValue138 = runtimeValue135;
-                    if (runtimeValue2[innerHTMLProperty] == 'xml') runtimeValue131[classNameProperty] = 'html';
-                    else runtimeValue131[classNameProperty] = runtimeValue2[innerHTMLProperty];
+                        runtimeValue138 = runtimeValue135,
+                        runtimeSourceLanguage = runtimeValue2[getAttributeMethod]('data-source-type') || runtimeValue2[innerHTMLProperty];
+                    if (runtimeSourceLanguage == 'xml') runtimeValue131[classNameProperty] = 'html';
+                    else runtimeValue131[classNameProperty] = runtimeSourceLanguage;
                     if (runtimeValue131[classNameProperty] == 'html') {
                         runtimeValue138 = function(initializeSourceEditorArgument4) {
                             return runtimeValue136(runtimeValue135(initializeSourceEditorArgument4)[replaceMethod](new RegExp('&lt;.+?&gt;', 'gi'), function(str1) {
