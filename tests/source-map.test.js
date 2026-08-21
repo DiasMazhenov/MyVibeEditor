@@ -23,10 +23,10 @@ assert.equal(tableMap.ambiguous, false);
 assert.deepEqual(tableMap.elementRangeFor(tableNodes[4]), [tableSource.indexOf('<tr>'), tableSource.indexOf('</tr>') + 5]);
 
 const previewSource = '<html><head></head><body><main><p>preview</p></main></body></html>';
-const previewNodes = ['html', 'head', 'base', 'body', 'main', 'p'].map((tagName) => ({tagName, getAttribute: (name) => tagName === 'base' && name === 'data-myvibehtml-preview' ? 'true' : null}));
+const previewNodes = ['html', 'head', 'base', 'style', 'edit', 'body', 'main', 'p'].map((tagName) => ({tagName, getAttribute: (name) => ['base', 'style', 'edit'].includes(tagName) && name === 'data-myvibehtml-preview' ? 'true' : null}));
 const previewMap = sourceMap.build(previewSource, {documentElement: previewNodes[0], querySelectorAll: () => previewNodes.slice(1)});
 assert.equal(previewMap.ambiguous, false);
-assert.deepEqual(previewMap.openingRangeFor(previewNodes[4]), [previewSource.indexOf('<main>'), previewSource.indexOf('<main>') + 6]);
+assert.deepEqual(previewMap.openingRangeFor(previewNodes[6]), [previewSource.indexOf('<main>'), previewSource.indexOf('<main>') + 6]);
 
 const malformedSource = '<html><body><div><span></div></body></html>';
 const malformedNodes = ['html', 'body', 'div', 'span'].map((tagName) => ({tagName}));

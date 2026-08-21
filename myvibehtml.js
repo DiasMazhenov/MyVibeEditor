@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.84 */
+/* MyVibeHTML v0.85 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -3200,6 +3200,7 @@
                                 visualEditorValue312 = runtimeValue127[querySelectorAllMethod](runtimeValue71),
                                 visualEditorValue313 = documentObject[querySelectorMethod]('#i')[innerHTMLProperty],
                                 visualEditorValue314 = documentObject[createElementMethod]('style');
+                            visualEditorValue314[setAttributeMethod]('data-myvibehtml-preview', true);
                             visualEditorValue314[innerHTMLProperty] = visualEditorValue313 + '[data-myvibehtml-selection="section"]{outline:3px solid #f59e0b !important;outline-offset:5px;}' + '[data-myvibehtml-selection="block"]{outline:3px solid #2dd4bf !important;outline-offset:3px;}' + '[data-myvibehtml-selection="element"]{outline:3px solid #14b8a6 !important;outline-offset:2px;}';
                             runtimeValue127.head[appendChildMethod](visualEditorValue314);
                             runtimeValue127[addEventListenerMethod](mouseDownEvent, handleEditorSelection);
@@ -3210,6 +3211,7 @@
                             var visualEditorValue315 = runtimeValue80(serializedSource);
                             for (var visualEditorValue316 = 0, visualEditorValue317 = visualEditorValue309[lengthProperty]; visualEditorValue316 < visualEditorValue317; visualEditorValue316++) {
                                 var visualEditorValue318 = runtimeValue127[createElementMethod]('edit');
+                                visualEditorValue318[setAttributeMethod]('data-myvibehtml-preview', true);
                                 visualEditorValue318[setAttributeMethod](stringAttribute, true);
                                 visualEditorValue318[setAttributeMethod]('contenteditable', true);
                                 visualEditorValue309[visualEditorValue316][parentNodeProperty][insertBeforeMethod](visualEditorValue318, visualEditorValue309[visualEditorValue316]);
@@ -3266,6 +3268,7 @@
                                 var visualEditorValue326 = visualEditorValue312[visualEditorValue316][tagNameProperty][toLowerCaseMethod]();
                                 if ('|iframe|object|video|audio|' [indexOfMethod]('|' + visualEditorValue326 + '|') !== -1) {
                                     var visualEditorValue318 = runtimeValue127[createElementMethod]('edit');
+                                    visualEditorValue318[setAttributeMethod]('data-myvibehtml-preview', true);
                                     visualEditorValue318[setAttributeMethod](objectAttribute, true);
                                     visualEditorValue318[styleProperty][widthProperty] = visualEditorValue312[visualEditorValue316].offsetWidth + 'px';
                                     visualEditorValue318[styleProperty][heightProperty] = visualEditorValue312[visualEditorValue316].offsetHeight + 'px';

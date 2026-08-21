@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.85
+
+- Найдена причина неработающего «Изменить CSS» после инициализации visual editor: runtime добавлял в iframe служебные `<style>` и `<edit>`-узлы, но source map исключала только `<base>`. При повторной сборке карта становилась `ambiguous`, `openingRangeFor()` возвращал `null`, а CSS-инспектор молча прекращал применение.
+- Все preview-only узлы (`<base>`, outline-`<style>`, текстовые и media-`<edit>`) теперь получают `data-myvibehtml-preview="true"` и исключаются из DOM ↔ HTML source map. Реальный HTML-узел остаётся сопоставленным с исходным диапазоном.
+- Добавлены регрессионные проверки source map для `<base>`, `<style>` и `<edit>` и контракт на JS-маркер preview-only узлов.
+- Проверки прошли: PHP lint, JS syntax, source-map, feature-contracts, security-regression, deobfuscation, accessibility, UI-contracts, module-boundaries, CI contract, security smoke и полный HTTP regression против `127.0.0.1:8080`.
+- HTTP подтвердил отдачу `myvibehtml.js?v=0.85` и `myvibehtml-source-map.js?v=0.85` с `200`; editor без сессии ожидаемо возвращает `403`. Встроенная вкладка открыта на `http://127.0.0.1:8080/?q=myvibe/demo-about.html&rev=0.85`.
+- В доступном API Codex по-прежнему нет программного управления встроенной вкладкой: `nodeRepl` не получил `browser/page/computer/chrome` globals, а отдельного Browser Plugin нет. Поэтому реальный авторизованный сценарий `Изменить CSS → ввести значение → увидеть live-изменение` не выдаётся за выполненный; это остаётся ручным acceptance-шагом в открытой вкладке.
+- Следующий этап: дождаться ручной проверки CSS-инспектора в авторизованной вкладке, затем v0.86 — каталог контента, v0.87 — массовые операции файлов и v0.88 — расширенный медиаменеджер.
+
 ## Текущее исправление v0.84
 
 - Исправлена причина неработающего CSS-инспектора: служебный `<base>` в preview помечен `data-myvibehtml-preview="true"` и исключается из DOM ↔ HTML source map, поэтому карта больше не становится `ambiguous` и запись идёт в live DOM, draft и исходник.

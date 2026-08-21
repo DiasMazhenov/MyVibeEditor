@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.84 UI contracts */
+/* MyVibeHTML v0.85 UI contracts */
 (function(root) {
     var storageStatus = function(action) {
             var documentObject = root.document,

@@ -91,6 +91,7 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.match(theme, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
     assert.match(fallback, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
     assert.match(php, /data-myvibehtml-preview="true"/);
+    assert.match(editor, /setAttributeMethod\]\('data-myvibehtml-preview', true\)/);
     assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /data-myvibehtml-preview/);
 });
 
