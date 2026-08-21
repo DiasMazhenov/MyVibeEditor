@@ -5,6 +5,7 @@ const test = require('node:test');
 const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const editor = fs.readFileSync('myvibehtml.js', 'utf8');
 const shell = fs.readFileSync('myvibehtml-shell-controls.js', 'utf8');
+const fallback = fs.readFileSync('myvibehtml-fallback.css', 'utf8');
 
 test('Time Machine keeps one persistent timeline for visual and source drafts', () => {
     assert.match(editor, /editorTimelineKey = 'myvibehtml:timeline:/);
@@ -15,6 +16,21 @@ test('Time Machine keeps one persistent timeline for visual and source drafts', 
     assert.match(editor, /data-timeline-list/);
     assert.match(php, /data-source-action="timeline"/);
     assert.match(php, /\{time_machine\}/);
+});
+
+test('source editor renders decoded HTML instead of the Base64 template payload', () => {
+    assert.match(editor, /serializedSource = runtimeValue11\[getAttributeMethod\]\('data-encoding'\) == 'base64' \? base64Decode\(runtimeValue11\[textContentProperty\]\) : runtimeValue11\[innerHTMLProperty\]/);
+    const decodedSourceRender = 'runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(serializedSource))));';
+    const encodedSourceRender = 'runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(runtimeValue11[innerHTMLProperty]))));';
+    assert.ok(editor.includes(decodedSourceRender));
+    assert.ok(!editor.includes(encodedSourceRender));
+});
+
+test('mobile navigation exposes the burger and clear editor mode labels', () => {
+    assert.match(php, /<li title="\{visual_editor\}">visual<\/li><li title="\{source_editor\}">html<\/li>/);
+    assert.match(php, /data-mobile-target="div>div\+ol li:first-child">visual<\/button><button type="button" role="menuitem" data-mobile-target="div>div\+ol li\+li">html<\/button>/);
+    assert.match(php, /id="myvibehtml-mobile-menu-toggle"/);
+    assert.match(fallback, /@media\(max-width:900px\)\{#e #myvibehtml-mobile-menu-toggle\{display:grid!important/);
 });
 
 test('Reusable Components extend the existing local block library', () => {

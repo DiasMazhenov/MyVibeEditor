@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.70 */
+/* MyVibeHTML v0.71 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -3773,7 +3773,7 @@
                         });
                         runtimeValue3[classNameProperty] = 'l'
                     }
-                    runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(runtimeValue11[innerHTMLProperty]))));
+                    runtimeValue131[innerHTMLProperty] = runtimeValue150(runtimeValue138(runtimeValue137(runtimeValue138(serializedSource))));
                     runtimeValue139();
                     sourceHistory.current = sourceHistoryValue();
                     sourceHistory.baseline = sourceHistory.current;

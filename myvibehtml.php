@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.70 */
+<?php /* MyVibeHTML v0.71 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -384,6 +384,16 @@ final class MyVibeHTMLConfig
             $this->templates['h']
         );
         $this->templates['h'] = str_replace(
+            'data-mobile-target="div>div+ol li:first-child">html</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">text</button>',
+            'data-mobile-target="div>div+ol li:first-child">visual</button><button type="button" role="menuitem" data-mobile-target="div>div+ol li+li">html</button>',
+            $this->templates['h']
+        );
+        $this->templates['j'] = str_replace(
+            '<li title="{source_editor}">{type}</li><li title="{visual_editor}">text</li>',
+            '<li title="{visual_editor}">visual</li><li title="{source_editor}">html</li>',
+            $this->templates['j']
+        );
+        $this->templates['h'] = str_replace(
             'data-cm="{version}"',
             'data-cm="{version}" data-context-menu="{context_menu}" data-select-element="{select_element}" data-select-section="{select_section}" data-select-block="{select_block}" data-context-media="{context_media}" data-context-copy="{context_copy}" data-context-up="{context_up}" data-context-down="{context_down}" data-context-delete="{context_delete}" data-context-add-child="{context_add_child}" data-context-add-after="{context_add_after}" data-struct-tag-prompt="{struct_tag_prompt}" data-struct-text-prompt="{struct_text_prompt}" data-struct-invalid-tag="{struct_invalid_tag}"',
             $this->templates['h']
@@ -612,7 +622,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.70';
+    const VERSION = '0.71';
     private $config;
     private $request;
     private $response;

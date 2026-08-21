@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.71
+
+- Исправлен root cause режима `text`: `#j[data-encoding="base64"]` декодируется в `serializedSource`, и source editor initial render использует именно его, а не `#j.innerHTML`; HTML-код больше не показывается как Base64.
+- Видимые режимы панели переименованы в `visual` и `html`; внутренние значения переключения и POST-поток не изменялись.
+- Мобильное меню получило явное fallback-правило видимости кнопки-бургера до 900px; пункты меню используют те же названия `visual` и `html`.
+- Добавлены feature contracts на decoded source render, запрет возврата к encoded template payload и мобильную навигацию.
+- Версия синхронно поднята до `0.71`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- Проверки v0.71: PHP lint для controller/runtime/router, JS syntax, source-map/security/deobfuscation/accessibility/UI/module/feature/snapshot tests, CI contract, security smoke, `git diff --check` и полный `MYVIBEHTML_BASE_URL=http://127.0.0.1:8097 sh tests/regression.sh` — PASS. Live HTTP подтвердил cache-busting v0.71 и enforcing CSP на error surface.
+- Встроенный browser visual acceptance требует открыть URL `?q=myvibe/test-page.html&rev=0.71`; в текущем API нет программных click/screenshot-команд, поэтому до ручной проверки он не объявляется выполненным.
+
 ## Текущее исправление v0.70
 
 - P4 CSP выполнен по совместимой границе: auth/source/error surfaces получают настоящий `Content-Security-Policy`; visual preview по умолчанию остаётся `Content-Security-Policy-Report-Only`, потому что его same-origin iframe может содержать пользовательские inline-скрипты и стили.

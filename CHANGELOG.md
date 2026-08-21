@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.71
+
+- исправлено отображение режима `text`: редактор получает декодированный HTML вместо Base64-контейнера;
+- видимые режимы панели переименованы в `visual` и `html`, включая мобильное меню;
+- закреплена видимость кнопки-бургера на мобильных ширинах поверх fallback-CSS;
+- добавлены regression contracts для source render и mobile navigation.
+
 ## 0.70
 
 - CSP enforcement включён для auth/source/error-поверхностей, а visual preview сохраняет совместимый Report-Only режим с явным opt-in `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`;
