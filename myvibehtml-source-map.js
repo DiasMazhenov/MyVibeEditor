@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.83 source map */
+/* MyVibeHTML v0.84 source map */
 (function(root, factory) {
     if (typeof module == 'object' && module.exports) module.exports = factory();
     else root.MyVibeHTMLSourceMap = factory();
@@ -79,7 +79,7 @@
         if (editorDocument && editorDocument.documentElement) {
             nodes.push(editorDocument.documentElement);
             var descendants = editorDocument.querySelectorAll('*');
-            for (var nodeIndex = 0; nodeIndex < descendants.length; nodeIndex++) if (descendants[nodeIndex] !== editorDocument.documentElement) nodes.push(descendants[nodeIndex]);
+            for (var nodeIndex = 0; nodeIndex < descendants.length; nodeIndex++) if (descendants[nodeIndex] !== editorDocument.documentElement && (!descendants[nodeIndex].getAttribute || descendants[nodeIndex].getAttribute('data-myvibehtml-preview') !== 'true')) nodes.push(descendants[nodeIndex]);
         }
         for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
             var nodeTag = (nodes[nodeIndex].tagName || '').toLowerCase();

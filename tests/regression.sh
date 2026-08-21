@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.83" myvibehtml.php myvibehtml.js myvibehtml-fallback.css myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
-rg -q "const VERSION = '0\.83'" myvibehtml.php
+rg -q "MyVibeHTML v0\.84" myvibehtml.php myvibehtml.js myvibehtml-fallback.css myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
+rg -q "const VERSION = '0\.84'" myvibehtml.php
 rg -q "data-dashboard-url=\"\{admin_url\}\"|myvibehtml-admin\.css|myvibehtml-admin\.js" myvibehtml.php
 rg -q "private function isAdminRequest|private function renderAdminDashboard" myvibehtml.php
 rg -q 'id="myvibehtml-admin-link" data-dashboard data-dashboard-url="\{admin_url\}"|data-admin-section="pages"|data-admin-section="media"|data-admin-section="browser"' myvibehtml.php
@@ -75,7 +75,7 @@ rg -q "myvibehtml-style-inspector-resize|right:0;bottom:0;left:auto" myvibehtml.
 rg -q "role.*separator|aria-orientation.*vertical" myvibehtml.js
 rg -q '#myvibehtml-style-inspector\{top:auto.*width:auto!important' myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "visualEditorSelection|renderStyleInspector\(this\.d\)" myvibehtml.js
-rg -q "grid-template-columns:repeat\(auto-fit,minmax\(280px,1fr\)\)|form>fieldset:first-of-type" myvibehtml-theme.css myvibehtml-fallback.css
+rg -q "grid-template-columns:repeat\(2,minmax\(0,1fr\)\)|form>fieldset:first-of-type" myvibehtml-theme.css myvibehtml-fallback.css
 rg -q "max-height:min\(60vh,560px\)|overflow-y:auto|scrollbar-gutter:stable" myvibehtml-theme.css myvibehtml-fallback.css
 rg -q '#myvibehtml-style-inspector\{.*overflow-x:hidden;overflow-y:auto' myvibehtml-theme.css myvibehtml-fallback.css
 rg -q '#myvibehtml-style-inspector form\{.*overflow:visible' myvibehtml-theme.css myvibehtml-fallback.css
@@ -107,7 +107,8 @@ rg -q "data-page-validate|validationDialogOpen|validation-clean" myvibehtml.php 
 rg -q "myvibehtml-command-palette|data-preview-size|myvibehtml-mobile-menu-toggle|data-command-palette" myvibehtml-shell-controls.js myvibehtml.php myvibehtml-theme.css myvibehtml-fallback.css
 rg -q '#d \[data-preview-controls\]\{display:none!important\}' myvibehtml-theme.css myvibehtml-fallback.css
 rg -q 'myvibehtml-panel-brand #myvibehtml-mobile-menu-toggle\{display:grid!important' myvibehtml-theme.css myvibehtml-fallback.css
-rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg" myvibehtml.js
+rg -q "isValidStyleValue|syncStyleSource|getMediaTarget|sanitizeInlineSvg|normalizeStyleColor|inputType: 'number'|inputType: 'color'" myvibehtml.js
+rg -q "data-myvibehtml-preview" myvibehtml.php myvibehtml-source-map.js
 if rg -n 'checkForUpdates|handleUpdateResult|installUpdate|checkInstallation|SETTING_UPDATE|textolite' myvibehtml.php myvibehtml.js; then
     echo "regression: removed update/legacy alias code is still present" >&2
     exit 1
@@ -137,23 +138,23 @@ node --test tests/ui-contracts.test.js
 node --test tests/module-boundaries.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.83" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.83" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.84" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.84" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.83"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.84"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
-curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.83"
+curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.84"
 grep -Eiq '^Content-Security-Policy:.*script-src' "$TMP_DIR/auth-headers"
 grep -Eiq 'report-uri \?csp-report=1' "$TMP_DIR/auth-headers"
 report_status="$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/reports+json' --data '{"csp-report":{"violated-directive":"script-src"}}' "$BASE_URL/?csp-report=1")"

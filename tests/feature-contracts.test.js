@@ -79,6 +79,19 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.match(editor, /visualEditorValue50 = getOpeningSourceRange\(styleInspectorTarget\)/);
     assert.match(editor, /markupRange = getOpeningSourceRange\(styleInspectorTarget\)/);
     assert.match(editor, /visualEditorValue63 = getOpeningSourceRange\(styleInspectorTarget\)/);
+    assert.match(editor, /inputType: 'number'/);
+    assert.match(editor, /inputType: 'color'/);
+    assert.match(editor, /type = 'number'/);
+    assert.match(editor, /type = 'color'/);
+    assert.match(editor, /normalizeStyleColor = function/);
+    assert.match(editor, /styleInputValue\(this, visualEditorValue47\)/);
+    assert.match(editor, /myvibehtml-color-picker/);
+    assert.match(editor, /myvibehtml-style-field-full/);
+    assert.match(editor, /myvibehtml-markup-tag-field/);
+    assert.match(theme, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+    assert.match(fallback, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+    assert.match(php, /data-myvibehtml-preview="true"/);
+    assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /data-myvibehtml-preview/);
 });
 
 test('brand scrollbars stay graphite and teal across theme and fallback layers', () => {

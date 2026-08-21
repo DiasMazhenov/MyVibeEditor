@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.83 */
+/* MyVibeHTML v0.84 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -1138,23 +1138,61 @@
                                 visualEditorValue11 = function(initializeVisualEditorArgument1, initializeVisualEditorArgument2) {
                                     var visualEditorValue12 = documentObject[createElementMethod]('label'),
                                         visualEditorValue13 = documentObject[createElementMethod]('span'),
-                                        visualEditorValue14 = documentObject[createElementMethod](initializeVisualEditorArgument2 ? 'select' : 'input');
+                                        visualEditorValue14 = documentObject[createElementMethod](initializeVisualEditorArgument2 ? 'select' : 'input'),
+                                        visualEditorValue15 = initializeVisualEditorArgument1.inputType || (initializeVisualEditorArgument2 ? 'select' : 'text');
                                     visualEditorValue13[textContentProperty] = initializeVisualEditorArgument1.label;
-                                    visualEditorValue14[setAttributeMethod]('data-myvibehtml-style-property', initializeVisualEditorArgument1.property);
-                                    visualEditorValue14[classNameProperty] = 'myvibehtml-style-field';
-                                    visualEditorValue14[setAttributeMethod]('aria-label', initializeVisualEditorArgument1.label);
-                                    if (!initializeVisualEditorArgument2) {
-                                        visualEditorValue14.type = 'text';
-                                        visualEditorValue14[setAttributeMethod]('spellcheck', 'false');
-                                    } else for (var visualEditorValue15 = 0, visualEditorValue16 = initializeVisualEditorArgument2[lengthProperty]; visualEditorValue15 < visualEditorValue16; visualEditorValue15++) {
-                                        var visualEditorValue17 = documentObject[createElementMethod]('option');
-                                        visualEditorValue17.value = initializeVisualEditorArgument2[visualEditorValue15];
-                                        visualEditorValue17[textContentProperty] = initializeVisualEditorArgument2[visualEditorValue15];
-                                        visualEditorValue14[appendChildMethod](visualEditorValue17)
+                                    if (visualEditorValue15 == 'color') {
+                                        visualEditorValue14 = documentObject[createElementMethod]('div');
+                                        visualEditorValue14[classNameProperty] = 'myvibehtml-color-field';
+                                        var visualEditorColorPicker = documentObject[createElementMethod]('input'),
+                                            visualEditorColorHex = documentObject[createElementMethod]('input');
+                                        visualEditorColorPicker.type = 'color';
+                                        visualEditorColorPicker[classNameProperty] = 'myvibehtml-style-field myvibehtml-color-picker';
+                                        visualEditorColorPicker[setAttributeMethod]('data-myvibehtml-style-property', initializeVisualEditorArgument1.property);
+                                        visualEditorColorPicker[setAttributeMethod]('data-myvibehtml-style-input-type', 'color');
+                                        visualEditorColorPicker[setAttributeMethod]('aria-label', initializeVisualEditorArgument1.label + ' picker');
+                                        visualEditorColorHex.type = 'text';
+                                        visualEditorColorHex[classNameProperty] = 'myvibehtml-style-field myvibehtml-color-hex';
+                                        visualEditorColorHex[setAttributeMethod]('data-myvibehtml-style-property', initializeVisualEditorArgument1.property);
+                                        visualEditorColorHex[setAttributeMethod]('data-myvibehtml-style-input-type', 'color');
+                                        visualEditorColorHex[setAttributeMethod]('maxlength', '9');
+                                        visualEditorColorHex[setAttributeMethod]('spellcheck', 'false');
+                                        visualEditorColorHex[setAttributeMethod]('aria-label', initializeVisualEditorArgument1.label + ' hex');
+                                        visualEditorColorPicker[addEventListenerMethod](inputEvent, function() {
+                                            visualEditorColorHex[valueProperty] = this[valueProperty][toUpperCaseMethod]();
+                                            applyStyleProperty.call(this)
+                                        });
+                                        visualEditorColorHex[addEventListenerMethod](inputEvent, function() {
+                                            if (/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''))) {
+                                                visualEditorColorPicker[valueProperty] = this[valueProperty][sliceMethod](0, 7)[toLowerCaseMethod]();
+                                                applyStyleProperty.call(this)
+                                            }
+                                        });
+                                        visualEditorValue14[appendChildMethod](visualEditorColorPicker);
+                                        visualEditorValue14[appendChildMethod](visualEditorColorHex)
+                                    } else {
+                                        visualEditorValue14[setAttributeMethod]('data-myvibehtml-style-property', initializeVisualEditorArgument1.property);
+                                        visualEditorValue14[setAttributeMethod]('data-myvibehtml-style-input-type', visualEditorValue15);
+                                        visualEditorValue14[classNameProperty] = 'myvibehtml-style-field';
+                                        visualEditorValue14[setAttributeMethod]('aria-label', initializeVisualEditorArgument1.label);
+                                        if (visualEditorValue15 == 'number') {
+                                            visualEditorValue14.type = 'number';
+                                            visualEditorValue14.step = '0.01';
+                                            visualEditorValue14.inputMode = 'decimal'
+                                        } else if (!initializeVisualEditorArgument2) {
+                                            visualEditorValue14.type = 'text';
+                                            visualEditorValue14[setAttributeMethod]('spellcheck', 'false');
+                                        } else for (var visualEditorValue16 = 0, visualEditorValue17 = initializeVisualEditorArgument2[lengthProperty]; visualEditorValue16 < visualEditorValue17; visualEditorValue16++) {
+                                            var visualEditorValue18 = documentObject[createElementMethod]('option');
+                                            visualEditorValue18.value = initializeVisualEditorArgument2[visualEditorValue16];
+                                            visualEditorValue18[textContentProperty] = initializeVisualEditorArgument2[visualEditorValue16];
+                                            visualEditorValue14[appendChildMethod](visualEditorValue18)
+                                        }
+                                        visualEditorValue14[addEventListenerMethod](initializeVisualEditorArgument2 ? 'change' : inputEvent, function() {
+                                            applyStyleProperty.call(this)
+                                        })
                                     }
-                                    visualEditorValue14[addEventListenerMethod](initializeVisualEditorArgument2 ? 'change' : inputEvent, function() {
-                                        applyStyleProperty.call(this)
-                                    });
+                                    if (initializeVisualEditorArgument1.fullRow) visualEditorValue12[classNameProperty] = 'myvibehtml-style-field-full';
                                     visualEditorValue12[appendChildMethod](visualEditorValue13);
                                     visualEditorValue12[appendChildMethod](visualEditorValue14);
                                     return visualEditorValue12
@@ -1164,6 +1202,7 @@
                                         markupFieldCaption = documentObject[createElementMethod]('span'),
                                         markupFieldInput = documentObject[createElementMethod](markupOptions ? 'select' : 'input');
                                     markupFieldCaption[textContentProperty] = markupLabel;
+                                    if (markupProperty == 'tagName') markupFieldLabel[classNameProperty] = 'myvibehtml-markup-tag-field';
                                     markupFieldInput[setAttributeMethod]('data-myvibehtml-markup-property', markupProperty);
                                     markupFieldInput[setAttributeMethod]('aria-label', markupLabel);
                                     markupFieldInput[classNameProperty] = 'myvibehtml-style-field';
@@ -1184,25 +1223,25 @@
                                 },
                                 visualEditorValue18 = [
                                     {title: visualEditorValue10.layout, fields: [
-                                        {property: 'display', label: visualEditorValue10.display, options: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none']},
-                                        {property: 'width', label: visualEditorValue10.width},
-                                        {property: 'height', label: visualEditorValue10.height}
+                                        {property: 'display', label: visualEditorValue10.display, options: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none'], fullRow: true},
+                                        {property: 'width', label: visualEditorValue10.width, inputType: 'number'},
+                                        {property: 'height', label: visualEditorValue10.height, inputType: 'number'}
                                     ]},
                                     {title: visualEditorValue10.spacing, fields: [
                                         {property: 'margin', label: visualEditorValue10.margin},
                                         {property: 'padding', label: visualEditorValue10.padding},
-                                        {property: 'gap', label: visualEditorValue10.gap}
+                                        {property: 'gap', label: visualEditorValue10.gap, inputType: 'number'}
                                     ]},
                                     {title: visualEditorValue10.typography, fields: [
-                                        {property: 'font-size', label: visualEditorValue10.fontSize},
+                                        {property: 'font-size', label: visualEditorValue10.fontSize, inputType: 'number'},
                                         {property: 'font-weight', label: visualEditorValue10.fontWeight, options: ['400', '500', '600', '700']},
-                                        {property: 'line-height', label: visualEditorValue10.lineHeight},
+                                        {property: 'line-height', label: visualEditorValue10.lineHeight, inputType: 'number'},
                                         {property: 'text-align', label: visualEditorValue10.textAlign, options: ['left', 'center', 'right', 'justify', 'start', 'end']}
                                     ]},
                                     {title: visualEditorValue10.surface, fields: [
-                                        {property: 'color', label: visualEditorValue10.color},
-                                        {property: 'background-color', label: visualEditorValue10.backgroundColor},
-                                        {property: 'border-radius', label: visualEditorValue10.borderRadius}
+                                        {property: 'color', label: visualEditorValue10.color, inputType: 'color'},
+                                        {property: 'background-color', label: visualEditorValue10.backgroundColor, inputType: 'color'},
+                                        {property: 'border-radius', label: visualEditorValue10.borderRadius, inputType: 'number'}
                                     ]}
                                 ];
                                 visualEditorMarkupFields = [
@@ -1414,6 +1453,48 @@
                             runtimeValue4[disabledProperty] = false;
                             return true
                         },
+                        normalizeStyleColor = function(styleColorValue) {
+                            var normalizedStyleColor = String(styleColorValue || '')[replaceMethod](/^\s+|\s+$/g, '')[toLowerCaseMethod](),
+                                styleColorMatch,
+                                styleColorParts,
+                                styleColorChannel,
+                                styleColorHex;
+                            if (normalizedStyleColor == 'transparent') return '#00000000';
+                            if (/^#[0-9a-f]{3}$/.test(normalizedStyleColor)) return '#' + normalizedStyleColor[1] + normalizedStyleColor[1] + normalizedStyleColor[2] + normalizedStyleColor[2] + normalizedStyleColor[3] + normalizedStyleColor[3];
+                            if (/^#[0-9a-f]{4}$/.test(normalizedStyleColor)) return '#' + normalizedStyleColor[1] + normalizedStyleColor[1] + normalizedStyleColor[2] + normalizedStyleColor[2] + normalizedStyleColor[3] + normalizedStyleColor[3] + normalizedStyleColor[4] + normalizedStyleColor[4];
+                            if (/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/.test(normalizedStyleColor)) return normalizedStyleColor;
+                            styleColorMatch = normalizedStyleColor.match(/^rgba?\(([^)]+)\)$/);
+                            if (!styleColorMatch) return '';
+                            styleColorParts = styleColorMatch[1][replaceMethod](/\//g, ' ')[splitMethod](/[,\s]+/).filter(function(styleColorPart) { return styleColorPart !== '' });
+                            if (styleColorParts.length < 3) return '';
+                            styleColorChannel = function(styleColorPart) {
+                                var channelValue = styleColorPart.indexOf('%') >= 0 ? parseFloat(styleColorPart) * 2.55 : parseFloat(styleColorPart);
+                                if (isNaN(channelValue)) return null;
+                                return Math.max(0, Math.min(255, Math.round(channelValue)));
+                            };
+                            styleColorHex = function(styleColorChannelValue) { return ('0' + styleColorChannelValue.toString(16)).slice(-2) };
+                            var redChannel = styleColorChannel(styleColorParts[0]),
+                                greenChannel = styleColorChannel(styleColorParts[1]),
+                                blueChannel = styleColorChannel(styleColorParts[2]);
+                            if (redChannel === null || greenChannel === null || blueChannel === null) return '';
+                            if (styleColorParts.length < 4) return '#' + styleColorHex(redChannel) + styleColorHex(greenChannel) + styleColorHex(blueChannel);
+                            var alphaValue = styleColorParts[3].indexOf('%') >= 0 ? parseFloat(styleColorParts[3]) * 2.55 : parseFloat(styleColorParts[3]) * 255;
+                            if (isNaN(alphaValue)) return '';
+                            return '#' + styleColorHex(redChannel) + styleColorHex(greenChannel) + styleColorHex(blueChannel) + styleColorHex(Math.max(0, Math.min(255, Math.round(alphaValue))));
+                        },
+                        numericStyleValue = function(styleNumericValue) {
+                            return String(styleNumericValue || '')[replaceMethod](/^\s+|\s+$/g, '')[matchMethod](/^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[a-z%]+)?$/i);
+                        },
+                        styleInputValue = function(styleInput, styleProperty) {
+                            var styleInputType = styleInput[getAttributeMethod]('data-myvibehtml-style-input-type'),
+                                styleInputValue = styleInput[valueProperty][replaceMethod](/^\s+|\s+$/g, '');
+                            if (styleInputType == 'color') return normalizeStyleColor(styleInputValue);
+                            if (styleInputType == 'number' && styleInputValue) {
+                                var numericMatch = numericStyleValue(styleInputValue);
+                                if (numericMatch) return numericMatch[0].match(/[a-z%]+$/i) ? numericMatch[0] : numericMatch[0] + (styleInput[getAttributeMethod]('data-myvibehtml-style-unit') || 'px');
+                            }
+                            return styleInputValue;
+                        },
                         isValidStyleValue = function(initializeVisualEditorArgument9, initializeVisualEditorArgument10) {
                             if (!initializeVisualEditorArgument10) return '';
                             if (initializeVisualEditorArgument10[lengthProperty] > 180 || /[{}<>;]/.test(initializeVisualEditorArgument10) || /(?:javascript|expression|url)\s*\(/i.test(initializeVisualEditorArgument10)) return null;
@@ -1533,7 +1614,7 @@
                         applyStyleProperty = function() {
                             if (!styleInspectorTarget) return;
                             var visualEditorValue47 = this[getAttributeMethod]('data-myvibehtml-style-property'),
-                                visualEditorValue48 = isValidStyleValue(visualEditorValue47, this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''));
+                                visualEditorValue48 = isValidStyleValue(visualEditorValue47, styleInputValue(this, visualEditorValue47));
                             if (visualEditorValue48 === null) {
                                 this[setAttributeMethod]('aria-invalid', 'true');
                                 styleInspectorError.hidden = false;
@@ -1596,7 +1677,19 @@
                             for (var visualEditorValue57 = 0, visualEditorValue58 = styleInspectorFields[lengthProperty]; visualEditorValue57 < visualEditorValue58; visualEditorValue57++) {
                                 var visualEditorValue59 = styleInspectorFields[visualEditorValue57],
                                     visualEditorValue60 = visualEditorValue59[getAttributeMethod]('data-myvibehtml-style-property'),
-                                visualEditorValue61 = initializeVisualEditorArgument11[styleProperty].getPropertyValue(visualEditorValue60) || visualEditorValue53.getPropertyValue(visualEditorValue60) || '';
+                                visualEditorValue61 = initializeVisualEditorArgument11[styleProperty].getPropertyValue(visualEditorValue60) || visualEditorValue53.getPropertyValue(visualEditorValue60) || '',
+                                    visualEditorValueInputType = visualEditorValue59[getAttributeMethod]('data-myvibehtml-style-input-type');
+                                if (visualEditorValueInputType == 'color') {
+                                    visualEditorValue61 = normalizeStyleColor(visualEditorValue61) || '#000000';
+                                    if ((visualEditorValue59[classNameProperty] || '').indexOf('myvibehtml-color-picker') >= 0) visualEditorValue61 = visualEditorValue61.slice(0, 7)[toLowerCaseMethod]();
+                                    else visualEditorValue61 = visualEditorValue61[toUpperCaseMethod]();
+                                } else if (visualEditorValueInputType == 'number') {
+                                    var numericStyleMatch = numericStyleValue(visualEditorValue61),
+                                        numericStyleUnit = numericStyleMatch && numericStyleMatch[0].match(/[a-z%]+$/i);
+                                    visualEditorValue59[setAttributeMethod]('data-myvibehtml-style-unit', numericStyleUnit ? numericStyleUnit[0] : visualEditorValue60 == 'line-height' ? '' : 'px');
+                                    visualEditorValue59.placeholder = numericStyleMatch ? '' : visualEditorValue61;
+                                    visualEditorValue61 = numericStyleMatch ? numericStyleMatch[0].replace(/[a-z%]+$/i, '') : '';
+                                }
                                 if (visualEditorValue59[tagNameProperty][toLowerCaseMethod]() == 'select' && visualEditorValue61) {
                                     var visualEditorValue62 = false;
                                     for (var visualEditorValue63 = 0, visualEditorValue64 = visualEditorValue59.options[lengthProperty]; visualEditorValue63 < visualEditorValue64; visualEditorValue63++) if (visualEditorValue59.options[visualEditorValue63].value == visualEditorValue61) visualEditorValue62 = true;
