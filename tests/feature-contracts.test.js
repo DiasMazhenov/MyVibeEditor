@@ -75,6 +75,18 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.match(editor, /\['markup', 'HTML', null\]/);
     assert.match(editor, /syncStyleSource\(styleInspectorTarget, visualEditorValue50\[0\], visualEditorValue50\[1\], visualEditorValue51\)/);
     assert.match(editor, /writeSourceDraft\(serializedSource\);[\s\S]*?runtimeValue75\(\)/);
+    assert.match(editor, /getOpeningSourceRange = function/);
+    assert.match(editor, /visualEditorValue50 = getOpeningSourceRange\(styleInspectorTarget\)/);
+    assert.match(editor, /markupRange = getOpeningSourceRange\(styleInspectorTarget\)/);
+    assert.match(editor, /visualEditorValue63 = getOpeningSourceRange\(styleInspectorTarget\)/);
+});
+
+test('brand scrollbars stay graphite and teal across theme and fallback layers', () => {
+    for (const stylesheet of [theme, fallback, adminCss]) {
+        assert.match(stylesheet, /scrollbar-color:\s*#0f766e\s+#(?:0c1117|151f29)/);
+        assert.match(stylesheet, /::-webkit-scrollbar-thumb\s*\{[^}]*background:\s*#0f766e/);
+        assert.match(stylesheet, /::-webkit-scrollbar-thumb:hover\s*\{[^}]*background:\s*#14b8a6/);
+    }
 });
 
 test('Page navigation and Responsive Preview Studio reuse shell controls', () => {

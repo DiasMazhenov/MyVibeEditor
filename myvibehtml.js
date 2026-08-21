@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.82 */
+/* MyVibeHTML v0.83 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -1347,6 +1347,17 @@
                             if (typeof visualEditorValue34 != 'number' || typeof visualEditorValue35 != 'number' || visualEditorValue35 <= visualEditorValue34) return null;
                             return [visualEditorValue34, visualEditorValue35]
                         },
+                        getOpeningSourceRange = function(initializeVisualEditorArgument2) {
+                            if (sourceMapState && sourceMapState.openingRangeFor) return sourceMapState.openingRangeFor(initializeVisualEditorArgument2);
+                            var visualEditorValue40 = runtimeValue93(initializeVisualEditorArgument2);
+                            if (typeof visualEditorValue40 != 'number') return null;
+                            if (serializedSource[visualEditorValue40] != '<') {
+                                visualEditorValue40 = serializedSource[lastIndexOfMethod]('<', visualEditorValue40);
+                                if (visualEditorValue40 < 0) return null
+                            }
+                            var visualEditorValue41 = findOpeningTagEnd(serializedSource[sliceMethod](visualEditorValue40));
+                            return visualEditorValue41 > 0 ? [visualEditorValue40, visualEditorValue40 + visualEditorValue41] : null
+                        },
                         escapeStyleAttribute = function(initializeVisualEditorArgument3) {
                             return initializeVisualEditorArgument3[splitMethod]('&')[joinMethod]('&amp;')[splitMethod]('"')[joinMethod]('&quot;')[splitMethod]('<')[joinMethod]('&lt;')[splitMethod]('>')[joinMethod]('&gt;')
                         },
@@ -1529,7 +1540,7 @@
                                 return
                             }
                             var visualEditorValue49 = styleInspectorTarget[getAttributeMethod]('style'),
-                                visualEditorValue50 = getStyleSourceRange(styleInspectorTarget);
+                                visualEditorValue50 = getOpeningSourceRange(styleInspectorTarget);
                             if (!visualEditorValue50) return;
                             if (visualEditorValue48) styleInspectorTarget[styleProperty].setProperty(visualEditorValue47, visualEditorValue48);
                             else styleInspectorTarget[styleProperty].removeProperty(visualEditorValue47);
@@ -1550,7 +1561,7 @@
                             var markupProperty = this[getAttributeMethod]('data-myvibehtml-markup-property'),
                                 markupValue = this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''),
                                 markupTagChanged = markupProperty == 'tagName',
-                                markupRange = getStyleSourceRange(styleInspectorTarget),
+                                markupRange = getOpeningSourceRange(styleInspectorTarget),
                                 markupHadAttribute = styleInspectorTarget.hasAttribute(markupProperty),
                                 markupPreviousValue = styleInspectorTarget[getAttributeMethod](markupProperty);
                             if (markupTagChanged) {
@@ -1624,7 +1635,7 @@
                         resetStyleInspector = function() {
                             if (!styleInspectorTarget) return;
                             var visualEditorValue62 = styleInspectorTarget[getAttributeMethod]('style'),
-                                visualEditorValue63 = getStyleSourceRange(styleInspectorTarget);
+                                visualEditorValue63 = getOpeningSourceRange(styleInspectorTarget);
                             if (!visualEditorValue63) return;
                             styleInspectorTarget[removeAttributeMethod]('style');
                             if (!syncStyleSource(styleInspectorTarget, visualEditorValue63[0], visualEditorValue63[1], '')) renderStyleInspector(styleInspectorTarget), styleInspectorTarget[setAttributeMethod]('style', visualEditorValue62 || '');

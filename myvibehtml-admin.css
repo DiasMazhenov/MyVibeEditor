@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.82 admin page: quiet graphite workspace with one teal action color. */
+/* MyVibeHTML v0.83 admin page: quiet graphite workspace with one teal action color. */
 :root {
     color-scheme: dark;
     --admin-bg: #0b1117;
@@ -22,6 +22,12 @@
 }
 
 * { box-sizing: border-box; }
+html { scrollbar-color: #0f766e #0b1117; scrollbar-width: thin; }
+* { scrollbar-color: #0f766e #151f29; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: #151f29; }
+*::-webkit-scrollbar-thumb { border: 2px solid #151f29; border-radius: 999px; background: #0f766e; }
+*::-webkit-scrollbar-thumb:hover { background: #14b8a6; }
 html, body { min-height: 100%; margin: 0; background: var(--admin-bg); }
 body { min-width: 320px; font-size: 14px; line-height: 1.5; }
 a { color: inherit; }
