@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.81 */
+/* MyVibeHTML v0.82 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -1209,9 +1209,6 @@
                                     {property: 'tagName', label: visualEditorValue9 ? 'Тег' : 'Tag', options: structuralTagOptions},
                                     {property: 'id', label: visualEditorValue9 ? 'ID' : 'ID'},
                                     {property: 'class', label: visualEditorValue9 ? 'Классы' : 'Classes'},
-                                    {property: 'role', label: 'ARIA role'},
-                                    {property: 'aria-label', label: 'ARIA label'},
-                                    {property: 'aria-hidden', label: 'ARIA hidden', options: ['', 'true', 'false']},
                                     {property: 'title', label: visualEditorValue9 ? 'Подсказка' : 'Title'}
                                 ],
                                 styleInspector = documentObject[createElementMethod]('aside');
@@ -1254,7 +1251,7 @@
                             var markupInspectorFieldset = documentObject[createElementMethod]('fieldset'),
                                 markupInspectorLegend = documentObject[createElementMethod]('legend'),
                                 markupInspectorGrid = documentObject[createElementMethod]('div');
-                            markupInspectorLegend[textContentProperty] = visualEditorValue9 ? 'HTML / ARIA' : 'HTML / ARIA';
+                            markupInspectorLegend[textContentProperty] = visualEditorValue9 ? 'HTML' : 'HTML';
                             markupInspectorGrid[classNameProperty] = 'myvibehtml-style-grid myvibehtml-markup-grid';
                             for (var markupInspectorIndex = 0; markupInspectorIndex < visualEditorMarkupFields[lengthProperty]; markupInspectorIndex++) markupInspectorGrid[appendChildMethod](visualEditorMarkupField(visualEditorMarkupFields[markupInspectorIndex].label, visualEditorMarkupFields[markupInspectorIndex].property, visualEditorMarkupFields[markupInspectorIndex].options, visualEditorMarkupFields[markupInspectorIndex].disabled));
                             markupInspectorFieldset[appendChildMethod](markupInspectorLegend);
@@ -1544,7 +1541,9 @@
                                 return
                             }
                             this[removeAttributeMethod]('aria-invalid');
-                            styleInspectorError.hidden = true
+                            styleInspectorError.hidden = true;
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75()
                         },
                         applyMarkupProperty = function() {
                             if (!styleInspectorTarget) return;
@@ -1654,7 +1653,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML / ARIA', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';

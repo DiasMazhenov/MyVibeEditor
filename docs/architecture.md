@@ -1,6 +1,6 @@
-# Архитектура v0.81
+# Архитектура v0.82
 
-v0.81 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
+v0.82 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули. Инспектор редактирует HTML-идентификаторы и CSS, но не ARIA-поля; CSS-изменения сразу записываются в draft и dirty-state. CSP enforcing включён для auth/source/error, а visual preview переключается в enforcement только явным `MYVIBEHTML_CSP_VISUAL_ENFORCE=1`:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers и ограниченный CSP-report endpoint;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -16,7 +16,7 @@ v0.81 сохраняет безопасные модульные границы 
 
 ## История изменений
 
-Админка v0.81 рендерится сервером после той же проверки сессии, что и редактор, по `?admin=1` или `/admin`. Раздел Pages стартует в папке текущего default-файла, показывает HTML-файлы и каталоги с локальными file/folder-иконками в общем слоте, а toolbar использует тот же session/CSRF-контракт для перехода вверх, copy/paste, duplicate, rename, delete, upload и mkdir. Таблица Pages принимает drag-and-drop файлов; отдельное поле выбора файла скрыто и используется только кнопкой Upload. Backend duplicate принимает целевую текущую папку, поэтому paste между каталогами не возвращается в исходный каталог. Авторизация получает симметричное центрирование карточки на оси X/Y. Popup Dashboard удалён из shell; кнопка редактора только выполняет переход на отдельную страницу.
+Админка v0.82 рендерится сервером после той же проверки сессии, что и редактор, по `?admin=1` или `/admin`. Раздел Pages стартует в папке текущего default-файла, показывает HTML-файлы и каталоги с локальными file/folder-иконками в общем слоте, а toolbar использует тот же session/CSRF-контракт для перехода вверх, copy/paste, duplicate, rename, delete, upload и mkdir. Таблица Pages принимает drag-and-drop файлов; отдельное поле выбора файла скрыто и используется только кнопкой Upload. Backend duplicate принимает целевую текущую папку, поэтому paste между каталогами не возвращается в исходный каталог. Авторизация получает симметричное центрирование карточки на оси X/Y. Popup Dashboard удалён из shell; кнопка редактора только выполняет переход на отдельную страницу.
 
 `writeSourceDraft()` — единая точка фиксации draft после visual/source-операций. Она сохраняет текущий draft и добавляет снимок в `myvibehtml:timeline:<file>` в localStorage. В текстовом редакторе `sourceHistoryOpenTimeline()` показывает последние 40 снимков и восстанавливает выбранный source через существующий renderer, поэтому новая модель не дублирует Undo/Redo и не меняет серверный протокол.
 

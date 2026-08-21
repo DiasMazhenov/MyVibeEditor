@@ -66,6 +66,17 @@ test('Design Tokens are editable through the CSS inspector and source', () => {
     assert.match(editor, /:root\\s\*\\\{/);
 });
 
+test('CSS inspector keeps HTML fields focused and persists live CSS edits', () => {
+    assert.doesNotMatch(editor, /property: 'role', label: 'ARIA role'/);
+    assert.doesNotMatch(editor, /property: 'aria-label', label: 'ARIA label'/);
+    assert.doesNotMatch(editor, /property: 'aria-hidden', label: 'ARIA hidden'/);
+    assert.doesNotMatch(editor, /HTML \/ ARIA/);
+    assert.match(editor, /markupInspectorLegend\[textContentProperty\] = visualEditorValue9 \? 'HTML' : 'HTML'/);
+    assert.match(editor, /\['markup', 'HTML', null\]/);
+    assert.match(editor, /syncStyleSource\(styleInspectorTarget, visualEditorValue50\[0\], visualEditorValue50\[1\], visualEditorValue51\)/);
+    assert.match(editor, /writeSourceDraft\(serializedSource\);[\s\S]*?runtimeValue75\(\)/);
+});
+
 test('Page navigation and Responsive Preview Studio reuse shell controls', () => {
     assert.match(shell, /data-site-map/);
     assert.match(shell, /siteMapButton/);

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.81: critical panel fallback and shared theme tokens. */
+/* MyVibeHTML v0.82: critical panel fallback and shared theme tokens. */
 #a{display:grid;place-items:center;min-height:100vh;min-height:100dvh}
 #myvibehtml-storage-status[hidden]{display:none!important}#myvibehtml-storage-status{position:fixed;right:16px;bottom:16px;z-index:2147483646;box-sizing:border-box;max-width:min(420px,calc(100vw - 32px));padding:9px 12px;border:1px solid rgba(245,158,11,.48);border-radius:8px;background:#2a2111;color:#fcd34d;box-shadow:0 10px 26px rgba(0,0,0,.34);font:600 11px/16px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 :root{--mv-bg:#0c1117;--mv-surface:#141c24;--mv-surface-strong:#1b2732;--mv-border:rgba(148,163,184,.2);--mv-text:#edf2f7;--mv-muted:#91a0ad;--mv-primary:#14b8a6;--mv-ring:#5eead4}

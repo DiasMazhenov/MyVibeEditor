@@ -17,8 +17,8 @@ expect_status() {
     }
 }
 
-rg -q "MyVibeHTML v0\.81" myvibehtml.php myvibehtml.js myvibehtml-fallback.css myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
-rg -q "const VERSION = '0\.81'" myvibehtml.php
+rg -q "MyVibeHTML v0\.82" myvibehtml.php myvibehtml.js myvibehtml-fallback.css myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
+rg -q "const VERSION = '0\.82'" myvibehtml.php
 rg -q "data-dashboard-url=\"\{admin_url\}\"|myvibehtml-admin\.css|myvibehtml-admin\.js" myvibehtml.php
 rg -q "private function isAdminRequest|private function renderAdminDashboard" myvibehtml.php
 rg -q 'id="myvibehtml-admin-link" data-dashboard data-dashboard-url="\{admin_url\}"|data-admin-section="pages"|data-admin-section="media"|data-admin-section="browser"' myvibehtml.php
@@ -91,7 +91,12 @@ if rg -n '#myvibehtml-style-inspector form\{.*min-width:max-content' myvibehtml-
     echo "regression: CSS inspector can force horizontal overflow" >&2
     exit 1
 fi
-rg -q "data-myvibehtml-markup-property|syncMarkupSource|HTML / ARIA" myvibehtml.js myvibehtml.php
+rg -q "data-myvibehtml-markup-property|syncMarkupSource|markupInspectorLegend" myvibehtml.js myvibehtml.php
+if rg -n "property: '(role|aria-label|aria-hidden)', label: 'ARIA" myvibehtml.js || rg -n "HTML / ARIA" myvibehtml.js; then
+    echo "regression: CSS inspector still exposes ARIA editing fields" >&2
+    exit 1
+fi
+rg -q "writeSourceDraft\(serializedSource\)" myvibehtml.js
 rg -q "data-preview-controls|data-preview-size|myvibehtml-preview-size" myvibehtml.php myvibehtml.js myvibehtml-theme.css myvibehtml-fallback.css
 if rg -n "data-preview-preset|previewPresets|tablet-landscape|mobile-landscape" myvibehtml.php myvibehtml.js; then
     echo "regression: duplicate preview preset control remains" >&2
@@ -132,23 +137,23 @@ node --test tests/ui-contracts.test.js
 node --test tests/module-boundaries.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.81" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.81" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.css?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-admin.js?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.82" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.82" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.81"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.82"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
-curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.81"
+curl -sS -D "$TMP_DIR/auth-headers" -o "$TMP_DIR/auth-body" "$BASE_URL/?q=test-page.html&rev=0.82"
 grep -Eiq '^Content-Security-Policy:.*script-src' "$TMP_DIR/auth-headers"
 grep -Eiq 'report-uri \?csp-report=1' "$TMP_DIR/auth-headers"
 report_status="$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/reports+json' --data '{"csp-report":{"violated-directive":"script-src"}}' "$BASE_URL/?csp-report=1")"
