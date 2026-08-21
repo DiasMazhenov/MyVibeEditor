@@ -1,8 +1,9 @@
-/* MyVibeHTML v0.66 */
+/* MyVibeHTML v0.67 */
 (function() {
     var windowObject = window,
         documentObject = document,
         sourceMapApi = windowObject.MyVibeHTMLSourceMap,
+        uiContracts = windowObject.MyVibeHTMLUIContracts || {},
         locationObject = location,
         setIntervalMethod = 'setInterval',
         setTimeoutMethod = 'setTimeout',
@@ -358,13 +359,13 @@
                 sourceHistoryApi = {markSaved:function(){},isDirty:function(){return false}},
                 readEditorTimeline = function() {
                     try {
-                        var editorTimelineData = windowObject.localStorage.getItem(editorTimelineKey),
+                        var editorTimelineData = uiContracts.storageGet(windowObject, 'localStorage', editorTimelineKey),
                             editorTimelineItems = editorTimelineData ? JSON.parse(editorTimelineData) : [];
                         return Array.isArray(editorTimelineItems) ? editorTimelineItems : []
                     } catch (editorTimelineError) { return [] }
                 },
                 writeEditorTimeline = function(editorTimelineItems) {
-                    try { windowObject.localStorage.setItem(editorTimelineKey, JSON.stringify(editorTimelineItems)) } catch (editorTimelineError) {}
+                    uiContracts.storageSet(windowObject, 'localStorage', editorTimelineKey, JSON.stringify(editorTimelineItems))
                 },
                 recordEditorTimeline = function(editorTimelineSource) {
                     if (typeof editorTimelineSource != 'string' || !editorTimelineSource) return;
@@ -376,20 +377,26 @@
                     writeEditorTimeline(editorTimelineItems)
                 },
                 writeSourceDraft = function(sourceDraftValue) {
-                    try { windowObject.localStorage.setItem(sourceDraftKey, JSON.stringify({source:sourceDraftValue,updated:Date.now()})) } catch (sourceDraftError) {}
+                    uiContracts.storageSet(windowObject, 'localStorage', sourceDraftKey, JSON.stringify({source:sourceDraftValue,updated:Date.now()}));
                     recordEditorTimeline(sourceDraftValue)
                 },
                 readSourceDraft = function() {
                     try {
-                        var sourceDraftValue = windowObject.localStorage.getItem(sourceDraftKey),
+                        var sourceDraftValue = uiContracts.storageGet(windowObject, 'localStorage', sourceDraftKey),
                             sourceDraftData = sourceDraftValue ? JSON.parse(sourceDraftValue) : null;
                         return sourceDraftData && typeof sourceDraftData.source == 'string' ? sourceDraftData.source : null
                     } catch (sourceDraftError) { return null }
                 },
                 clearSourceDraft = function() {
-                    try { windowObject.localStorage.removeItem(sourceDraftKey) } catch (sourceDraftError) {}
+                    uiContracts.storageRemove(windowObject, 'localStorage', sourceDraftKey)
                 },
                 validationDialog = null,
+                validationDialogFocusCleanup = null,
+                closeValidationDialog = function() {
+                    if (!validationDialog) return;
+                    validationDialog.hidden = true;
+                    if (validationDialogFocusCleanup) validationDialogFocusCleanup(), validationDialogFocusCleanup = null
+                },
                 validationDialogOpen = function(candidateSource, baselineSource, saveCallback, validationOptions) {
                     var validationText = function(attribute, fallback) {
                             return pageValidateButton && pageValidateButton[getAttributeMethod]('data-' + attribute) || fallback
@@ -474,8 +481,8 @@
                         validationDialog.setAttribute('aria-modal', 'true');
                         validationDialog[innerHTMLProperty] = '<div class="myvibehtml-validation-header"><h2></h2><button type="button" data-validation-close></button></div><p data-validation-summary></p><ul data-validation-issues></ul><h3></h3><pre data-validation-diff></pre><div class="myvibehtml-validation-footer"><button type="button" data-validation-cancel></button><button type="button" data-validation-confirm></button></div>';
                         documentObject.body[appendChildMethod](validationDialog);
-                        validationDialog[querySelectorMethod]('[data-validation-close]')[addEventListenerMethod](clickEvent, function() { validationDialog.hidden = true });
-                        validationDialog[querySelectorMethod]('[data-validation-cancel]')[addEventListenerMethod](clickEvent, function() { validationDialog.hidden = true });
+                        validationDialog[querySelectorMethod]('[data-validation-close]')[addEventListenerMethod](clickEvent, closeValidationDialog);
+                        validationDialog[querySelectorMethod]('[data-validation-cancel]')[addEventListenerMethod](clickEvent, closeValidationDialog);
                     }
                     var validationErrorCount = 0,
                         validationWarningCount = 0,
@@ -517,8 +524,10 @@
                         validationSummaryText = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
                     validationSummary[textContentProperty] = validationSummaryText + ' · ' + validationText('validation-score', 'Score') + ': ' + validationScore + '/100';
                     validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationOptions && validationOptions.noChanges || validationText('validation-no-changes', 'No changes');
-                    validationConfirm.onclick = saveCallback ? function() { validationDialog.hidden = true; saveCallback() } : null;
+                    validationConfirm.onclick = saveCallback ? function() { closeValidationDialog(); saveCallback() } : null;
                     validationDialog.hidden = false;
+                    if (validationDialogFocusCleanup) validationDialogFocusCleanup();
+                    validationDialogFocusCleanup = uiContracts.focusTrap ? uiContracts.focusTrap(validationDialog) : null;
                     validationDialog[querySelectorMethod]('[data-validation-close]')[focusEvent]()
                 },
                 initializeVisualEditor = function() {
@@ -552,6 +561,13 @@
                         mediaPicker = null,
                         mediaPickerTarget = null,
                         blockLibraryPanel = null,
+                        blockLibraryFocusCleanup = null,
+                        closeBlockLibrary = function() {
+                            if (!blockLibraryPanel) return;
+                            blockLibraryPanel.hidden = true;
+                            blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true');
+                            if (blockLibraryFocusCleanup) blockLibraryFocusCleanup(), blockLibraryFocusCleanup = null
+                        },
                         blockLibraryButton = null,
                         componentLinkAttribute = 'data-myvibe-component-id',
                         sourceMapState = null,
@@ -691,7 +707,7 @@
                         },
                         readBlockLibrary = function() {
                             try {
-                                var blockLibraryData = windowObject.localStorage.getItem(productPrefix + ':blocks'),
+                                var blockLibraryData = uiContracts.storageGet(windowObject, 'localStorage', productPrefix + ':blocks'),
                                     blockLibraryItems = blockLibraryData ? JSON.parse(blockLibraryData) : [];
                                 if (!Array.isArray(blockLibraryItems)) return [];
                                 for (var blockLibraryIndex = 0; blockLibraryIndex < blockLibraryItems[lengthProperty]; blockLibraryIndex++) {
@@ -700,13 +716,14 @@
                                 }
                                 return blockLibraryItems
                             } catch (blockLibraryError) {
+                                if (uiContracts.storageStatus) uiContracts.storageStatus('read');
                                 return []
                             }
                         },
                         writeBlockLibrary = function(blockLibraryItems) {
                             try {
-                                windowObject.localStorage.setItem(productPrefix + ':blocks', JSON.stringify(blockLibraryItems))
-                            } catch (blockLibraryError) {}
+                                uiContracts.storageSet(windowObject, 'localStorage', productPrefix + ':blocks', JSON.stringify(blockLibraryItems))
+                            } catch (blockLibraryError) { if (uiContracts.storageStatus) uiContracts.storageStatus('write') }
                         },
                         sanitizeBlockMarkup = function(blockMarkup) {
                             var blockMarkupDocument = new DOMParser()[parseFromStringMethod]('<div>' + blockMarkup + '</div>', 'text/html'),
@@ -818,10 +835,7 @@
                             blockLibraryPanel[setAttributeMethod]('aria-label', blockLibraryRussian ? 'Компоненты' : 'Components');
                             blockLibraryPanel[innerHTMLProperty] = '<div class="myvibehtml-block-library-header"><h2>' + (blockLibraryRussian ? 'Компоненты' : 'Components') + '</h2><button type="button" data-block-library-close aria-label="' + (blockLibraryRussian ? 'Закрыть' : 'Close') + '">×</button></div><p class="myvibehtml-block-library-hint">' + (blockLibraryRussian ? 'Сохраняйте повторно используемые секции и вставляйте их в выбранное место.' : 'Save reusable sections and insert them after the selected node.') + '</p><ul data-block-library-list></ul>';
                             documentObject.body[appendChildMethod](blockLibraryPanel);
-                            blockLibraryPanel[querySelectorMethod]('[data-block-library-close]')[addEventListenerMethod](clickEvent, function() {
-                                blockLibraryPanel.hidden = true;
-                                blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true')
-                            });
+                            blockLibraryPanel[querySelectorMethod]('[data-block-library-close]')[addEventListenerMethod](clickEvent, closeBlockLibrary);
                             return blockLibraryPanel
                         },
                         renderBlockLibrary = function() {
@@ -891,6 +905,8 @@
                             renderBlockLibrary();
                             blockLibrary.hidden = false;
                             blockLibrary[setAttributeMethod]('aria-hidden', 'false');
+                            if (blockLibraryFocusCleanup) blockLibraryFocusCleanup();
+                            blockLibraryFocusCleanup = uiContracts.focusTrap ? uiContracts.focusTrap(blockLibrary) : null;
                             var blockLibraryClose = blockLibrary[querySelectorMethod]('[data-block-library-close]');
                             if (blockLibraryClose) blockLibraryClose[focusEvent]()
                         },
@@ -942,10 +958,7 @@
                             runtimeValue4[disabledProperty] = false;
                             writeSourceDraft(serializedSource);
                             runtimeValue75();
-                            if (blockLibraryPanel) {
-                                blockLibraryPanel.hidden = true;
-                                blockLibraryPanel[setAttributeMethod]('aria-hidden', 'true')
-                            }
+                            closeBlockLibrary()
                         },
                         setStyleInspectorWidth = function(width) {
                             if (!styleInspector || windowObject.innerWidth <= 700) return;
@@ -3610,6 +3623,13 @@
                         sourceHistoryRestoreButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="restore"]') : null,
                         sourceHistoryTimelineButton = sourceHistoryBar ? sourceHistoryBar[querySelectorMethod]('[data-source-action="timeline"]') : null,
                         sourceHistoryTimeline = null,
+                        sourceHistoryTimelineFocusCleanup = null,
+                        closeSourceHistoryTimeline = function() {
+                            if (!sourceHistoryTimeline) return;
+                            sourceHistoryTimeline.hidden = true;
+                            sourceHistoryTimeline[setAttributeMethod]('aria-hidden', 'true');
+                            if (sourceHistoryTimelineFocusCleanup) sourceHistoryTimelineFocusCleanup(), sourceHistoryTimelineFocusCleanup = null
+                        },
                         sourceHistoryValue = function() { return runtimeValue137(runtimeValue131[innerHTMLProperty]) },
                         sourceHistoryStatusUpdate = function() {
                             if (!sourceHistoryBar) return;
@@ -3690,7 +3710,7 @@
                                 sourceHistoryTimeline.hidden = true;
                                 sourceHistoryTimeline[innerHTMLProperty] = '<div class="myvibehtml-timeline-header"><h2>' + (sourceHistoryTimelineRussian ? 'История изменений' : 'Change history') + '</h2><button type="button" data-timeline-close aria-label="' + (sourceHistoryTimelineRussian ? 'Закрыть' : 'Close') + '">×</button></div><p>' + (sourceHistoryTimelineRussian ? 'Снимки создаются при изменениях в визуальном и текстовом редакторе.' : 'Snapshots are created by visual and source editor changes.') + '</p><ol data-timeline-list></ol>';
                                 documentObject.body[appendChildMethod](sourceHistoryTimeline);
-                                sourceHistoryTimeline[querySelectorMethod]('[data-timeline-close]')[addEventListenerMethod](clickEvent, function() { sourceHistoryTimeline.hidden = true });
+                                sourceHistoryTimeline[querySelectorMethod]('[data-timeline-close]')[addEventListenerMethod](clickEvent, closeSourceHistoryTimeline);
                             }
                             var sourceHistoryTimelineList = sourceHistoryTimeline[querySelectorMethod]('[data-timeline-list]'),
                                 sourceHistoryTimelineItems = readEditorTimeline();
@@ -3716,13 +3736,15 @@
                                     sourceHistory.current = sourceHistoryTimelineItemToRestore.source;
                                     sourceHistoryRender(sourceHistory.current);
                                     sourceHistoryStatusUpdate();
-                                    sourceHistoryTimeline.hidden = true
+                                    closeSourceHistoryTimeline()
                                 });
                                 sourceHistoryTimelineItem[appendChildMethod](sourceHistoryTimelineEntry);
                                 sourceHistoryTimelineList[appendChildMethod](sourceHistoryTimelineItem)
                             }
                             sourceHistoryTimeline.hidden = false;
                             sourceHistoryTimeline[setAttributeMethod]('aria-hidden', 'false');
+                            if (sourceHistoryTimelineFocusCleanup) sourceHistoryTimelineFocusCleanup();
+                            sourceHistoryTimelineFocusCleanup = uiContracts.focusTrap ? uiContracts.focusTrap(sourceHistoryTimeline) : null;
                             sourceHistoryTimeline[querySelectorMethod]('[data-timeline-close]')[focusEvent]()
                         };
                     windowObject[addEventListenerMethod](resizeEvent, runtimeValue149);
@@ -3941,7 +3963,7 @@
                 fileManagerReplacePreviewButton = runtimeValue164[querySelectorMethod]('[data-file-action="replace"]'),
                 fileManagerRollbackButton = runtimeValue164[querySelectorMethod]('[data-file-action="rollback"]'),
                 fileManagerLastReplacementId = '';
-            try { fileManagerLastReplacementId = windowObject.sessionStorage.getItem('myvibehtml:last-replacement') || '' } catch (fileManagerStorageError) {}
+            fileManagerLastReplacementId = uiContracts.storageGet(windowObject, 'sessionStorage', 'myvibehtml:last-replacement') || '';
             if (fileManagerRollbackButton && fileManagerLastReplacementId) fileManagerRollbackButton[hiddenValue] = false;
             if (locationObject.pathname == runtimeValue165[getAttributeMethod](dataAttributePrefix + 'cl') && locationObject[searchMethod][indexOfMethod]('?q=') === 0) {
                 runtimeValue169 = runtimeValue168 + locationObject[searchMethod][sliceMethod](3);
@@ -4054,7 +4076,7 @@
                                     return
                                 }
                                 fileManagerLastReplacementId = fileManagerReplacementId[1];
-                                try { windowObject.sessionStorage.setItem('myvibehtml:last-replacement', fileManagerLastReplacementId) } catch (fileManagerStorageError) {}
+                                uiContracts.storageSet(windowObject, 'sessionStorage', 'myvibehtml:last-replacement', fileManagerLastReplacementId);
                                 if (fileManagerRollbackButton) fileManagerRollbackButton[hiddenValue] = false;
                                 fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-success'), 'c');
                                 searchProject()
@@ -4073,7 +4095,7 @@
                     if (!fileManagerLastReplacementId) return;
                     fileManagerSubmit('content_replace_rollback=' + windowObject[encodeURIComponentMethod](fileManagerLastReplacementId), function() {
                         fileManagerLastReplacementId = '';
-                        try { windowObject.sessionStorage.removeItem('myvibehtml:last-replacement') } catch (fileManagerStorageError) {}
+                        uiContracts.storageRemove(windowObject, 'sessionStorage', 'myvibehtml:last-replacement');
                         if (fileManagerRollbackButton) fileManagerRollbackButton[hiddenValue] = true;
                         fileManagerStatus(runtimeValue164[getAttributeMethod]('data-replace-rollback-success'), 'c');
                         searchProject()

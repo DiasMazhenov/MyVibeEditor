@@ -114,19 +114,19 @@ node --test tests/ui-contracts.test.js
 node --test tests/module-boundaries.test.js
 sh security-smoke.sh >/dev/null
 
-curl -fsS "$BASE_URL/myvibehtml.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml.css?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.66" >/dev/null
-curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.66" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-source-map.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-ui-contracts.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-transport.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-auth.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-shell-controls.js?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml.css?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-theme.css?v=0.67" >/dev/null
+curl -fsS "$BASE_URL/myvibehtml-fallback.css?v=0.67" >/dev/null
 curl -fsS "$BASE_URL/test-page.html" >/dev/null
 expect_status 200 "$BASE_URL/test-page.html"
 expect_status 403 "$BASE_URL/myvibehtml.php"
-expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.66"
+expect_status 403 "$BASE_URL/?q=test-page.html&rev=0.67"
 expect_status 403 "$BASE_URL/myvibe/backup/26.08.19.14.43/source.php"
 for icon in device-desktop device-tablet device-mobile layout-grid; do
     test -s "myvibehtml-icons/$icon.svg"

@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.67
+
+- P2 Terra: доступ к local/session storage переведён на `MyVibeHTMLUIContracts.storageGet/storageSet/storageRemove`; ошибки блокировки и quota теперь показывают видимый `role=status` live-region, вместо молчаливой потери draft, timeline, компонентов, preview-профиля или rollback id.
+- Общий `focusTrap()` удерживает Tab/Shift+Tab внутри validation, components, timeline, site map и command palette; закрытие удаляет listener и возвращает фокус на инициатор.
+- Authenticated E2E получил `MYVIBEHTML_E2E_REQUIRE=1` и необязательный save/reload сценарий с `MYVIBEHTML_E2E_SAVE_CONTENT_B64` + `MYVIBEHTML_E2E_SAVE_EXPECT`; без секретов он по-прежнему явно SKIP.
+- Обновлены README, architecture, browser acceptance, CHANGELOG, UI contracts, shell/editor runtime, CSS, E2E и version markers до `0.67`.
+- Проверки P2: JS syntax, targeted UI/feature tests (7 PASS), shell E2E `sh -n` и smoke без секретов (`SKIP`) — PASS. Полный набор и HTTP regression нужно повторить перед коммитом.
+- Встроенный браузер всё ещё открыт на старом `rev=0.65`; после коммита открыть `?q=myvibe/test-page.html&rev=0.67` и вручную проверить storage-error banner и Tab/Shift+Tab в каждом окне.
+- Следующий этап: P3 — убрать дубли геометрии theme/fallback, довести Page Health/ARIA, ограничить расчёт размеров каталогов и убрать оставшийся `serialize()`.
+
 ## Текущее исправление v0.66
 
 - По аудиту Terra усилен source-map: `openingRangeFor()` отвечает только за opening-tag, `elementRangeFor()` возвращает полный диапазон узла, парные диапазоны строятся стеком; при неоднозначности структурная операция завершается безопасно и не переписывает HTML.

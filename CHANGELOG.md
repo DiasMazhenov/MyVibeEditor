@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.67
+
+- local/session storage переведены на общий UI-контракт с видимым live-status при блокировке или quota error;
+- validation, components, timeline, site map и command palette получили общий focus-trap с возвратом фокуса на инициатор;
+- authenticated E2E получил обязательный режим и опциональный save/reload smoke через `MYVIBEHTML_E2E_SAVE_CONTENT_B64` и `MYVIBEHTML_E2E_SAVE_EXPECT`;
+- обновлены accessibility/browser acceptance, архитектурная документация и контрактные тесты.
+
 ## 0.66
 
 - source-map теперь различает диапазон opening-tag и полный диапазон элемента; структурные визуальные операции используют полный диапазон и завершаются без изменения HTML при неоднозначном сопоставлении;

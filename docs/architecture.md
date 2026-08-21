@@ -1,6 +1,6 @@
-# Архитектура v0.66
+# Архитектура v0.67
 
-v0.66 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.67 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -19,7 +19,7 @@ v0.66 сохраняет безопасные модульные границы 
 
 ## Reusable Components
 
-Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию или связанную копию с `data-myvibe-component-id`, а `updateBlockPreset()` обновляет запись текущим выделением. `syncLinkedComponentInstances()` обновляет связанные узлы текущей страницы, а `storage` event распространяет изменения в другие открытые редакторы того же origin. Изменение записывается в draft и требует явного сохранения каждой страницы; серверный HTML и внешние библиотеки для синхронизации не нужны.
+Компоненты используют существующий `myvibehtml:blocks` localStorage и `sanitizeBlockMarkup()`. `saveBlockPreset()` сохраняет безопасный outerHTML с id/датами, `insertBlockPreset()` вставляет независимую копию или связанную копию с `data-myvibe-component-id`, а `updateBlockPreset()` обновляет запись текущим выделением. `syncLinkedComponentInstances()` обновляет связанные узлы текущей страницы, а `storage` event распространяет изменения в другие открытые редакторы того же origin. Доступ к local/session storage проходит через `MyVibeHTMLUIContracts`: ошибки чтения/квоты дают видимый status-live-region, а не молча теряются. Изменение записывается в draft и требует явного сохранения каждой страницы; серверный HTML и внешние библиотеки для синхронизации не нужны.
 
 ## Design Tokens
 
@@ -30,6 +30,7 @@ v0.66 сохраняет безопасные модульные границы 
 - **Навигация по страницам**: shell-модуль сканирует `a[href]` в same-origin iframe, убирает дубли/внешние URL и строит доступный диалог с открытием страниц в новой вкладке.
 - **Page Health**: существующий `validationDialogOpen()` дополнен локальными SEO, структурными, ссылочными и ресурсными предупреждениями; сервер и внешние сервисы не вызываются.
 - **Responsive Preview Studio**: существующий `data-preview-size` расширен профилями с альбомной ориентацией и точной шириной iframe через inline style; выбранный профиль хранится в localStorage по нормализованному пути файла, с возвратом всех inline-стилей при desktop.
+- **Modal accessibility**: validation, components, timeline, site map и command palette используют общий focus-trap из UI contracts; закрытие снимает listener и возвращает фокус на кнопку-инициатор.
 
 Shell-модуль загружается после основного editor runtime и не имеет внешних запросов. Он не импортирует приватные переменные closure: действия вызываются через DOM, поэтому физическое извлечение не меняет публичный editor contract. CI отдельно проверяет его наличие, синтаксис, порядок загрузки и version markers.
 
@@ -42,4 +43,4 @@ v0.29 фиксирует границы runtime без добавления би
 - `myvibehtml-theme.css` и `myvibehtml-fallback.css` — theme и минимальный fallback;
 - `tests/` — source-map, deobfuscation, security smoke, HTTP regression и optional authenticated E2E.
 
-Граница между PHP runtime helpers и controller проверяется отдельным `php -l`, а CI запускает полный static/unit/security/HTTP набор. Authenticated E2E не хранит пароль или cookie в репозитории: он запускается только при наличии секретов `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`.
+Граница между PHP runtime helpers и controller проверяется отдельным `php -l`, а CI запускает полный static/unit/security/HTTP набор. Authenticated E2E не хранит пароль или cookie в репозитории: он запускается только при наличии секретов `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; при передаче `MYVIBEHTML_E2E_SAVE_CONTENT_B64` и `MYVIBEHTML_E2E_SAVE_EXPECT` дополнительно выполняет save/reload.

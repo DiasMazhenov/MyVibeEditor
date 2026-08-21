@@ -2,7 +2,7 @@
 
 MyVibeHTML — локальный визуальный редактор HTML-страниц. Он работает внутри сайта на PHP, открывает выбранный файл в iframe, позволяет менять текст и структуру блоков, а исходный код редактировать в отдельной вкладке.
 
-Текущая версия: **0.66**.
+Текущая версия: **0.67**.
 
 ## Возможности
 
@@ -39,9 +39,10 @@ MyVibeHTML — локальный визуальный редактор HTML-с�
 - контекстное меню с Escape, стрелочной навигацией, Home/End и возвратом фокуса;
 - локальные SVG-иконки без runtime-запросов к внешним доменам;
 - модульные runtime-контракты для PHP, source-map, UI contracts и transport;
+- общий UI-контракт показывает видимый статус при недоступном `localStorage`/`sessionStorage` и удерживает фокус внутри открытых модальных окон с возвратом на инициатор;
 - защитные HTTP-заголовки, CSP Report-Only, проверки путей и атомарная запись файлов.
 
-CI запускает PHP/JS syntax checks, unit/security/HTTP regression и optional authenticated HTTP E2E. Пароли и cookies для E2E берутся только из GitHub Actions secrets `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; без них проверка явно пропускается. Полный ручной acceptance-сценарий для встроенного браузера находится в [`docs/browser-acceptance.md`](docs/browser-acceptance.md).
+CI запускает PHP/JS syntax checks, unit/security/HTTP regression и optional authenticated HTTP E2E. Пароли и cookies для E2E берутся только из GitHub Actions secrets `MYVIBEHTML_E2E_URL` и `MYVIBEHTML_E2E_COOKIE`; без них проверка явно пропускается. Для save/reload smoke можно дополнительно передать `MYVIBEHTML_E2E_SAVE_CONTENT_B64` и `MYVIBEHTML_E2E_SAVE_EXPECT`; обязательный режим включается `MYVIBEHTML_E2E_REQUIRE=1`. Полный ручной acceptance-сценарий для встроенного браузера находится в [`docs/browser-acceptance.md`](docs/browser-acceptance.md).
 
 ## Скриншоты
 

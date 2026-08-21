@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.66 auth flow */
+/* MyVibeHTML v0.67 auth flow */
 (function(root) {
     var documentObject = root.document,
         locationObject = root.location,

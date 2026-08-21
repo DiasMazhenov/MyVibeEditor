@@ -1,14 +1,16 @@
-/* MyVibeHTML v0.66 shell controls: page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.67 shell controls: page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
     document.addEventListener('DOMContentLoaded', function() {
-        var panel = document.querySelector('#e');
+        var panel = document.querySelector('#e'),
+            uiContracts = window.MyVibeHTMLUIContracts || {};
         if (!panel) return;
 
         var palette = null,
             paletteInput = null,
             paletteList = null,
+            paletteFocusCleanup = null,
             commands = [],
             activeIndex = 0,
             getText = function(attribute, fallback) {
@@ -56,7 +58,8 @@
             close = function() {
                 if (palette) {
                     palette.hidden = true;
-                    paletteInput.value = ''
+                    paletteInput.value = '';
+                    if (paletteFocusCleanup) paletteFocusCleanup(), paletteFocusCleanup = null
                 }
             },
             render = function() {
@@ -121,6 +124,8 @@
                 activeIndex = 0;
                 palette.hidden = false;
                 render();
+                if (paletteFocusCleanup) paletteFocusCleanup();
+                paletteFocusCleanup = uiContracts.focusTrap ? uiContracts.focusTrap(palette) : null;
                 paletteInput.focus()
             };
 
@@ -175,13 +180,14 @@
                         previewFrame.style.transform = ''
                     }
                     if (previewPreset) previewPreset.value = previewPresets[previewPresetName] ? previewPresetName : 'desktop';
-                    try { localStorage.setItem(previewStorageKey, previewPresets[previewPresetName] ? previewPresetName : 'desktop') } catch (storageError) {}
+                    if (uiContracts.storageSet) uiContracts.storageSet(window, 'localStorage', previewStorageKey, previewPresets[previewPresetName] ? previewPresetName : 'desktop');
                     for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].setAttribute('aria-pressed', previewButtons[previewIndex].getAttribute('data-preview-size') == preset.size ? 'true' : 'false')
                 };
             for (var previewIndex = 0; previewIndex < previewButtons.length; previewIndex++) previewButtons[previewIndex].addEventListener('click', function() { setPreviewSize(this.getAttribute('data-preview-size')) });
             if (previewPreset) previewPreset.addEventListener('change', function() { setPreviewSize(this.value) });
             var initialPreviewPreset = 'desktop';
-            try { if (previewPresets[localStorage.getItem(previewStorageKey)]) initialPreviewPreset = localStorage.getItem(previewStorageKey) } catch (storageError) {}
+            var storedPreviewPreset = uiContracts.storageGet ? uiContracts.storageGet(window, 'localStorage', previewStorageKey) : null;
+            if (previewPresets[storedPreviewPreset]) initialPreviewPreset = storedPreviewPreset;
             setPreviewSize(initialPreviewPreset)
         }
 
@@ -225,7 +231,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        var panel = document.querySelector('#e'), siteMapButton, siteMap = null, siteMapList = null, iframe;
+        var panel = document.querySelector('#e'), siteMapButton, siteMap = null, siteMapList = null, siteMapFocusCleanup = null, iframe;
         if (!panel) return;
         siteMapButton = panel.querySelector('[data-site-map]');
         iframe = document.querySelector('#d iframe');
@@ -238,7 +244,8 @@
             close = function() {
                 if (siteMap) {
                     siteMap.hidden = true;
-                    siteMap.setAttribute('aria-hidden', 'true')
+                    siteMap.setAttribute('aria-hidden', 'true');
+                    if (siteMapFocusCleanup) siteMapFocusCleanup(), siteMapFocusCleanup = null
                 }
             },
             render = function() {
@@ -298,6 +305,8 @@
                 render();
                 siteMap.hidden = false;
                 siteMap.setAttribute('aria-hidden', 'false');
+                if (siteMapFocusCleanup) siteMapFocusCleanup();
+                siteMapFocusCleanup = window.MyVibeHTMLUIContracts && window.MyVibeHTMLUIContracts.focusTrap ? window.MyVibeHTMLUIContracts.focusTrap(siteMap) : null;
                 siteMap.querySelector('button').focus()
             };
         siteMapButton.addEventListener('click', open);
