@@ -62,6 +62,8 @@ test('Page Health adds local SEO, structure and resource checks', () => {
     assert.match(editor, /validation-accessible-name/);
     assert.match(editor, /validation-form-label/);
     assert.match(editor, /validation-heading-order/);
+    assert.match(editor, /validation-aria-labelledby/);
+    assert.match(editor, /getElementById\(validationLabelledbyReferences/);
     assert.match(php, /data-validation-description/);
     assert.match(php, /data-validation-accessible-name/);
     assert.match(php, /data-validation-heavy/);

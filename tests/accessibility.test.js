@@ -31,6 +31,11 @@ test('context menu supports roving keyboard focus and shared theme tokens', () =
     assert.match(fallback, /--mv-bg:/);
 });
 
+test('fallback owns the storage failure status geometry', () => {
+    assert.doesNotMatch(theme, /#myvibehtml-storage-status/);
+    assert.match(fallback, /#myvibehtml-storage-status\[hidden\]/);
+});
+
 test('Page Health exposes local accessible-name and heading checks', () => {
     assert.match(js, /validationInteractiveNodes/);
     assert.match(js, /validationFormControls/);

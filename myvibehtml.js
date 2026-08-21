@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.67 */
+/* MyVibeHTML v0.68 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -408,20 +408,20 @@
                         validationIndex = 0,
                         validationMessage = function(attribute, russian, english) { return validationText(attribute, documentObject.documentElement.lang == 'ru' ? russian : english) };
                     if (!validationOptions) {
-                        if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:'Empty source'});
+                        if (!candidateSource || !candidateSource.trim()) validationIssues.push({level:'error',text:validationMessage('validation-empty-source', 'Исходный код пуст', 'Source is empty')});
                         for (; validationIndex < validationNodes[lengthProperty]; validationIndex++) {
                             var validationNode = validationNodes[validationIndex],
                                 validationNodeId = validationNode[getAttributeMethod]('id'),
                                 validationNodeTag = validationNode[tagNameProperty][toLowerCaseMethod]();
                             if (validationNodeId) {
-                                if (validationIds[validationNodeId]) validationIssues.push({level:'error',text:'Duplicate id: #' + validationNodeId});
+                                if (validationIds[validationNodeId]) validationIssues.push({level:'error',text:validationMessage('validation-duplicate-id', 'Повторяющийся id', 'Duplicate id') + ': #' + validationNodeId});
                                 validationIds[validationNodeId] = true
                             }
                             for (var validationAttributeIndex = 0; validationAttributeIndex < validationNode.attributes[lengthProperty]; validationAttributeIndex++) {
                                 var validationAttribute = validationNode.attributes[validationAttributeIndex];
-                                if ((validationAttribute.name == 'href' || validationAttribute.name == 'src' || validationAttribute.name == 'action') && /^(?:javascript|vbscript):/i.test(validationAttribute.value)) validationIssues.push({level:'error',text:'Unsafe URL in ' + validationNodeTag + '[' + validationAttribute.name + ']'});
+                                if ((validationAttribute.name == 'href' || validationAttribute.name == 'src' || validationAttribute.name == 'action') && /^(?:javascript|vbscript):/i.test(validationAttribute.value)) validationIssues.push({level:'error',text:validationMessage('validation-unsafe-url', 'Небезопасный URL в ', 'Unsafe URL in ') + validationNodeTag + '[' + validationAttribute.name + ']'});
                             }
-                            if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:'Image without alt attribute'});
+                            if (validationNodeTag == 'img' && !validationNode.hasAttribute('alt')) validationIssues.push({level:'warning',text:validationMessage('validation-image-alt', 'Изображение без атрибута alt', 'Image without alt attribute')});
                         }
                         if (!validationDocument.querySelector('html')) validationIssues.push({level:'warning',text:validationMessage('validation-html', 'Отсутствует элемент html', 'Missing html element')});
                         var validationHtml = validationDocument.querySelector('html'),
@@ -433,7 +433,8 @@
                             validationLinks = validationDocument.querySelectorAll('a'),
                             validationInteractiveNodes = validationDocument.querySelectorAll('button,a,input,select,textarea'),
                             validationFormControls = validationDocument.querySelectorAll('input,select,textarea'),
-                            validationResourceCount = validationDocument.querySelectorAll('img,script,link,iframe,video,audio').length;
+                            validationResourceCount = validationDocument.querySelectorAll('img,script,link,iframe,video,audio').length,
+                            validationLabelledbyNodes = validationDocument.querySelectorAll('[aria-labelledby]');
                         if (!validationTitle) validationIssues.push({level:'warning',text:validationMessage('validation-title', 'Отсутствует элемент title', 'Missing title element')});
                         else if (!(validationTitle.textContent || '').replace(/^\s+|\s+$/g, '')) validationIssues.push({level:'warning',text:validationMessage('validation-empty-title', 'Заголовок title пустой', 'Title is empty')});
                         if (!validationHtml || !validationHtml.getAttribute('lang')) validationIssues.push({level:'warning',text:validationMessage('validation-missing-lang', 'Отсутствует атрибут lang', 'Missing lang attribute')});
@@ -452,6 +453,11 @@
                                 validationAccessibleName = validationLinkImage && validationLinkImage.getAttribute('alt') || ''
                             }
                             if (!validationAccessibleName) validationIssues.push({level:'warning',text:validationMessage('validation-accessible-name', 'Интерактивный элемент без доступного имени', 'Interactive element has no accessible name')});
+                        }
+                        for (validationIndex = 0; validationIndex < validationLabelledbyNodes.length; validationIndex++) {
+                            var validationLabelledbyReferences = (validationLabelledbyNodes[validationIndex].getAttribute('aria-labelledby') || '').replace(/^\s+|\s+$/g, '').split(/\s+/),
+                                validationLabelledbyReferenceIndex;
+                            for (validationLabelledbyReferenceIndex = 0; validationLabelledbyReferenceIndex < validationLabelledbyReferences.length; validationLabelledbyReferenceIndex++) if (validationLabelledbyReferences[validationLabelledbyReferenceIndex] && !validationDocument.getElementById(validationLabelledbyReferences[validationLabelledbyReferenceIndex])) validationIssues.push({level:'warning',text:validationMessage('validation-aria-labelledby', 'aria-labelledby ссылается на отсутствующий элемент', 'aria-labelledby references a missing element') + ': ' + validationLabelledbyReferences[validationLabelledbyReferenceIndex]});
                         }
                         for (validationIndex = 0; validationIndex < validationFormControls.length; validationIndex++) {
                             var validationFormControl = validationFormControls[validationIndex],
@@ -521,9 +527,12 @@
                     validationConfirm[textContentProperty] = validationOptions && validationOptions.confirm || validationText('validation-save', 'Save anyway');
                     validationConfirm.hidden = !saveCallback;
                     var validationScore = Math.max(0, 100 - validationErrorCount * 25 - validationWarningCount * 5),
-                        validationSummaryText = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + ' error(s), ' + validationWarningCount + ' warning(s)' : validationWarningCount ? validationWarningCount + ' warning(s) — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
-                    validationSummary[textContentProperty] = validationSummaryText + ' · ' + validationText('validation-score', 'Score') + ': ' + validationScore + '/100';
-                    validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationOptions && validationOptions.noChanges || validationText('validation-no-changes', 'No changes');
+                        validationRussian = documentObject.documentElement.lang == 'ru',
+                        validationErrorLabel = validationRussian ? (validationErrorCount == 1 ? ' ошибка' : ' ошибки') : (validationErrorCount == 1 ? ' error' : ' errors'),
+                        validationWarningLabel = validationRussian ? (validationWarningCount == 1 ? ' предупреждение' : ' предупреждения') : (validationWarningCount == 1 ? ' warning' : ' warnings'),
+                        validationSummaryText = validationOptions && validationOptions.summary || (validationErrorCount ? validationErrorCount + validationErrorLabel + ', ' + validationWarningCount + validationWarningLabel : validationWarningCount ? validationWarningCount + validationWarningLabel + ' — ' + validationText('validation-clean', 'No critical problems found') : validationText('validation-clean', 'No critical problems found'));
+                    validationSummary[textContentProperty] = validationSummaryText + ' · ' + validationMessage('validation-score', 'Оценка', 'Score') + ': ' + validationScore + '/100';
+                    validationDiff[textContentProperty] = validationLines[lengthProperty] ? validationLines.join('\n') : validationOptions && validationOptions.noChanges || validationMessage('validation-no-changes', 'Изменений нет', 'No changes');
                     validationConfirm.onclick = saveCallback ? function() { closeValidationDialog(); saveCallback() } : null;
                     validationDialog.hidden = false;
                     if (validationDialogFocusCleanup) validationDialogFocusCleanup();

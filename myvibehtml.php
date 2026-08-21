@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.67 */
+<?php /* MyVibeHTML v0.68 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -600,7 +600,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.67';
+    const VERSION = '0.68';
     private $config;
     private $request;
     private $response;
@@ -776,7 +776,7 @@ final class MyVibeHTMLController
                 $this->config->setSetting(SETTING_SESSION, '');
                 $this->config->setSetting(SETTING_SESSION_EXPIRES_AT, '');
             }
-            $authenticate3 = myvibehtml_unserialize_array(urldecode($this->config->getSetting(SETTING_AUTH_ERROR_LIST)));
+            $authenticate3 = myvibehtml_decode_array($this->config->getSetting(SETTING_AUTH_ERROR_LIST));
             $authenticate4 = $this->config->getSetting(SETTING_AUTH_ERROR_LIMIT);
             $authenticate5 = $this->request->getServer(REQUEST_REMOTE_ADDR);
             if ($authenticate3 && isset($authenticate3[$authenticate5])) $authenticate6 = $authenticate3[$authenticate5]; else$authenticate6 = 0;
@@ -791,7 +791,7 @@ final class MyVibeHTMLController
                             $this->createSession();
                             if (isset($authenticate3[$authenticate5])) {
                                 unset($authenticate3[$authenticate5]);
-                                $this->config->setSetting(SETTING_AUTH_ERROR_LIST, urlencode(serialize($authenticate3)));
+                                $this->config->setSetting(SETTING_AUTH_ERROR_LIST, myvibehtml_encode_array($authenticate3));
                             }
                             $this->config->setSetting(SETTING_AUTH_TIME, $authenticate2);
                             $this->config->setSetting(SETTING_CACHE, '');
@@ -802,7 +802,7 @@ final class MyVibeHTMLController
                     } else {
                         $this->config->setSetting(SETTING_AUTH_ERROR_TIME, $authenticate2);
                         $authenticate3[$authenticate5] = $authenticate6 + 1;
-                        $this->config->setSetting(SETTING_AUTH_ERROR_LIST, urlencode(serialize($authenticate3)));
+                        $this->config->setSetting(SETTING_AUTH_ERROR_LIST, myvibehtml_encode_array($authenticate3));
                         $this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
                     }
                 } else$this->response->setStatus(404, $this->config->translate(HTTP_STATUS_NOT_FOUND, 'en'));
@@ -1821,14 +1821,17 @@ final class MyVibeHTMLController
             $getdirectorysize2 = $this->config->getSetting(SETTING_CACHE);
             if (!$getdirectorysize2) {
                 $getdirectorysize2 = $this->calculateDirectorySizes($this->config->getSiteUrl());
-                $this->config->setSetting(SETTING_CACHE, urlencode(serialize($getdirectorysize2)));
-            } else$getdirectorysize2 = myvibehtml_unserialize_array(urldecode($getdirectorysize2));
+                $this->config->setSetting(SETTING_CACHE, myvibehtml_encode_array($getdirectorysize2));
+            } else$getdirectorysize2 = myvibehtml_decode_array($getdirectorysize2);
             return $getdirectorysize2[$getdirectorysize1];
         } else return '';
     }
 
-    private function calculateDirectorySizes($calculatedirectorysizes1)
+    private function calculateDirectorySizes($calculatedirectorysizes1, $directoryDepth = 0, $directoryDeadline = 0)
     {
+        // ponytail: bound one scan by depth/time; replace with queued lazy expansion if large sites need exact totals.
+        if (!$directoryDeadline) $directoryDeadline = microtime(true) + 0.5;
+        if ($directoryDepth > 64 || microtime(true) > $directoryDeadline) return [$calculatedirectorysizes1 => 0];
         $relativeDirectory = $this->getSiteRelativePath($calculatedirectorysizes1);
         $calculatedirectorysizes2 = $relativeDirectory === false ? false : $this->getSafeSitePath($relativeDirectory);
         if ($calculatedirectorysizes2) $calculatedirectorysizes2 = rtrim($calculatedirectorysizes2, '/') . '/';
@@ -1838,7 +1841,7 @@ final class MyVibeHTMLController
             while (($calculatedirectorysizes5 = readdir($calculatedirectorysizes4)) !== false) {
                 if ($calculatedirectorysizes5 != '.' && $calculatedirectorysizes5 != '..') {
                     if (is_file($calculatedirectorysizes2 . $calculatedirectorysizes5) && !is_link($calculatedirectorysizes2 . $calculatedirectorysizes5)) $calculatedirectorysizes3[$calculatedirectorysizes1] += filesize($calculatedirectorysizes2 . $calculatedirectorysizes5); else if (is_dir($calculatedirectorysizes2 . $calculatedirectorysizes5 . '/') && !is_link($calculatedirectorysizes2 . $calculatedirectorysizes5)) {
-                        $calculatedirectorysizes6 = $this->calculateDirectorySizes($calculatedirectorysizes1 . $calculatedirectorysizes5 . '/');
+                        $calculatedirectorysizes6 = $this->calculateDirectorySizes($calculatedirectorysizes1 . $calculatedirectorysizes5 . '/', $directoryDepth + 1, $directoryDeadline);
                         $calculatedirectorysizes3[$calculatedirectorysizes1] += $calculatedirectorysizes6[$calculatedirectorysizes1 . $calculatedirectorysizes5 . '/'];
                         $calculatedirectorysizes3 = array_merge($calculatedirectorysizes3, $calculatedirectorysizes6);
                     }

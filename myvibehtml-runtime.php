@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.67 runtime module */
+<?php /* MyVibeHTML v0.68 runtime module */
 
 function myvibehtml_runtime_directory($documentRoot = false)
 {
@@ -50,6 +50,20 @@ function myvibehtml_atomic_write($targetPath, $contents, $mode, $lockName)
 function myvibehtml_unserialize_array($serializedValue)
 {
     return @unserialize($serializedValue, ['allowed_classes' => false]);
+}
+
+function myvibehtml_decode_array($encodedValue)
+{
+    $decodedValue = json_decode(urldecode((string)$encodedValue), true);
+    if (is_array($decodedValue)) return $decodedValue;
+    $legacyValue = myvibehtml_unserialize_array(urldecode((string)$encodedValue));
+    return is_array($legacyValue) ? $legacyValue : [];
+}
+
+function myvibehtml_encode_array($value)
+{
+    $encodedValue = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return urlencode($encodedValue === false ? '[]' : $encodedValue);
 }
 
 function myvibehtml_base64_decode($value)

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.68
+
+- Page Health локализует остаточные сообщения, считает plural forms по языку страницы и проверяет, что все id из `aria-labelledby` существуют;
+- auth-error list и directory-size cache записываются в JSON с обратным чтением старого безопасного `unserialize`, а рекурсивный расчёт размеров ограничен временем/глубиной;
+- добавлены runtime и contract tests для JSON state, bounded scan и ARIA references.
+- CSS consolidation уточнён: geometry storage-error status вынесена в fallback, чтобы theme не дублировала critical rule.
+
 ## 0.67
 
 - local/session storage переведены на общий UI-контракт с видимым live-status при блокировке или quota error;

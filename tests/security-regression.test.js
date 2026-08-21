@@ -6,6 +6,7 @@ const test = require('node:test');
 
 const php = fs.readFileSync('myvibehtml.php', 'utf8');
 const runtimePath = path.resolve('myvibehtml-runtime.php').replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+const runtime = fs.readFileSync('myvibehtml-runtime.php', 'utf8');
 
 test('server rejects invalid save payloads before writing', () => {
     const output = execFileSync('php', ['-r', `require '${runtimePath}'; echo myvibehtml_base64_decode('%%%') === false ? 'invalid-rejected' : 'invalid-accepted'; echo "\\n"; echo myvibehtml_base64_decode('PGgxPk9LPC9oMT4=') === '<h1>OK</h1>' ? 'valid-decoded' : 'valid-rejected';`], {encoding: 'utf8'});
@@ -22,4 +23,14 @@ test('sessions, PHP editing and authentication use fail-closed contracts', () =>
     assert.doesNotMatch(php, /\$authenticate9\b/);
     assert.match(php, /MYVIBEHTML_TRUST_PROXY/);
     assert.match(php, /HTTPS is required outside local development/);
+});
+
+test('runtime state writes JSON and directory scans are bounded', () => {
+    const output = execFileSync('php', ['-r', `require '${runtimePath}'; $encoded = myvibehtml_encode_array(['ok' => 1]); $decoded = myvibehtml_decode_array($encoded); echo isset($decoded['ok']) && $decoded['ok'] === 1 ? 'json-ok' : 'json-failed';`], {encoding: 'utf8'});
+    assert.equal(output, 'json-ok');
+    assert.match(runtime, /function myvibehtml_encode_array/);
+    assert.match(runtime, /function myvibehtml_decode_array/);
+    assert.doesNotMatch(php, /urlencode\(serialize\(/);
+    assert.match(php, /directoryDepth/);
+    assert.match(php, /directoryDeadline/);
 });

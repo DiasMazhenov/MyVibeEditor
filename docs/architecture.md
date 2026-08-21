@@ -1,6 +1,6 @@
-# Архитектура v0.67
+# Архитектура v0.68
 
-v0.67 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
+v0.68 сохраняет безопасные модульные границы без bundler/dependency, размещает CSS-инспектор справа на desktop, выносит auth-flow, shell-контролы и transport-примитивы в отдельные модули:
 
 - `myvibehtml-runtime.php` — PHP filesystem/runtime helpers;
 - `myvibehtml.php` — HTTP controller, config и server templates;
@@ -10,7 +10,7 @@ v0.67 сохраняет безопасные модульные границы 
 - `myvibehtml-auth.js` — отдельный DOM/AJAX-flow авторизации, загружается только на auth-странице после transport;
 - `myvibehtml-shell-controls.js` — изолированные навигация по внутренним ссылкам, command palette, Responsive Preview Studio и mobile menu, работающие только через публичные DOM-контролы панели;
 - `myvibehtml.js` — оркестрация visual/source editor, files, settings и общей локальной timeline-истории без auth-flow;
-- `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens объявлены только в fallback и используются theme-слоем;
+- `myvibehtml-theme.css`/`myvibehtml-fallback.css` — theme и critical fallback; design tokens и geometry storage-error status объявлены только в fallback и используются theme-слоем;
 - `tests/` — unit, module-boundary, security, regression, CI contract и optional authenticated E2E.
 
 ## История изменений

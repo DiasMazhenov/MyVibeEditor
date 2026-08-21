@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.68
+
+- P3 quality: Page Health теперь локализует остаточные сообщения (empty source, duplicate id, unsafe URL, image alt, plural summary), проверяет реальные `id` из каждого `aria-labelledby` и сообщает отсутствующие ссылки.
+- Авторизационный error-list и cache размеров каталогов переведены на JSON encode/decode; старые значения читаются через ограниченный legacy fallback без новых `serialize()`-записей.
+- Расчёт размеров каталогов получил бюджет 0.5 секунды и глубину 64 уровня с безопасным нулевым результатом на превышении бюджета; дальнейшая очередь lazy expansion оставлена как отдельная оптимизация для очень больших сайтов.
+- Обновлены runtime/editor/CSS/docs/tests version markers до `0.68`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в коммит.
+- CSS consolidation выполнен консервативно: geometry storage-error status теперь принадлежит только fallback-слою; широкое удаление дублирующих fallback-правил отложено, потому что они обеспечивают usable UI при недоступной theme.
+- Следующий шаг перед коммитом: повторить полный syntax/unit/security/HTTP набор и проверить diff, не затрагивая пользовательский `test-page.html`.
+
 ## Текущее исправление v0.67
 
 - P2 Terra: доступ к local/session storage переведён на `MyVibeHTMLUIContracts.storageGet/storageSet/storageRemove`; ошибки блокировки и quota теперь показывают видимый `role=status` live-region, вместо молчаливой потери draft, timeline, компонентов, preview-профиля или rollback id.
