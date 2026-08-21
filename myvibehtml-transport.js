@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.80 transport primitives */
+/* MyVibeHTML v0.81 transport primitives */
 (function(root) {
     var documentObject = root.document;
 

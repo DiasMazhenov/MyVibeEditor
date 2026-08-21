@@ -19,7 +19,7 @@ rg -q "myvibehtml-source-map\.js.*myvibehtml-ui-contracts\.js.*myvibehtml-transp
 rg -q "myvibehtml-ui-contracts\.js.*myvibehtml-transport\.js.*myvibehtml\.js" myvibehtml.php
 rg -q "myvibehtml\.js.*myvibehtml-auth\.js" myvibehtml.php
 rg -q "MyVibeHTMLUIContracts|generateToken" myvibehtml-ui-contracts.js myvibehtml.js
-rg -q "MyVibeHTML v0\.80|const VERSION = '0\.80'" myvibehtml.php myvibehtml.js myvibehtml-runtime.php myvibehtml-source-map.js myvibehtml-ui-contracts.js myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
+rg -q "MyVibeHTML v0\.81|const VERSION = '0\.81'" myvibehtml.php myvibehtml.js myvibehtml-runtime.php myvibehtml-source-map.js myvibehtml-ui-contracts.js myvibehtml-shell-controls.js myvibehtml-transport.js myvibehtml-auth.js
 if rg -q -- '--mv-bg:' myvibehtml-theme.css; then
     echo "ci-contract: theme must consume fallback-owned tokens" >&2
     exit 1

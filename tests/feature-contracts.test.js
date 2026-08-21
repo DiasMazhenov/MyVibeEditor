@@ -120,6 +120,7 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.match(adminJs, /dragover/);
     assert.match(adminJs, /myvibehtml-admin-action-icon/);
     assert.match(php, /myvibehtml-admin-folder-icon/);
+    assert.match(php, /myvibehtml-admin-file-icon/);
     assert.match(php, /\$meta = ''/);
     assert.doesNotMatch(php, /entry\['type'\] === 'directory' \? this->adminText\('admin_folder'/);
     assert.match(php, /preg_match\('\~\^\(\?:avif\|gif\|jpe\?g\|png\|svg\|webp\|ico\|mp4\|webm\|mp3\|wav\)\$\~'/);
@@ -134,6 +135,7 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.equal(fs.existsSync('demo-contact.html'), true);
     assert.equal(fs.existsSync('myvibehtml-icons/folder.svg'), true);
     assert.equal(fs.existsSync('myvibehtml-icons/folder-plus.svg'), true);
+    assert.equal(fs.existsSync('myvibehtml-icons/file.svg'), true);
 });
 
 test('Successful login leaves the admin URL and opens the editor', () => {

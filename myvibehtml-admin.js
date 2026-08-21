@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.80 admin page interactions. */
+/* MyVibeHTML v0.81 admin page interactions. */
 (function() {
     'use strict';
 
@@ -83,7 +83,7 @@
                 var name = document.createElement('span');
                 name.className = 'myvibehtml-admin-entry-name';
                 var icon = document.createElement('span');
-                icon.className = isFolder ? 'myvibehtml-admin-folder-icon' : 'myvibehtml-admin-entry-icon-slot';
+                icon.className = isFolder ? 'myvibehtml-admin-folder-icon' : 'myvibehtml-admin-file-icon';
                 icon.setAttribute('aria-hidden', 'true');
                 name.appendChild(icon);
                 cell.appendChild(name);

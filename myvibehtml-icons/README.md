@@ -25,6 +25,7 @@
 | `trash.svg` | https://icon-sets.iconify.design/tabler/trash/ | MIT |
 | `upload.svg` | https://icon-sets.iconify.design/tabler/upload/ | MIT |
 | `folder-plus.svg` | https://icon-sets.iconify.design/tabler/folder-plus/ | MIT |
+| `file.svg` | https://icon-sets.iconify.design/tabler/file/ | MIT |
 
 Iconify API endpoints:
 
@@ -49,5 +50,6 @@ Iconify API endpoints:
 - https://api.iconify.design/tabler/trash.svg
 - https://api.iconify.design/tabler/upload.svg
 - https://api.iconify.design/tabler/folder-plus.svg
+- https://api.iconify.design/tabler/file.svg
 
 Tabler Icons распространяются по MIT License; runtime-загрузка внешнего домена не используется.

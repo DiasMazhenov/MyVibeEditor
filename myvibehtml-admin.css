@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.80 admin page: quiet graphite workspace with one teal action color. */
+/* MyVibeHTML v0.81 admin page: quiet graphite workspace with one teal action color. */
 :root {
     color-scheme: dark;
     --admin-bg: #0b1117;
@@ -121,7 +121,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .myvibehtml-admin-file-link:hover { color: var(--admin-accent); }
 .myvibehtml-admin-entry-name { display: inline-flex; align-items: center; gap: 10px; min-width: 0; vertical-align: middle; }
 .myvibehtml-admin-folder-icon { display: block; flex: 0 0 20px; width: 20px; height: 20px; background: var(--admin-accent); -webkit-mask: url("myvibehtml-icons/folder.svg") center / contain no-repeat; mask: url("myvibehtml-icons/folder.svg") center / contain no-repeat; }
-.myvibehtml-admin-entry-icon-slot { display: block; flex: 0 0 20px; width: 20px; height: 20px; }
+.myvibehtml-admin-file-icon { display: block; flex: 0 0 20px; width: 20px; height: 20px; background: var(--admin-muted); -webkit-mask: url("myvibehtml-icons/file.svg") center / contain no-repeat; mask: url("myvibehtml-icons/file.svg") center / contain no-repeat; }
 .myvibehtml-admin-browser td:last-child { white-space: nowrap; }
 .myvibehtml-admin-browser td:last-child button { min-height: 28px; padding: 0 8px; font-size: 10px; }
 .myvibehtml-admin-page-browser input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--admin-accent); }

@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.80 */
+<?php /* MyVibeHTML v0.81 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.80';
+    const VERSION = '0.81';
     private $config;
     private $request;
     private $response;
@@ -1026,7 +1026,7 @@ final class MyVibeHTMLController
             if ($entry['type'] !== 'directory' && !preg_match('~^(?:html?|xhtml)$~', $extension)) continue;
             $name = $this->escapeHtml($entry['name']);
             $path = $this->escapeHtml($entry['path']);
-            $entryIcon = $entry['type'] === 'directory' ? '<span class="myvibehtml-admin-folder-icon" aria-hidden="true"></span>' : '<span class="myvibehtml-admin-entry-icon-slot" aria-hidden="true"></span>';
+            $entryIcon = $entry['type'] === 'directory' ? '<span class="myvibehtml-admin-folder-icon" aria-hidden="true"></span>' : '<span class="myvibehtml-admin-file-icon" aria-hidden="true"></span>';
             $nameControl = '<span class="myvibehtml-admin-entry-name">' . $entryIcon . ($entry['type'] === 'directory' ? '<button type="button" class="myvibehtml-admin-file-link" data-admin-page-open="' . $path . '">' . $name . '</button>' : '<a class="myvibehtml-admin-file-link" href="' . $this->escapeHtml($this->getEditorUrl($entry['path'])) . '">' . $name . '</a>') . '</span>';
             $selectControl = $entry['type'] === 'directory' ? '' : '<input type="checkbox" data-admin-page-select="' . $path . '" aria-label="' . $name . '">';
             $meta = '';
