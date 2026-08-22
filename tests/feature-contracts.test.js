@@ -89,7 +89,9 @@ test('External CSS editor exposes rule search, media context, diff and guarded s
     assert.match(editor, /data-myvibehtml-external-declarations/);
     assert.match(editor, /data-myvibehtml-external-diff/);
     assert.match(editor, /data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]/);
-    assert.match(editor, /\['style',[^\n]+Изменить CSS/);
+    assert.match(editor, /\['properties',[^\n]+Свойства/);
+    assert.doesNotMatch(editor, /\['style',/);
+    assert.doesNotMatch(editor, /\['markup',/);
     assert.doesNotMatch(editor, /\['external-css'/);
     assert.match(editor, /save_css/);
     assert.match(php, /getSiteRelativePath\(rawurldecode\(\$cssRelativeInput\), true\)/);
@@ -104,8 +106,8 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.doesNotMatch(editor, /property: 'aria-label', label: 'ARIA label'/);
     assert.doesNotMatch(editor, /property: 'aria-hidden', label: 'ARIA hidden'/);
     assert.doesNotMatch(editor, /HTML \/ ARIA/);
-    assert.match(editor, /markupInspectorLegend\[textContentProperty\] = visualEditorValue9 \? 'HTML' : 'HTML'/);
-    assert.match(editor, /\['markup', 'HTML', null\]/);
+    assert.match(editor, /markupInspectorLegend\[textContentProperty\] = visualEditorValue10\.basic/);
+    assert.match(editor, /\['properties',[^\n]+Свойства/);
     assert.match(editor, /syncStyleSource\(styleInspectorTarget, visualEditorValue50\[0\], visualEditorValue50\[1\], visualEditorValue51\)/);
     assert.match(editor, /writeSourceDraft\(serializedSource\);[\s\S]*?runtimeValue75\(\)/);
     assert.match(editor, /getOpeningSourceRange = function/);
@@ -140,12 +142,33 @@ test('Visual CSS changes keep save enabled and send the edited source', () => {
 test('Context menu dispatches CSS actions from the clicked menu item', () => {
     assert.match(editor, /setAttributeMethod\]\('data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]\)/);
     assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
-    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
+    assert.match(editor, /contextAction == 'properties'/);
+    assert.doesNotMatch(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
     assert.doesNotMatch(editor, /contextAction == 'external-css'/);
     assert.match(editor, /renderStyleInspector\(visualEditorValue17\);[\s\S]*?hideContextMenu\(\);/);
     assert.match(editor, /toUpperCaseMethod = 'toUpperCase'/);
     assert.match(shell, /uiContracts = window\.MyVibeHTMLUIContracts \|\| \{\},[\s\S]*?previewControls/);
     assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /sourceStartsWithDocumentShell|sourceStartsWithBody/);
+});
+
+test('Unified Properties inspector exposes basic, link, media, CSS and custom attributes sections', () => {
+    assert.match(editor, /visualEditorValue10\.basic/);
+    assert.match(editor, /data-myvibehtml-link-href/);
+    assert.match(editor, /data-myvibehtml-link-apply/);
+    assert.match(editor, /data-myvibehtml-media-property="src"/);
+    assert.match(editor, /data-myvibehtml-media-replace/);
+    assert.match(editor, /mediaDescendants = initializeVisualEditorArgument6\[querySelectorAllMethod\]\(imageTagName \+ ',svg'\)/);
+    assert.match(editor, /structuralNodeTag == imageTagName \|\| structuralNodeTag == 'svg'/);
+    assert.match(editor, /structuralNode\[addEventListenerMethod\]\(mouseDownEvent, function\(event\) \{[\s\S]*?event\[stopPropagationMethod\]\(\);[\s\S]*?runtimeValue106\.call\(this\)/);
+    assert.match(editor, /visualEditorValue326 == 'svg'[\s\S]*?event\[stopPropagationMethod\]\(\);[\s\S]*?runtimeValue106\.call\(this\)/);
+    assert.match(editor, /myvibehtml-properties-css-fieldset/);
+    assert.match(editor, /data-myvibehtml-attribute-name/);
+    assert.match(editor, /syncMarkupAttributes = function/);
+    assert.match(editor, /isSafePropertyUrl = function/);
+    assert.match(editor, /isLinkWrapSupported = function/);
+    assert.match(editor, /applyCustomAttribute = function/);
+    assert.match(theme, /myvibehtml-properties-grid/);
+    assert.match(fallback, /myvibehtml-properties-grid/);
 });
 
 test('brand scrollbars stay graphite and teal across theme and fallback layers', () => {

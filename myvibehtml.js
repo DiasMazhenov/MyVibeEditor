@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.95 */
+/* MyVibeHTML v0.96 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -578,6 +578,23 @@
                         externalCssSaveButton = null,
                         externalCssRussian = false,
                         externalCssState = {rules: [], selected: null, source: '', original: '', url: ''},
+                        linkFieldset = null,
+                        linkHrefField = null,
+                        linkTargetField = null,
+                        linkRelField = null,
+                        linkDownloadField = null,
+                        linkStatus = null,
+                        mediaFieldset = null,
+                        mediaSrcField = null,
+                        mediaAltField = null,
+                        mediaLoadingField = null,
+                        mediaDecodingField = null,
+                        mediaStatus = null,
+                        attributeFieldset = null,
+                        attributeNameField = null,
+                        attributeValueField = null,
+                        attributeList = null,
+                        attributeStatus = null,
                         designTokenFieldset = null,
                         designTokenNameField = null,
                         designTokenValueField = null,
@@ -642,6 +659,10 @@
                             for (var visualEditorValue7 = initializeVisualEditorArgument6; visualEditorValue7 && visualEditorValue7 != runtimeValue127.body; visualEditorValue7 = visualEditorValue7[parentNodeProperty]) {
                                 if (visualEditorValue7.realNode) visualEditorValue7 = visualEditorValue7.realNode;
                                 if (visualEditorValue7[tagNameProperty] && (visualEditorValue7[tagNameProperty][toLowerCaseMethod]() == imageTagName || visualEditorValue7[tagNameProperty][toLowerCaseMethod]() == 'svg')) return visualEditorValue7
+                            }
+                            if (initializeVisualEditorArgument6 && initializeVisualEditorArgument6[querySelectorAllMethod]) {
+                                var mediaDescendants = initializeVisualEditorArgument6[querySelectorAllMethod](imageTagName + ',svg');
+                                if (mediaDescendants[lengthProperty] == 1) return mediaDescendants[0]
                             }
                             return null
                         },
@@ -1418,12 +1439,17 @@
                             var visualEditorValue8 = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '',
                                 visualEditorValue9 = /[А-Яа-яЁё]/.test(visualEditorValue8),
                                 visualEditorValue10 = visualEditorValue9 ? {
-                                    title: 'CSS-свойства',
+                                    title: 'Свойства',
                                     close: 'Закрыть',
                                     hint: 'Изменения применяются сразу и попадут в HTML после сохранения.',
                                     target: 'Выбранный узел',
                                     invalid: 'Проверьте значение CSS',
                                     reset: 'Сбросить',
+                                    basic: 'Основные',
+                                    link: 'Ссылка',
+                                    media: 'Медиа',
+                                    css: 'CSS',
+                                    advanced: 'Дополнительно',
                                     layout: 'Разметка',
                                     spacing: 'Отступы',
                                     typography: 'Типографика',
@@ -1453,14 +1479,42 @@
                                     externalCssSelector: 'Селектор',
                                     externalCssDeclarations: 'Declarations',
                                     externalCssApply: 'Применить в CSS-файл',
-                                    externalCssSave: 'Сохранить CSS'
+                                    externalCssSave: 'Сохранить CSS',
+                                    href: 'URL',
+                                    linkTarget: 'Открывать',
+                                    sameTab: 'В этой вкладке',
+                                    newTab: 'В новой вкладке',
+                                    rel: 'Rel',
+                                    download: 'Скачать как',
+                                    applyLink: 'Сохранить ссылку',
+                                    removeLink: 'Удалить ссылку',
+                                    linkHint: 'Ссылку можно добавить к любому безопасному объекту.',
+                                    replaceMedia: 'Заменить файл',
+                                    source: 'Источник',
+                                    alt: 'Alt-текст',
+                                    loading: 'Загрузка',
+                                    eager: 'Сразу',
+                                    lazy: 'При прокрутке',
+                                    decoding: 'Декодирование',
+                                    automatic: 'Автоматически',
+                                    async: 'Асинхронно',
+                                    sync: 'Синхронно',
+                                    attributeName: 'Имя атрибута',
+                                    attributeValue: 'Значение',
+                                    applyAttribute: 'Сохранить атрибут',
+                                    removeAttribute: 'Удалить атрибут'
                                 } : {
-                                    title: 'CSS properties',
+                                    title: 'Properties',
                                     close: 'Close',
                                     hint: 'Changes apply immediately and are written to HTML when saved.',
                                     target: 'Selected node',
                                     invalid: 'Check the CSS value',
                                     reset: 'Reset',
+                                    basic: 'Basic',
+                                    link: 'Link',
+                                    media: 'Media',
+                                    css: 'CSS',
+                                    advanced: 'Advanced',
                                     layout: 'Layout',
                                     spacing: 'Spacing',
                                     typography: 'Typography',
@@ -1490,7 +1544,30 @@
                                     externalCssSelector: 'Selector',
                                     externalCssDeclarations: 'Declarations',
                                     externalCssApply: 'Apply to CSS file',
-                                    externalCssSave: 'Save CSS'
+                                    externalCssSave: 'Save CSS',
+                                    href: 'URL',
+                                    linkTarget: 'Open in',
+                                    sameTab: 'Same tab',
+                                    newTab: 'New tab',
+                                    rel: 'Rel',
+                                    download: 'Download as',
+                                    applyLink: 'Save link',
+                                    removeLink: 'Remove link',
+                                    linkHint: 'A link can be added to any safe object.',
+                                    replaceMedia: 'Replace file',
+                                    source: 'Source',
+                                    alt: 'Alt text',
+                                    loading: 'Loading',
+                                    eager: 'Eager',
+                                    lazy: 'Lazy',
+                                    decoding: 'Decoding',
+                                    automatic: 'Auto',
+                                    async: 'Async',
+                                    sync: 'Sync',
+                                    attributeName: 'Attribute name',
+                                    attributeValue: 'Value',
+                                    applyAttribute: 'Save attribute',
+                                    removeAttribute: 'Remove attribute'
                                 },
                                 visualEditorValue11 = function(initializeVisualEditorArgument1, initializeVisualEditorArgument2) {
                                     var visualEditorValue12 = documentObject[createElementMethod]('label'),
@@ -1605,7 +1682,10 @@
                                     {property: 'tagName', label: visualEditorValue9 ? 'Тег' : 'Tag', options: structuralTagOptions},
                                     {property: 'id', label: visualEditorValue9 ? 'ID' : 'ID'},
                                     {property: 'class', label: visualEditorValue9 ? 'Классы' : 'Classes'},
-                                    {property: 'title', label: visualEditorValue9 ? 'Подсказка' : 'Title'}
+                                    {property: 'title', label: visualEditorValue9 ? 'Подсказка' : 'Title'},
+                                    {property: 'lang', label: visualEditorValue9 ? 'Язык' : 'Language'},
+                                    {property: 'hidden', label: visualEditorValue9 ? 'Скрыт' : 'Hidden', options: ['', 'hidden']},
+                                    {property: 'tabindex', label: visualEditorValue9 ? 'Tabindex' : 'Tabindex'}
                                 ],
                                 styleInspector = documentObject[createElementMethod]('aside');
                             styleInspector.id = 'myvibehtml-style-inspector';
@@ -1647,11 +1727,77 @@
                             var markupInspectorFieldset = documentObject[createElementMethod]('fieldset'),
                                 markupInspectorLegend = documentObject[createElementMethod]('legend'),
                                 markupInspectorGrid = documentObject[createElementMethod]('div');
-                            markupInspectorLegend[textContentProperty] = visualEditorValue9 ? 'HTML' : 'HTML';
+                            markupInspectorLegend[textContentProperty] = visualEditorValue10.basic;
                             markupInspectorGrid[classNameProperty] = 'myvibehtml-style-grid myvibehtml-markup-grid';
                             for (var markupInspectorIndex = 0; markupInspectorIndex < visualEditorMarkupFields[lengthProperty]; markupInspectorIndex++) markupInspectorGrid[appendChildMethod](visualEditorMarkupField(visualEditorMarkupFields[markupInspectorIndex].label, visualEditorMarkupFields[markupInspectorIndex].property, visualEditorMarkupFields[markupInspectorIndex].options, visualEditorMarkupFields[markupInspectorIndex].disabled));
                             markupInspectorFieldset[appendChildMethod](markupInspectorLegend);
                             markupInspectorFieldset[appendChildMethod](markupInspectorGrid);
+                            var linkFieldsetLegend = documentObject[createElementMethod]('legend'),
+                                linkGrid = documentObject[createElementMethod]('div'),
+                                linkActions = documentObject[createElementMethod]('div'),
+                                linkApplyButton = documentObject[createElementMethod]('button'),
+                                linkRemoveButton = documentObject[createElementMethod]('button');
+                            linkFieldset = documentObject[createElementMethod]('fieldset');
+                            linkFieldset[classNameProperty] = 'myvibehtml-properties-link-fieldset';
+                            linkFieldsetLegend[textContentProperty] = visualEditorValue10.link;
+                            linkGrid[classNameProperty] = 'myvibehtml-properties-grid';
+                            linkGrid[innerHTMLProperty] = '<p class="myvibehtml-properties-hint">' + visualEditorValue10.linkHint + '</p><label class="myvibehtml-style-field-full"><span>' + visualEditorValue10.href + '</span><input class="myvibehtml-style-field" data-myvibehtml-link-href type="url" spellcheck="false" aria-label="' + visualEditorValue10.href + '"></label><label><span>' + visualEditorValue10.linkTarget + '</span><select class="myvibehtml-style-field" data-myvibehtml-link-target aria-label="' + visualEditorValue10.linkTarget + '"><option value="">' + visualEditorValue10.sameTab + '</option><option value="_blank">' + visualEditorValue10.newTab + '</option></select></label><label><span>' + visualEditorValue10.rel + '</span><input class="myvibehtml-style-field" data-myvibehtml-link-rel spellcheck="false" aria-label="' + visualEditorValue10.rel + '"></label><label class="myvibehtml-style-field-full"><span>' + visualEditorValue10.download + '</span><input class="myvibehtml-style-field" data-myvibehtml-link-download spellcheck="false" aria-label="' + visualEditorValue10.download + '"></label>';
+                            linkActions[classNameProperty] = 'myvibehtml-properties-actions';
+                            linkApplyButton.type = 'button';
+                            linkApplyButton[setAttributeMethod]('data-myvibehtml-link-apply', 'true');
+                            linkApplyButton[textContentProperty] = visualEditorValue10.applyLink;
+                            linkApplyButton[addEventListenerMethod](clickEvent, applyLinkProperties);
+                            linkRemoveButton.type = 'button';
+                            linkRemoveButton[setAttributeMethod]('data-myvibehtml-link-remove', 'true');
+                            linkRemoveButton[textContentProperty] = visualEditorValue10.removeLink;
+                            linkRemoveButton[addEventListenerMethod](clickEvent, removeLinkProperties);
+                            linkActions[appendChildMethod](linkApplyButton);
+                            linkActions[appendChildMethod](linkRemoveButton);
+                            linkFieldset[appendChildMethod](linkFieldsetLegend);
+                            linkFieldset[appendChildMethod](linkGrid);
+                            linkStatus = documentObject[createElementMethod]('p');
+                            linkStatus[classNameProperty] = 'myvibehtml-properties-status';
+                            linkStatus[setAttributeMethod]('aria-live', 'polite');
+                            linkFieldset[appendChildMethod](linkStatus);
+                            linkFieldset[appendChildMethod](linkActions);
+                            linkHrefField = linkFieldset[querySelectorMethod]('[data-myvibehtml-link-href]');
+                            linkTargetField = linkFieldset[querySelectorMethod]('[data-myvibehtml-link-target]');
+                            linkRelField = linkFieldset[querySelectorMethod]('[data-myvibehtml-link-rel]');
+                            linkDownloadField = linkFieldset[querySelectorMethod]('[data-myvibehtml-link-download]');
+                            mediaFieldset = documentObject[createElementMethod]('fieldset');
+                            mediaFieldset[classNameProperty] = 'myvibehtml-properties-media-fieldset';
+                            mediaFieldset[innerHTMLProperty] = '<legend>' + visualEditorValue10.media + '</legend><div class="myvibehtml-properties-grid"><label class="myvibehtml-style-field-full"><span>' + visualEditorValue10.source + '</span><input class="myvibehtml-style-field" data-myvibehtml-media-property="src" type="url" spellcheck="false" aria-label="' + visualEditorValue10.source + '"></label><label class="myvibehtml-style-field-full"><span>' + visualEditorValue10.alt + '</span><input class="myvibehtml-style-field" data-myvibehtml-media-property="alt" spellcheck="false" aria-label="' + visualEditorValue10.alt + '"></label><label><span>' + visualEditorValue10.loading + '</span><select class="myvibehtml-style-field" data-myvibehtml-media-property="loading" aria-label="' + visualEditorValue10.loading + '"><option value="">—</option><option value="eager">' + visualEditorValue10.eager + '</option><option value="lazy">' + visualEditorValue10.lazy + '</option></select></label><label><span>' + visualEditorValue10.decoding + '</span><select class="myvibehtml-style-field" data-myvibehtml-media-property="decoding" aria-label="' + visualEditorValue10.decoding + '"><option value="">—</option><option value="auto">' + visualEditorValue10.automatic + '</option><option value="async">' + visualEditorValue10.async + '</option><option value="sync">' + visualEditorValue10.sync + '</option></select></label></div><div class="myvibehtml-properties-actions"><button type="button" data-myvibehtml-media-replace>' + visualEditorValue10.replaceMedia + '</button></div>';
+                            mediaSrcField = mediaFieldset[querySelectorMethod]('[data-myvibehtml-media-property="src"]');
+                            mediaAltField = mediaFieldset[querySelectorMethod]('[data-myvibehtml-media-property="alt"]');
+                            mediaLoadingField = mediaFieldset[querySelectorMethod]('[data-myvibehtml-media-property="loading"]');
+                            mediaDecodingField = mediaFieldset[querySelectorMethod]('[data-myvibehtml-media-property="decoding"]');
+                            mediaStatus = documentObject[createElementMethod]('p');
+                            mediaStatus[classNameProperty] = 'myvibehtml-properties-status';
+                            mediaStatus[setAttributeMethod]('aria-live', 'polite');
+                            mediaFieldset[appendChildMethod](mediaStatus);
+                            var mediaFields = mediaFieldset[querySelectorAllMethod]('[data-myvibehtml-media-property]');
+                            for (var mediaFieldIndex = 0; mediaFieldIndex < mediaFields[lengthProperty]; mediaFieldIndex++) mediaFields[mediaFieldIndex][addEventListenerMethod](mediaFields[mediaFieldIndex][tagNameProperty][toLowerCaseMethod]() == 'select' ? changeEvent : inputEvent, applyMediaProperties);
+                            mediaFieldset[querySelectorMethod]('[data-myvibehtml-media-replace]')[addEventListenerMethod](clickEvent, function() { var mediaTarget = getMediaTarget(styleInspectorTarget); if (mediaTarget) openMediaPicker(mediaTarget) });
+                            var cssFieldset = documentObject[createElementMethod]('fieldset'),
+                                cssFieldsetLegend = documentObject[createElementMethod]('legend'),
+                                cssFieldsetContent = documentObject[createElementMethod]('div');
+                            cssFieldset[classNameProperty] = 'myvibehtml-properties-css-fieldset';
+                            cssFieldsetLegend[textContentProperty] = visualEditorValue10.css;
+                            cssFieldsetContent[classNameProperty] = 'myvibehtml-properties-css-content';
+                            cssFieldset[appendChildMethod](cssFieldsetLegend);
+                            cssFieldset[appendChildMethod](cssFieldsetContent);
+                            attributeFieldset = documentObject[createElementMethod]('fieldset');
+                            attributeFieldset[classNameProperty] = 'myvibehtml-properties-attribute-fieldset';
+                            attributeFieldset[innerHTMLProperty] = '<legend>' + visualEditorValue10.advanced + '</legend><div class="myvibehtml-properties-grid"><label><span>' + visualEditorValue10.attributeName + '</span><input class="myvibehtml-style-field" data-myvibehtml-attribute-name list="myvibehtml-custom-attributes" spellcheck="false" aria-label="' + visualEditorValue10.attributeName + '"></label><label><span>' + visualEditorValue10.attributeValue + '</span><input class="myvibehtml-style-field" data-myvibehtml-attribute-value spellcheck="false" aria-label="' + visualEditorValue10.attributeValue + '"></label></div><datalist id="myvibehtml-custom-attributes"></datalist><div class="myvibehtml-properties-actions"><button type="button" data-myvibehtml-attribute-apply>' + visualEditorValue10.applyAttribute + '</button><button type="button" data-myvibehtml-attribute-remove>' + visualEditorValue10.removeAttribute + '</button></div>';
+                            attributeNameField = attributeFieldset[querySelectorMethod]('[data-myvibehtml-attribute-name]');
+                            attributeValueField = attributeFieldset[querySelectorMethod]('[data-myvibehtml-attribute-value]');
+                            attributeList = attributeFieldset[querySelectorMethod]('datalist');
+                            attributeStatus = documentObject[createElementMethod]('p');
+                            attributeStatus[classNameProperty] = 'myvibehtml-properties-status';
+                            attributeStatus[setAttributeMethod]('aria-live', 'polite');
+                            attributeFieldset[appendChildMethod](attributeStatus);
+                            attributeFieldset[querySelectorMethod]('[data-myvibehtml-attribute-apply]')[addEventListenerMethod](clickEvent, applyCustomAttribute);
+                            attributeFieldset[querySelectorMethod]('[data-myvibehtml-attribute-remove]')[addEventListenerMethod](clickEvent, removeCustomAttribute);
                             designTokenFieldset = documentObject[createElementMethod]('fieldset');
                             designTokenFieldset[classNameProperty] = 'myvibehtml-token-fieldset';
                             designTokenFieldset[innerHTMLProperty] = '<legend>' + visualEditorValue10.tokens + '</legend><div class="myvibehtml-style-grid"><label><span>' + visualEditorValue10.tokenName + '</span><select class="myvibehtml-style-field" data-myvibehtml-token-name aria-label="' + visualEditorValue10.tokenName + '"></select></label><label><span>' + visualEditorValue10.tokenValue + '</span><input class="myvibehtml-style-field" data-myvibehtml-token-value type="text" spellcheck="false" aria-label="' + visualEditorValue10.tokenValue + '"></label></div><div class="myvibehtml-token-actions"><button type="button" data-myvibehtml-token-new>' + visualEditorValue10.tokenNew + '</button><button type="button" data-myvibehtml-token-apply>' + visualEditorValue10.tokenApply + '</button></div>';
@@ -1709,8 +1855,14 @@
                                 for (var visualEditorValue33 = 0, visualEditorValue34 = visualEditorValue18[visualEditorValue28].fields[lengthProperty]; visualEditorValue33 < visualEditorValue34; visualEditorValue33++) visualEditorValue32[appendChildMethod](visualEditorValue11(visualEditorValue18[visualEditorValue28].fields[visualEditorValue33], visualEditorValue18[visualEditorValue28].fields[visualEditorValue33].options));
                                 visualEditorValue30[appendChildMethod](visualEditorValue31);
                                 visualEditorValue30[appendChildMethod](visualEditorValue32);
-                                visualEditorValue25[appendChildMethod](visualEditorValue30)
+                                cssFieldsetContent[appendChildMethod](visualEditorValue30)
                             }
+                            cssFieldsetContent[appendChildMethod](designTokenFieldset);
+                            cssFieldsetContent[appendChildMethod](externalCssFieldset);
+                            visualEditorValue25[appendChildMethod](linkFieldset);
+                            visualEditorValue25[appendChildMethod](mediaFieldset);
+                            visualEditorValue25[appendChildMethod](cssFieldset);
+                            visualEditorValue25[appendChildMethod](attributeFieldset);
                             styleInspectorError = documentObject[createElementMethod]('p');
                             styleInspectorError[classNameProperty] = 'myvibehtml-style-inspector-error';
                             styleInspectorError[textContentProperty] = visualEditorValue10.invalid;
@@ -1728,8 +1880,6 @@
                             styleInspector[appendChildMethod](visualEditorValue23);
                             styleInspector[appendChildMethod](visualEditorValue24);
                             styleInspector[appendChildMethod](markupInspectorFieldset);
-                            styleInspector[appendChildMethod](designTokenFieldset);
-                            styleInspector[appendChildMethod](externalCssFieldset);
                             styleInspector[appendChildMethod](visualEditorValue25);
                             styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
                             markupInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-markup-property]');
@@ -1813,16 +1963,56 @@
                             runtimeValue4[disabledProperty] = false;
                             return true
                         },
+                        syncMarkupAttributes = function(markupTarget, markupStart, markupEnd, markupAttributes) {
+                            var markupSource = serializedSource[sliceMethod](markupStart, markupEnd),
+                                markupOpeningEnd = findOpeningTagEnd(markupSource);
+                            if (markupOpeningEnd < 0) return false;
+                            var markupOpening = markupSource[sliceMethod](0, markupOpeningEnd);
+                            for (var markupAttributeIndex = 0; markupAttributeIndex < markupAttributes[lengthProperty]; markupAttributeIndex++) {
+                                var markupAttribute = markupAttributes[markupAttributeIndex],
+                                    markupAttributeName = markupAttribute.name,
+                                    markupAttributePattern = new RegExp('(?:\\s|^)' + markupAttributeName[replaceMethod](/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '(?:\\s*=\\s*(?:"[^"]*"|\\x27[^\\x27]*\\x27|[^\\s>]+))?', 'i'),
+                                    markupAttributeValue = markupAttribute.present ? ' ' + markupAttributeName + '="' + escapeMarkupAttribute(markupAttribute.value) + '"' : '';
+                                if (markupAttributePattern.test(markupOpening)) markupOpening = markupOpening[replaceMethod](markupAttributePattern, markupAttributeValue);
+                                else if (markupAttributeValue) {
+                                    var markupInsertAt = markupOpening[lengthProperty] - 1;
+                                    if (markupOpening[markupInsertAt - 1] == '/') markupInsertAt--;
+                                    markupOpening = markupOpening[sliceMethod](0, markupInsertAt) + markupAttributeValue + markupOpening[sliceMethod](markupInsertAt)
+                                }
+                            }
+                            serializedSource = serializedSource[sliceMethod](0, markupStart) + markupOpening + markupSource[sliceMethod](markupOpeningEnd) + serializedSource[sliceMethod](markupEnd);
+                            if (sourceMapApi) sourceMapState = sourceMapApi.build(serializedSource, runtimeValue127);
+                            runtimeValue11[innerHTMLProperty] = serializedSource;
+                            runtimeValue4[disabledProperty] = false;
+                            return true
+                        },
+                        isSafePropertyUrl = function(propertyUrl) {
+                            var normalizedUrl = String(propertyUrl || '')[replaceMethod](/^\s+|\s+$/g, '');
+                            return !!normalizedUrl && !/^(?:javascript|vbscript):/i.test(normalizedUrl) && !/^data:text\/html/i.test(normalizedUrl)
+                        },
+                        getLinkOwner = function(linkTarget) {
+                            for (var linkNode = linkTarget; linkNode && linkNode != runtimeValue127.body; linkNode = linkNode[parentNodeProperty]) {
+                                if (linkNode[tagNameProperty] && linkNode[tagNameProperty][toLowerCaseMethod]() == 'a') return linkNode
+                            }
+                            return null
+                        },
+                        isLinkWrapSupported = function(linkTarget) {
+                            var linkTag = linkTarget && linkTarget[tagNameProperty] ? linkTarget[tagNameProperty][toLowerCaseMethod]() : '';
+                            return !!linkTarget && linkTag != 'html' && linkTag != 'head' && linkTag != 'body' && linkTag != 'a' && linkTag != 'button' && linkTag != 'input' && linkTag != 'select' && linkTag != 'textarea' && linkTag != 'option'
+                        },
+                        isEditableAttributeName = function(attributeName) {
+                            return /^(?:data-[a-z0-9_.:-]+|name|value|placeholder|autocomplete|contenteditable|draggable|spellcheck|translate)$/i.test(String(attributeName || '')[replaceMethod](/^\s+|\s+$/g, ''))
+                        },
                         escapeMarkupAttribute = function(markupValue) {
                             return String(markupValue)[splitMethod]('&')[joinMethod]('&amp;')[splitMethod]('"')[joinMethod]('&quot;')[splitMethod]('<')[joinMethod]('&lt;')[splitMethod]('>')[joinMethod]('&gt;')
                         },
-                        syncMarkupSource = function(markupTarget, markupStart, markupEnd, markupProperty, markupValue) {
+                        syncMarkupSource = function(markupTarget, markupStart, markupEnd, markupProperty, markupValue, markupKeepEmpty) {
                             var markupSource = serializedSource[sliceMethod](markupStart, markupEnd),
                                 markupOpeningEnd = findOpeningTagEnd(markupSource);
                             if (markupOpeningEnd < 0) return false;
                             var markupOpening = markupSource[sliceMethod](0, markupOpeningEnd),
                                 markupAttributePattern = new RegExp('(?:\\s|^)' + markupProperty[replaceMethod](/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\s*=\\s*(?:"[^"]*"|\\x27[^\\x27]*\\x27|[^\\s>]+)', 'i'),
-                                markupAttributeValue = markupValue ? ' ' + markupProperty + '="' + escapeMarkupAttribute(markupValue) + '"' : '';
+                                markupAttributeValue = markupValue || markupKeepEmpty ? ' ' + markupProperty + '="' + escapeMarkupAttribute(markupValue) + '"' : '';
                             if (markupAttributePattern.test(markupOpening)) markupOpening = markupOpening[replaceMethod](markupAttributePattern, markupAttributeValue);
                             else if (markupAttributeValue) {
                                 var markupInsertAt = markupOpening[lengthProperty] - 1;
@@ -1904,12 +2094,15 @@
                         attachStructuralNode = function(structuralNode) {
                             if (!structuralNode) return;
                             var structuralNodeTag = structuralNode[tagNameProperty][toLowerCaseMethod]();
-                            if (structuralNodeTag == imageTagName) {
+                            if (structuralNodeTag == imageTagName || structuralNodeTag == 'svg') {
                                 structuralNode.ondragover = runtimeValue112;
                                 structuralNode.ondragleave = runtimeValue113;
                                 structuralNode.ondrop = runtimeValue114;
                                 structuralNode.ondragstart = function() { runtimeValue1.e = this };
-                                structuralNode[addEventListenerMethod](mouseDownEvent, runtimeValue106)
+                                structuralNode[addEventListenerMethod](mouseDownEvent, function(event) {
+                                    event[stopPropagationMethod]();
+                                    runtimeValue106.call(this)
+                                })
                             } else {
                                 structuralNode[addEventListenerMethod](mouseDownEvent, function(event) {
                                     runtimeValue111(event);
@@ -2047,6 +2240,131 @@
                             this[removeAttributeMethod]('aria-invalid');
                             styleInspectorError.hidden = true
                         },
+                        applyLinkProperties = function() {
+                            if (!styleInspectorTarget) return;
+                            var linkOwner = getLinkOwner(styleInspectorTarget),
+                                linkHref = linkHrefField ? linkHrefField[valueProperty][replaceMethod](/^\s+|\s+$/g, '') : '',
+                                linkWindowTarget = linkTargetField ? linkTargetField[valueProperty] : '',
+                                linkRel = linkRelField ? linkRelField[valueProperty][replaceMethod](/^\s+|\s+$/g, '') : '',
+                                linkDownload = linkDownloadField ? linkDownloadField[valueProperty][replaceMethod](/^\s+|\s+$/g, '') : '';
+                            if (!isSafePropertyUrl(linkHref)) {
+                                if (linkStatus) linkStatus[textContentProperty] = 'Укажите безопасный URL';
+                                return
+                            }
+                            if (!linkOwner) {
+                                if (!isLinkWrapSupported(styleInspectorTarget)) {
+                                    if (linkStatus) linkStatus[textContentProperty] = 'Этот элемент нельзя безопасно обернуть в ссылку';
+                                    return
+                                }
+                                var linkRange = getStyleSourceRange(styleInspectorTarget),
+                                    linkParent = styleInspectorTarget[parentNodeProperty];
+                                if (!linkRange || !linkParent) return;
+                                var linkAnchor = runtimeValue127[createElementMethod]('a');
+                                linkAnchor[setAttributeMethod]('href', linkHref);
+                                if (linkWindowTarget) linkAnchor[setAttributeMethod]('target', linkWindowTarget);
+                                if (linkRel) linkAnchor[setAttributeMethod]('rel', linkRel);
+                                if (linkDownload) linkAnchor[setAttributeMethod]('download', linkDownload);
+                                var linkSourceFragment = serializedSource[sliceMethod](linkRange[0], linkRange[1]),
+                                    linkAttributes = ' href="' + escapeMarkupAttribute(linkHref) + '"' + (linkWindowTarget ? ' target="' + escapeMarkupAttribute(linkWindowTarget) + '"' : '') + (linkRel ? ' rel="' + escapeMarkupAttribute(linkRel) + '"' : '') + (linkDownload ? ' download="' + escapeMarkupAttribute(linkDownload) + '"' : ''),
+                                    linkSource = serializedSource[sliceMethod](0, linkRange[0]) + '<a' + linkAttributes + '>' + linkSourceFragment + '</a>' + serializedSource[sliceMethod](linkRange[1]);
+                                linkParent[replaceChildMethod](linkAnchor, styleInspectorTarget);
+                                linkAnchor[appendChildMethod](styleInspectorTarget);
+                                if (!applyStructuralSource(linkSource)) {
+                                    linkParent[replaceChildMethod](styleInspectorTarget, linkAnchor);
+                                    return
+                                }
+                                styleInspectorTarget = linkAnchor;
+                                selectContextNode(linkAnchor, 'element');
+                                if (linkStatus) linkStatus[textContentProperty] = 'Ссылка добавлена';
+                                return
+                            }
+                            var linkOwnerRange = getOpeningSourceRange(linkOwner);
+                            if (!linkOwnerRange || !syncMarkupAttributes(linkOwner, linkOwnerRange[0], linkOwnerRange[1], [
+                                {name: 'href', value: linkHref, present: true},
+                                {name: 'target', value: linkWindowTarget, present: !!linkWindowTarget},
+                                {name: 'rel', value: linkRel, present: !!linkRel},
+                                {name: 'download', value: linkDownload, present: !!linkDownload}
+                            ])) return;
+                            linkOwner[setAttributeMethod]('href', linkHref);
+                            if (linkWindowTarget) linkOwner[setAttributeMethod]('target', linkWindowTarget); else linkOwner[removeAttributeMethod]('target');
+                            if (linkRel) linkOwner[setAttributeMethod]('rel', linkRel); else linkOwner[removeAttributeMethod]('rel');
+                            if (linkDownload) linkOwner[setAttributeMethod]('download', linkDownload); else linkOwner[removeAttributeMethod]('download');
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            if (linkStatus) linkStatus[textContentProperty] = 'Ссылка обновлена'
+                        },
+                        removeLinkProperties = function() {
+                            if (!styleInspectorTarget) return;
+                            var linkOwner = getLinkOwner(styleInspectorTarget);
+                            if (!linkOwner || !linkOwner[parentNodeProperty]) return;
+                            var linkRange = getStyleSourceRange(linkOwner),
+                                linkSource = linkRange && serializedSource[sliceMethod](linkRange[0], linkRange[1]),
+                                linkOpeningEnd = linkSource && findOpeningTagEnd(linkSource),
+                                linkClosingMatch = linkSource && linkSource.match(/<\/a\s*>\s*$/i);
+                            if (!linkRange || !linkOpeningEnd || !linkClosingMatch) return;
+                            var linkInnerSource = linkSource[sliceMethod](linkOpeningEnd, linkSource[lengthProperty] - linkClosingMatch[0][lengthProperty]),
+                                linkParent = linkOwner[parentNodeProperty];
+                            while (linkOwner[firstChildProperty]) linkParent[insertBeforeMethod](linkOwner[firstChildProperty], linkOwner);
+                            linkParent[removeChildMethod](linkOwner);
+                            if (!applyStructuralSource(serializedSource[sliceMethod](0, linkRange[0]) + linkInnerSource + serializedSource[sliceMethod](linkRange[1]))) return;
+                            selectContextNode(styleInspectorTarget, 'element');
+                            if (linkStatus) linkStatus[textContentProperty] = 'Ссылка удалена'
+                        },
+                        applyMediaProperties = function() {
+                            var mediaTarget = getMediaTarget(styleInspectorTarget);
+                            if (!mediaTarget) return;
+                            var mediaProperty = this[getAttributeMethod]('data-myvibehtml-media-property'),
+                                mediaValue = this[valueProperty][replaceMethod](/^\s+|\s+$/g, ''),
+                                mediaRange = getOpeningSourceRange(mediaTarget);
+                            if (mediaProperty == 'src' && !isSafePropertyUrl(mediaValue)) {
+                                if (mediaStatus) mediaStatus[textContentProperty] = 'Укажите безопасный источник';
+                                return
+                            }
+                            if (!mediaRange || !syncMarkupSource(mediaTarget, mediaRange[0], mediaRange[1], mediaProperty, mediaValue)) return;
+                            if (mediaValue) mediaTarget[setAttributeMethod](mediaProperty, mediaValue); else mediaTarget[removeAttributeMethod](mediaProperty);
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            if (mediaStatus) mediaStatus[textContentProperty] = 'Медиа обновлено'
+                        },
+                        renderCustomAttributes = function() {
+                            if (!attributeList || !styleInspectorTarget) return;
+                            attributeList[textContentProperty] = '';
+                            for (var attributeIndex = 0; attributeIndex < styleInspectorTarget.attributes[lengthProperty]; attributeIndex++) {
+                                var currentAttribute = styleInspectorTarget.attributes[attributeIndex];
+                                if (!isEditableAttributeName(currentAttribute.name)) continue;
+                                var attributeOption = documentObject[createElementMethod]('option');
+                                attributeOption.value = currentAttribute.name;
+                                attributeList[appendChildMethod](attributeOption)
+                            }
+                        },
+                        applyCustomAttribute = function() {
+                            if (!styleInspectorTarget) return;
+                            var attributeName = attributeNameField ? attributeNameField[valueProperty][replaceMethod](/^\s+|\s+$/g, '') : '',
+                                attributeValue = attributeValueField ? attributeValueField[valueProperty] : '';
+                            if (!isEditableAttributeName(attributeName)) {
+                                if (attributeStatus) attributeStatus[textContentProperty] = 'Разрешены data-* и безопасные стандартные атрибуты';
+                                return
+                            }
+                            var attributeRange = getOpeningSourceRange(styleInspectorTarget);
+                            if (!attributeRange || !syncMarkupAttributes(styleInspectorTarget, attributeRange[0], attributeRange[1], [{name: attributeName, value: attributeValue, present: true}])) return;
+                            styleInspectorTarget[setAttributeMethod](attributeName, attributeValue);
+                            renderCustomAttributes();
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            if (attributeStatus) attributeStatus[textContentProperty] = 'Атрибут сохранён'
+                        },
+                        removeCustomAttribute = function() {
+                            if (!styleInspectorTarget) return;
+                            var attributeName = attributeNameField ? attributeNameField[valueProperty][replaceMethod](/^\s+|\s+$/g, '') : '';
+                            if (!isEditableAttributeName(attributeName)) return;
+                            var attributeRange = getOpeningSourceRange(styleInspectorTarget);
+                            if (!attributeRange || !syncMarkupAttributes(styleInspectorTarget, attributeRange[0], attributeRange[1], [{name: attributeName, value: '', present: false}])) return;
+                            styleInspectorTarget[removeAttributeMethod](attributeName);
+                            renderCustomAttributes();
+                            writeSourceDraft(serializedSource);
+                            runtimeValue75();
+                            if (attributeStatus) attributeStatus[textContentProperty] = 'Атрибут удалён'
+                        },
                         renderStyleInspector = function(initializeVisualEditorArgument11) {
                             if (!initializeVisualEditorArgument11 || initializeVisualEditorArgument11 == runtimeValue127.body) return;
                             createStyleInspector();
@@ -2102,6 +2420,41 @@
                                 markupInspectorField[valueProperty] = markupInspectorValue;
                                 markupInspectorField[removeAttributeMethod]('aria-invalid')
                             }
+                            var linkOwner = getLinkOwner(initializeVisualEditorArgument11),
+                                linkEligible = visualEditorValue54 != 'html' && visualEditorValue54 != 'head' && visualEditorValue54 != 'body';
+                            linkFieldset.hidden = !linkEligible;
+                            if (linkOwner) {
+                                linkHrefField[valueProperty] = linkOwner[getAttributeMethod]('href') || '';
+                                linkTargetField[valueProperty] = linkOwner[getAttributeMethod]('target') || '';
+                                linkRelField[valueProperty] = linkOwner[getAttributeMethod]('rel') || '';
+                                linkDownloadField[valueProperty] = linkOwner[getAttributeMethod]('download') || '';
+                                if (linkStatus) linkStatus[textContentProperty] = ''
+                            } else {
+                                linkHrefField[valueProperty] = '';
+                                linkTargetField[valueProperty] = '';
+                                linkRelField[valueProperty] = '';
+                                linkDownloadField[valueProperty] = '';
+                                if (linkStatus) linkStatus[textContentProperty] = isLinkWrapSupported(initializeVisualEditorArgument11) ? '' : 'Элемент нельзя обернуть в ссылку без нарушения HTML';
+                            }
+                            var mediaTarget = getMediaTarget(initializeVisualEditorArgument11),
+                                mediaElementTag = mediaTarget ? mediaTarget[tagNameProperty][toLowerCaseMethod]() : '';
+                            mediaFieldset.hidden = !mediaTarget;
+                            if (mediaTarget) {
+                                var mediaIsImage = mediaElementTag == imageTagName;
+                                mediaSrcField.parentNode.hidden = !mediaIsImage;
+                                mediaAltField.parentNode.hidden = !mediaIsImage;
+                                mediaLoadingField.parentNode.hidden = !mediaIsImage;
+                                mediaDecodingField.parentNode.hidden = !mediaIsImage;
+                                mediaSrcField[valueProperty] = mediaTarget[getAttributeMethod]('src') || '';
+                                mediaAltField[valueProperty] = mediaTarget[getAttributeMethod]('alt') || '';
+                                mediaLoadingField[valueProperty] = mediaTarget[getAttributeMethod]('loading') || '';
+                                mediaDecodingField[valueProperty] = mediaTarget[getAttributeMethod]('decoding') || '';
+                                if (mediaStatus) mediaStatus[textContentProperty] = mediaIsImage ? '' : 'Для SVG доступна замена файла'
+                            }
+                            renderCustomAttributes();
+                            if (attributeNameField) attributeNameField[valueProperty] = '';
+                            if (attributeValueField) attributeValueField[valueProperty] = '';
+                            if (attributeStatus) attributeStatus[textContentProperty] = '';
                             renderDesignTokens();
                             styleInspectorError.hidden = true;
                             styleInspector.hidden = false;
@@ -2144,7 +2497,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['properties', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Свойства' : 'Properties', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';
@@ -2152,7 +2505,6 @@
                                 visualEditorValue16[classNameProperty] = 'myvibehtml-context-action';
                                 visualEditorValue16[setAttributeMethod]('data-context-action', visualEditorValue13[visualEditorValue14][0]);
                                 visualEditorValue16.action = visualEditorValue13[visualEditorValue14][0];
-                                if (visualEditorValue16.action == 'media') visualEditorValue16[setAttributeMethod]('data-myvibehtml-media-action', 'true');
                                 if (visualEditorValue16.action == 'add-child') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-child', 'true');
                                 if (visualEditorValue16.action == 'add-after') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-after', 'true');
                                 visualEditorValue16.handler = visualEditorValue13[visualEditorValue14][2];
@@ -2167,7 +2519,7 @@
                                         hideContextMenu();
                                         return
                                     }
-                                    if (contextAction == 'style' || contextAction == 'markup') {
+                                    if (contextAction == 'properties') {
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
                                         if (!visualEditorValue17 || visualEditorValue17 == runtimeValue127.body) {
                                             hideContextMenu();
@@ -2182,14 +2534,6 @@
                                         selectContextNode(contextTarget, 'element');
                                         insertStructuralNode(contextAction == 'add-child' ? 'child' : 'after');
                                         hideContextMenu();
-                                        return
-                                    }
-                                    if (contextAction == 'media') {
-                                        var visualEditorValue18 = getMediaTarget(contextTarget);
-                                        if (!visualEditorValue18) return;
-                                        selectContextNode(visualEditorValue18, 'element');
-                                        hideContextMenu();
-                                        openMediaPicker(visualEditorValue18);
                                         return
                                     }
                                     selectContextNode(contextTarget, 'element');
@@ -2247,8 +2591,6 @@
                                 visualEditorValue14 = runtimeValue126.getBoundingClientRect(),
                                 visualEditorValue15 = visualEditorValue14.left + event.clientX,
                                 visualEditorValue16 = visualEditorValue14.top + event.clientY;
-                            var visualEditorValue17 = visualEditorValue13[querySelectorMethod]('[data-myvibehtml-media-action]');
-                            if (visualEditorValue17) visualEditorValue17[styleProperty][displayProperty] = isMediaTarget(contextTarget) ? blockValue : noneValue;
                             var visualEditorValue18 = visualEditorValue13[querySelectorMethod]('[data-myvibehtml-structural-child]');
                             if (visualEditorValue18) visualEditorValue18[styleProperty][displayProperty] = structuralVoidTags[indexOfMethod]('|' + contextTarget[tagNameProperty][toLowerCaseMethod]() + '|') === -1 ? blockValue : noneValue;
                             if (visualEditorValue13[styleProperty][displayProperty] != blockValue) contextMenuPreviousFocus = documentObject[activeElementProperty];
@@ -3653,7 +3995,10 @@
                                 visualEditorValue310[visualEditorValue316].ondragstart = function() {
                                     runtimeValue1.e = this
                                 };
-                                visualEditorValue310[visualEditorValue316][addEventListenerMethod](mouseDownEvent, runtimeValue106);
+                                visualEditorValue310[visualEditorValue316][addEventListenerMethod](mouseDownEvent, function(event) {
+                                    event[stopPropagationMethod]();
+                                    runtimeValue106.call(this)
+                                });
                                 if (visualEditorValue310[visualEditorValue316][getAttributeMethod]('usemap')) visualEditorValue310[visualEditorValue316][removeAttributeMethod]('usemap')
                             }
                             for (var visualEditorValue316 = 0, visualEditorValue317 = visualEditorValue311[lengthProperty]; visualEditorValue316 < visualEditorValue317; visualEditorValue316++) {
@@ -3680,6 +4025,11 @@
                                     }
                                     visualEditorValue318[addEventListenerMethod](mouseDownEvent, function(event) {
                                         runtimeValue106.call(this.realNode)
+                                    })
+                                } else if (visualEditorValue326 == 'svg') {
+                                    visualEditorValue312[visualEditorValue316][addEventListenerMethod](mouseDownEvent, function(event) {
+                                        event[stopPropagationMethod]();
+                                        runtimeValue106.call(this)
                                     })
                                 } else {
                                     visualEditorValue312[visualEditorValue316][addEventListenerMethod](mouseDownEvent, function(event) {
