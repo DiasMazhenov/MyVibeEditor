@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.87 */
+/* MyVibeHTML v0.88 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -353,6 +353,7 @@
                 runtimeValue10 = runtimeValue1[querySelectorAllMethod]('div>ol+ul>li>a'),
                 runtimeValue11 = documentObject[querySelectorMethod]('#j'),
                 serializedSource = runtimeValue11[getAttributeMethod]('data-encoding') == 'base64' ? base64Decode(runtimeValue11[textContentProperty]) : runtimeValue11[innerHTMLProperty],
+                visualEditorSourceDirty = false,
                 sourceDraftKey = 'myvibehtml:draft:' + locationObject.pathname + locationObject.search,
                 editorTimelineKey = 'myvibehtml:timeline:' + locationObject.pathname + locationObject.search.replace(/[?&]rev=[^&]*/, ''),
                 sourceDraftTimer = false,
@@ -378,6 +379,7 @@
                     writeEditorTimeline(editorTimelineItems)
                 },
                 writeSourceDraft = function(sourceDraftValue) {
+                    visualEditorSourceDirty = true;
                     uiContracts.storageSet(windowObject, 'localStorage', sourceDraftKey, JSON.stringify({source:sourceDraftValue,updated:Date.now()}));
                     recordEditorTimeline(sourceDraftValue)
                 },
@@ -389,6 +391,7 @@
                     } catch (sourceDraftError) { return null }
                 },
                 clearSourceDraft = function() {
+                    visualEditorSourceDirty = false;
                     uiContracts.storageRemove(windowObject, 'localStorage', sourceDraftKey)
                 },
                 validationDialog = null,
@@ -2003,7 +2006,7 @@
                         },
                         runtimeValue75 = function() {
                             var visualEditorValue37 = false;
-                            if (serializedSource != runtimeValue11[innerHTMLProperty]) visualEditorValue37 = true;
+                            if (visualEditorSourceDirty || serializedSource != runtimeValue11[innerHTMLProperty]) visualEditorValue37 = true;
                             else {
                                 var visualEditorValue38 = runtimeValue127[querySelectorAllMethod]('[' + stringAttribute + ']'),
                                     visualEditorValue39 = runtimeValue127[querySelectorAllMethod]('[' + attributesAttribute + ']');
@@ -3927,8 +3930,7 @@
                 },
                 saveEditorContent = function(runtimeInput51) {
                     var runtimeValue151 = generateToken();
-                    if (saveEditorContent.f) writeCookie(tokenCookieSuffix, runtimeValue151);
-                    else runtimeInput51 = '';
+                    writeCookie(tokenCookieSuffix, runtimeValue151);
                     runtimeValue9[textContentProperty] = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'ad');
                     runtimeValue9[classNameProperty] = 'b';
                     fadeIn(runtimeValue9);

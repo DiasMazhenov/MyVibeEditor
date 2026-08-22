@@ -1,13 +1,13 @@
 # MyVibeHTML plugin context
 
-## Текущее исправление v0.87
+## Текущее исправление v0.88
 
-- Найдена точная причина: CSS-инспектор открывался после клика, но не применял значение, потому что source map становилась `ambiguous`. Редактор хранит пользовательский HTML как body-фрагмент с `{!~head0~!}`, а preview добавляет синтетические `html/head/title/base/style`; карта пыталась сопоставить синтетические узлы с исходником и не назначала диапазон `h1`.
-- `myvibehtml-source-map.js` теперь пропускает синтетические document/head-узлы, когда исходник начинается с body-фрагмента, и сопоставляет реальные body/main/h1-узлы с opening/element ranges. Добавлен регрессионный тест body-фрагмента с synthetic head.
-- Сохранены предыдущие исправления v0.86: явный `data-context-action`, `event.currentTarget`, остановка всплытия и исправленные aliases `toUpperCaseMethod`/`uiContracts`.
-- Версия `0.87` синхронизирована в runtime, заголовках модулей, cache-busting, документации, тестах и UI snapshot. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
-- Статические проверки прошли: `node --test tests/source-map.test.js tests/feature-contracts.test.js`. Playwright live-проверка прошла: авторизация → right-click по `h1` → «Изменить CSS» → ввод `42`; получено `inline: font-size: 42px;`, `computed: 42px`, а `#j` содержит `<h1 style="font-size: 42px;">`.
-- Следующий этап: v0.88 — каталог контента с фильтрами изображений, текста, ссылок, кнопок и accessibility-проблем.
+- Найдена причина, почему CSS-изменения не сохранялись: `writeSourceDraft()` записывал новый source, но общий `runtimeValue75()` видел уже синхронизированный `#j` и снова отключал кнопку `Сохранить`, потому что не учитывал dirty-state visual-инспектора.
+- После удаления старого update-flow флаг `saveEditorContent.f` больше нигде не устанавливался. Из-за этого save-функция отправляла пустой `save` и не записывала token-cookie; сервер закономерно возвращал `404`.
+- `myvibehtml.js` теперь хранит `visualEditorSourceDirty` до успешного save, сбрасывает его только после ответа `200`, всегда записывает token-cookie и отправляет полный Base64-источник. Исправление проходит через общий save-путь, поэтому действует для CSS, HTML-атрибутов и структурных visual-операций.
+- Версия `0.88` синхронизирована в runtime, заголовках модулей, cache-busting, документации, тестах и UI snapshot. Пользовательские `test-page.html`, `.test-page.html.myvibehtml.lock` и временный `.demo-about.html.myvibehtml.lock` не входят в commit.
+- Статические проверки после правки: `node --check myvibehtml.js`, feature/source-map/CI tests, PHP lint, security smoke и HTTP regression. Playwright live-проверка прошла полностью: авторизация → right-click по `h1` → «Изменить CSS» → ввод `42` → закрытие инспектора → `Сохранить` → подтверждение Page Health → reload; оба POST вернули `200`, после reload получено `inline: font-size: 42px;`, `computed: 42px`.
+- Следующий этап: v0.89 — каталог контента с фильтрами изображений, текста, ссылок, кнопок и accessibility-проблем.
 
 ## Текущее исправление v0.86
 

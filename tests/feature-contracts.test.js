@@ -95,6 +95,15 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /data-myvibehtml-preview/);
 });
 
+test('Visual CSS changes keep save enabled and send the edited source', () => {
+    assert.match(editor, /visualEditorSourceDirty = false/);
+    assert.match(editor, /writeSourceDraft = function\(sourceDraftValue\) \{\s*visualEditorSourceDirty = true/);
+    assert.match(editor, /clearSourceDraft = function\(\) \{\s*visualEditorSourceDirty = false/);
+    assert.match(editor, /if \(visualEditorSourceDirty \|\| serializedSource != runtimeValue11\[innerHTMLProperty\]\)/);
+    assert.match(editor, /writeCookie\(tokenCookieSuffix, runtimeValue151\);/);
+    assert.doesNotMatch(editor, /if \(saveEditorContent\.f\).*writeCookie/);
+});
+
 test('Context menu dispatches CSS actions from the clicked menu item', () => {
     assert.match(editor, /setAttributeMethod\]\('data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]\)/);
     assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
