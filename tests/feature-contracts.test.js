@@ -66,6 +66,24 @@ test('Design Tokens are editable through the CSS inspector and source', () => {
     assert.match(editor, /:root\\s\*\\\{/);
 });
 
+test('External CSS editor exposes rule search, media context, diff and guarded save', () => {
+    assert.match(editor, /parseExternalCss = function\(source\)/);
+    assert.match(editor, /replaceExternalCssRule = function\(source, rule, selector, declarations\)/);
+    assert.match(editor, /data-myvibehtml-external-file/);
+    assert.match(editor, /data-myvibehtml-external-search/);
+    assert.match(editor, /data-myvibehtml-external-selector/);
+    assert.match(editor, /data-myvibehtml-external-declarations/);
+    assert.match(editor, /data-myvibehtml-external-diff/);
+    assert.match(editor, /data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]/);
+    assert.match(editor, /external-css.*Изменить CSS-файл|external-css.*Edit CSS file/);
+    assert.match(editor, /save_css/);
+    assert.match(php, /getSiteRelativePath\(rawurldecode\(\$cssRelativeInput\), true\)/);
+    assert.match(php, /strtolower\(pathinfo\(\$cssRelative, PATHINFO_EXTENSION\)\) !== 'css'/);
+    assert.match(php, /createBackup\(\$cssRelative\)/);
+    assert.equal(fs.existsSync('demo-external.css'), true);
+    assert.match(fs.readFileSync('demo-about.html', 'utf8'), /demo-external\.css/);
+});
+
 test('CSS inspector keeps HTML fields focused and persists live CSS edits', () => {
     assert.doesNotMatch(editor, /property: 'role', label: 'ARIA role'/);
     assert.doesNotMatch(editor, /property: 'aria-label', label: 'ARIA label'/);
@@ -107,7 +125,7 @@ test('Visual CSS changes keep save enabled and send the edited source', () => {
 test('Context menu dispatches CSS actions from the clicked menu item', () => {
     assert.match(editor, /setAttributeMethod\]\('data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]\)/);
     assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
-    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
+    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'external-css' \|\| contextAction == 'markup'/);
     assert.match(editor, /renderStyleInspector\(visualEditorValue17\);[\s\S]*?hideContextMenu\(\);/);
     assert.match(editor, /toUpperCaseMethod = 'toUpperCase'/);
     assert.match(shell, /uiContracts = window\.MyVibeHTMLUIContracts \|\| \{\},[\s\S]*?previewControls/);

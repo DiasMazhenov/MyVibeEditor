@@ -1,0 +1,18 @@
+/* External stylesheet fixture for the CSS file editor. */
+:root {
+    --demo-card-border: #2b3a48;
+    --demo-card-bg: #151f29;
+}
+
+.card {
+    padding: 32px;
+    border: 1px solid var(--demo-card-border);
+    border-radius: 18px;
+    background: var(--demo-card-bg);
+}
+
+@media (min-width: 700px) {
+    .card {
+        padding: 40px;
+    }
+}

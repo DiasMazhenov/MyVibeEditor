@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.88 */
+/* MyVibeHTML v0.89 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -566,6 +566,18 @@
                         styleInspectorFields = null,
                         markupInspectorFields = null,
                         styleInspectorError = null,
+                        externalCssFieldset = null,
+                        externalCssFileField = null,
+                        externalCssSearchField = null,
+                        externalCssRuleField = null,
+                        externalCssSelectorField = null,
+                        externalCssDeclarationsField = null,
+                        externalCssDiff = null,
+                        externalCssStatus = null,
+                        externalCssApplyButton = null,
+                        externalCssSaveButton = null,
+                        externalCssRussian = false,
+                        externalCssState = {rules: [], selected: null, source: '', original: '', url: ''},
                         designTokenFieldset = null,
                         designTokenNameField = null,
                         designTokenValueField = null,
@@ -1076,8 +1088,333 @@
                             styleInspectorError.hidden = true;
                             renderDesignTokens()
                         },
+                        externalCssTrim = function(value) {
+                            return String(value || '').replace(/^\s+|\s+$/g, '')
+                        },
+                        externalCssSkipTrivia = function(source, index, end) {
+                            while (index < end) {
+                                if (/\s/.test(source[index])) {
+                                    index++;
+                                    continue
+                                }
+                                if (source.slice(index, index + 2) == '/*') {
+                                    index = source.indexOf('*/', index + 2);
+                                    index = index < 0 ? end : index + 2;
+                                    continue
+                                }
+                                break
+                            }
+                            return index
+                        },
+                        externalCssFindClosing = function(source, opening, end) {
+                            var depth = 1,
+                                quote = '',
+                                index = opening + 1;
+                            while (index < end) {
+                                if (quote) {
+                                    if (source[index] == '\\') index += 2;
+                                    else if (source[index] == quote) quote = '';
+                                    else index++
+                                } else if (source.slice(index, index + 2) == '/*') {
+                                    index = source.indexOf('*/', index + 2);
+                                    index = index < 0 ? end : index + 2
+                                } else if (source[index] == '"' || source[index] == "'") quote = source[index++];
+                                else if (source[index] == '{') { depth++; index++ }
+                                else if (source[index] == '}') { depth--; if (!depth) return index; index++ }
+                                else index++
+                            }
+                            return -1
+                        },
+                        externalCssFindPreludeEnd = function(source, start, end) {
+                            var quote = '', parentheses = 0, index = start;
+                            while (index < end) {
+                                if (quote) {
+                                    if (source[index] == '\\') index += 2;
+                                    else if (source[index] == quote) quote = '';
+                                    else index++
+                                } else if (source.slice(index, index + 2) == '/*') {
+                                    index = source.indexOf('*/', index + 2);
+                                    index = index < 0 ? end : index + 2
+                                } else if (source[index] == '"' || source[index] == "'") quote = source[index++];
+                                else if (source[index] == '(') { parentheses++; index++ }
+                                else if (source[index] == ')') { parentheses = Math.max(0, parentheses - 1); index++ }
+                                else if (!parentheses && (source[index] == '{' || source[index] == ';' || source[index] == '}')) return {kind: source[index], index: index};
+                                else index++
+                            }
+                            return {kind: '', index: end}
+                        },
+                        externalCssParseBlock = function(source, start, end, media, rules) {
+                            var index = start;
+                            while (index < end) {
+                                index = externalCssSkipTrivia(source, index, end);
+                                if (index >= end || source[index] == '}') return;
+                                var preludeStart = index,
+                                    prelude = externalCssFindPreludeEnd(source, index, end);
+                                if (prelude.kind == ';' || prelude.kind == '}') { index = prelude.index + 1; continue }
+                                if (prelude.kind != '{') return;
+                                var close = externalCssFindClosing(source, prelude.index, end);
+                                if (close < 0) return;
+                                var header = externalCssTrim(source.slice(preludeStart, prelude.index));
+                                if (header && header[0] == '@') {
+                                    if (/^@(media|supports|container|layer|document|scope|starting-style)\b/i.test(header)) externalCssParseBlock(source, prelude.index + 1, close, media ? media + ' / ' + header : header, rules)
+                                } else if (header) rules.push({selector: header, media: media || '', start: preludeStart, end: close + 1, bodyStart: prelude.index + 1, bodyEnd: close});
+                                index = close + 1
+                            }
+                        },
+                        parseExternalCss = function(source) {
+                            var rules = [];
+                            if (typeof source == 'string') externalCssParseBlock(source, 0, source.length, '', rules);
+                            return rules
+                        },
+                        replaceExternalCssRule = function(source, rule, selector, declarations) {
+                            if (!rule || typeof source != 'string') return false;
+                            selector = externalCssTrim(selector);
+                            declarations = externalCssTrim(declarations);
+                            if (!selector || selector.length > 800 || /[{}]/.test(selector) || declarations.length > 20000 || /<\/style/i.test(declarations)) return false;
+                            var lineStart = source.lastIndexOf('\n', rule.start) + 1,
+                                indentationMatch = source.slice(lineStart, rule.start).match(/^\s*/),
+                                indentation = indentationMatch ? indentationMatch[0] : '',
+                                body = declarations ? '\n' + indentation + '  ' + declarations.replace(/\n/g, '\n' + indentation + '  ') + '\n' + indentation : '';
+                            return source.slice(0, rule.start) + selector + ' {' + body + '}' + source.slice(rule.end)
+                        },
+                        externalCssRequest = function(url, callback) {
+                            var request = new windowObject.XMLHttpRequest();
+                            request.open('GET', url, true);
+                            request.onreadystatechange = function() {
+                                if (request.readyState == 4) callback(request.status == 200 ? request.responseText : false)
+                            };
+                            request.send()
+                        },
+                        externalCssMediaPath = function(rule) {
+                            var media = [],
+                                parentRule = rule && rule.parentRule;
+                            while (parentRule) {
+                                if (parentRule.conditionText) media.unshift('@media ' + parentRule.conditionText);
+                                else if (parentRule.media && parentRule.media.mediaText) media.unshift('@media ' + parentRule.media.mediaText);
+                                parentRule = parentRule.parentRule
+                            }
+                            return media.join(' / ')
+                        },
+                        externalCssWalkRules = function(cssRules, target, allRules, matchingRules) {
+                            for (var ruleIndex = 0; ruleIndex < cssRules.length; ruleIndex++) {
+                                var cssRule = cssRules[ruleIndex];
+                                if (cssRule.type == 1) {
+                                    var cssRuleIndex = allRules.length;
+                                    allRules.push(cssRule);
+                                    var matchesTarget = false;
+                                    try { matchesTarget = target.matches(cssRule.selectorText) } catch (selectorError) {}
+                                    if (matchesTarget || /(^|[;{\s])--[a-z][a-z0-9_-]*\s*:/i.test(cssRule.style && cssRule.style.cssText || '') || /(^|,|\s):root(?:\b|[\s.#:,>+~])/i.test(cssRule.selectorText || '')) matchingRules.push({rule: cssRule, index: cssRuleIndex, selector: cssRule.selectorText, media: externalCssMediaPath(cssRule)});
+                                } else if (cssRule.cssRules) {
+                                    try { externalCssWalkRules(cssRule.cssRules, target, allRules, matchingRules) } catch (nestedRuleError) {}
+                                }
+                            }
+                        },
+                        externalCssParsedRuleMatchesTarget = function(rule, target, declarations) {
+                            var matchesTarget = false;
+                            try { matchesTarget = target.matches(rule.selector) } catch (selectorError) {}
+                            return matchesTarget || /(^|[;{\s])--[a-z][a-z0-9_-]*\s*:/i.test(declarations || '') || /(^|,|\s):root(?:\b|[\s.#:,>+~])/i.test(rule.selector || '')
+                        },
+                        buildExternalCssDiff = function(before, after) {
+                            if (before === after) return '';
+                            var beforeLines = String(before || '').split('\n'),
+                                afterLines = String(after || '').split('\n'),
+                                diffLines = ['--- saved CSS', '+++ edited CSS'],
+                                diffIndex;
+                            for (diffIndex = 0; diffIndex < beforeLines.length; diffIndex++) if (beforeLines[diffIndex] !== afterLines[diffIndex]) diffLines.push('- ' + beforeLines[diffIndex]);
+                            for (diffIndex = 0; diffIndex < afterLines.length; diffIndex++) if (beforeLines[diffIndex] !== afterLines[diffIndex]) diffLines.push('+ ' + afterLines[diffIndex]);
+                            return diffLines.join('\n')
+                        },
+                        externalCssSetStatus = function(message, isError) {
+                            if (!externalCssStatus) return;
+                            externalCssStatus[textContentProperty] = message || '';
+                            externalCssStatus[classNameProperty] = isError ? 'myvibehtml-external-css-status is-error' : 'myvibehtml-external-css-status'
+                        },
+                        externalCssRenderDiff = function() {
+                            if (!externalCssDiff) return;
+                            var file = externalCssState.files && externalCssState.files[externalCssState.url];
+                            externalCssDiff[textContentProperty] = file ? buildExternalCssDiff(file.original, file.source) : '';
+                            externalCssDiff.hidden = !externalCssDiff[textContentProperty];
+                            if (externalCssSaveButton) externalCssSaveButton[disabledProperty] = !file || file.source === file.original
+                        },
+                        externalCssRenderRules = function() {
+                            if (!externalCssRuleField) return;
+                            var file = externalCssState.files && externalCssState.files[externalCssState.url],
+                                search = externalCssSearchField ? externalCssSearchField[valueProperty].toLowerCase() : '',
+                                rules = file ? file.rules : [];
+                            externalCssRuleField[textContentProperty] = '';
+                            for (var ruleIndex = 0; ruleIndex < rules.length; ruleIndex++) {
+                                var rule = rules[ruleIndex],
+                                    label = rule.selector + (rule.media ? ' · ' + rule.media : ''),
+                                    haystack = label.toLowerCase();
+                                if (search && haystack.indexOf(search) < 0) continue;
+                                var option = documentObject[createElementMethod]('option');
+                                option.value = ruleIndex;
+                                option[textContentProperty] = label;
+                                externalCssRuleField[appendChildMethod](option)
+                            }
+                            if (!externalCssRuleField.options.length) {
+                                var emptyOption = documentObject[createElementMethod]('option');
+                                emptyOption[valueProperty] = '';
+                                emptyOption[textContentProperty] = '—';
+                                externalCssRuleField[appendChildMethod](emptyOption)
+                            }
+                            externalCssRuleField[valueProperty] = externalCssState.selected ? String(rules.indexOf(externalCssState.selected)) : externalCssRuleField.options[0].value;
+                            externalCssState.selected = rules[externalCssRuleField[valueProperty] * 1] || null;
+                            if (externalCssSelectorField) externalCssSelectorField[valueProperty] = externalCssState.selected ? externalCssState.selected.selector : '';
+                            if (externalCssDeclarationsField) externalCssDeclarationsField[valueProperty] = externalCssState.selected ? externalCssState.selected.declarations : '';
+                            if (externalCssApplyButton) externalCssApplyButton[disabledProperty] = !externalCssState.selected;
+                            externalCssRenderDiff()
+                        },
+                        externalCssSelectFile = function() {
+                            externalCssState.url = externalCssFileField ? externalCssFileField[valueProperty] : '';
+                            var file = externalCssState.files && externalCssState.files[externalCssState.url];
+                            externalCssState.original = file ? file.original : '';
+                            externalCssState.source = file ? file.source : '';
+                            externalCssState.selected = null;
+                            externalCssRenderRules();
+                            externalCssSetStatus(file ? (file.rules.length ? '' : 'Для выбранного элемента правила не найдены') : '')
+                        },
+                        externalCssRenderFiles = function() {
+                            if (!externalCssFileField) return;
+                            externalCssFileField[textContentProperty] = '';
+                            var fileUrls = Object.keys(externalCssState.files || {});
+                            for (var fileIndex = 0; fileIndex < fileUrls.length; fileIndex++) {
+                                var file = externalCssState.files[fileUrls[fileIndex]],
+                                    fileOption = documentObject[createElementMethod]('option');
+                                fileOption[valueProperty] = file.url;
+                                fileOption[textContentProperty] = file.url.replace(/^.*\//, '');
+                                externalCssFileField[appendChildMethod](fileOption)
+                            }
+                            externalCssFieldset.hidden = !fileUrls.length;
+                            if (fileUrls.length) {
+                                externalCssFileField[valueProperty] = externalCssState.url || fileUrls[0];
+                                externalCssSelectFile()
+                            } else externalCssSetStatus('Внешние CSS-файлы не найдены')
+                        },
+                        loadExternalCssRules = function(target, attempt) {
+                            if (!externalCssFieldset) return;
+                            attempt = attempt || 0;
+                            externalCssFieldset.hidden = false;
+                            externalCssSetStatus(externalCssRussian ? 'Поиск правил…' : 'Searching rules…');
+                            externalCssState = {rules: [], files: {}, selected: null, source: '', original: '', url: '', target: target, previewRules: {}};
+                            var sheets = [], seenUrls = {}, stylesheetLinks = runtimeValue127.querySelectorAll('link[rel="stylesheet"][href]');
+                            for (var linkIndex = 0; linkIndex < stylesheetLinks.length; linkIndex++) try {
+                                var linkUrl = new windowObject.URL(stylesheetLinks[linkIndex].href, runtimeValue127.baseURI || windowObject.location.href);
+                                if (linkUrl.origin === windowObject.location.origin && !seenUrls[linkUrl.href]) {
+                                    seenUrls[linkUrl.href] = true;
+                                    sheets.push({sheet: null, url: linkUrl.href})
+                                }
+                            } catch (stylesheetLinkError) {}
+                            for (var sheetIndex = 0; sheetIndex < runtimeValue127.styleSheets.length; sheetIndex++) {
+                                var stylesheet = runtimeValue127.styleSheets[sheetIndex];
+                                if (!stylesheet.href) continue;
+                                try {
+                                    var stylesheetUrl = new windowObject.URL(stylesheet.href, runtimeValue127.baseURI || windowObject.location.href);
+                                    if (stylesheetUrl.origin !== windowObject.location.origin || seenUrls[stylesheetUrl.href]) continue;
+                                    seenUrls[stylesheetUrl.href] = true;
+                                    sheets.push({sheet: stylesheet, url: stylesheetUrl.href})
+                                } catch (stylesheetUrlError) {}
+                            }
+                            if (!sheets.length && attempt < 12) {
+                                windowObject.setTimeout(function() { loadExternalCssRules(target, attempt + 1) }, 150);
+                                return
+                            }
+                            var loadSheet = function(loadIndex) {
+                                if (loadIndex >= sheets.length) {
+                                    externalCssRenderFiles();
+                                    if (Object.keys(externalCssState.files).length) externalCssSetStatus('');
+                                    return
+                                }
+                                var sheetEntry = sheets[loadIndex],
+                                    allRules = [],
+                                    matchingRules = [],
+                                    cssRules = false,
+                                    cssRulesReadable = true;
+                                if (sheetEntry.sheet) try { cssRules = sheetEntry.sheet.cssRules } catch (cssRulesError) { cssRulesReadable = false } else cssRulesReadable = false;
+                                if (cssRulesReadable) externalCssWalkRules(cssRules, target, allRules, matchingRules);
+                                externalCssRequest(sheetEntry.url, function(source) {
+                                    if (source !== false) {
+                                        var parsedRules = parseExternalCss(source),
+                                            fileRules = [];
+                                        if (cssRulesReadable) for (var matchIndex = 0; matchIndex < matchingRules.length; matchIndex++) {
+                                            var matchingRule = matchingRules[matchIndex],
+                                                parsedRule = parsedRules[matchingRule.index];
+                                            if (parsedRule) fileRules.push({selector: matchingRule.selector, media: matchingRule.media, cssRule: matchingRule.rule, rawRule: parsedRule, declarations: matchingRule.rule.style.cssText || ''})
+                                        } else for (var parsedIndex = 0; parsedIndex < parsedRules.length; parsedIndex++) {
+                                            var fallbackRule = parsedRules[parsedIndex],
+                                                fallbackDeclarations = externalCssTrim(source.slice(fallbackRule.bodyStart, fallbackRule.bodyEnd));
+                                            if (externalCssParsedRuleMatchesTarget(fallbackRule, target, fallbackDeclarations)) fileRules.push({selector: fallbackRule.selector, media: fallbackRule.media, cssRule: null, rawRule: fallbackRule, declarations: fallbackDeclarations})
+                                        }
+                                        if (fileRules.length) externalCssState.files[sheetEntry.url] = {url: sheetEntry.url, original: source, source: source, rules: fileRules}
+                                    }
+                                    loadSheet(loadIndex + 1)
+                                })
+                            };
+                            loadSheet(0)
+                        },
+                        externalCssApplyPreview = function(rule, selector, declarations) {
+                            var target = externalCssState.target,
+                                previewDocument = target && target.ownerDocument;
+                            if (!previewDocument) return false;
+                            var previewStyle = previewDocument.querySelector('style[data-myvibehtml-external-preview]');
+                            if (!previewStyle) {
+                                previewStyle = previewDocument.createElement('style');
+                                previewStyle.setAttribute('data-myvibehtml-external-preview', 'true');
+                                (previewDocument.head || previewDocument.documentElement).appendChild(previewStyle)
+                            }
+                            var previewRule = selector + ' {' + declarations + '}',
+                                media = rule.media ? rule.media.split(' / ') : [],
+                                mediaIndex;
+                            for (mediaIndex = media.length - 1; mediaIndex >= 0; mediaIndex--) previewRule = media[mediaIndex] + ' {' + previewRule + '}';
+                            externalCssState.previewRules[externalCssState.url + ':' + rule.rawRule.start] = previewRule;
+                            previewStyle[textContentProperty] = Object.keys(externalCssState.previewRules).map(function(key) { return externalCssState.previewRules[key] }).join('\n');
+                            return true
+                        },
+                        applyExternalCssRule = function() {
+                            var file = externalCssState.files && externalCssState.files[externalCssState.url],
+                                rule = externalCssState.selected,
+                                selector = externalCssSelectorField ? externalCssSelectorField[valueProperty].replace(/^\s+|\s+$/g, '') : '',
+                                declarations = externalCssDeclarationsField ? externalCssDeclarationsField[valueProperty].replace(/^\s+|\s+$/g, '') : '';
+                            if (!file || !rule) return;
+                            var newSource = replaceExternalCssRule(file.source, rule.rawRule, selector, declarations);
+                            if (newSource === false) { externalCssSetStatus(externalCssRussian ? 'Проверьте селектор и declarations' : 'Check selector and declarations', true); return }
+                            if (rule.cssRule) {
+                                try {
+                                    rule.cssRule.selectorText = selector;
+                                    rule.cssRule.style.cssText = declarations
+                                } catch (liveRuleError) { externalCssSetStatus(externalCssRussian ? 'Правило нельзя применить в preview' : 'Rule cannot be applied in preview', true); return }
+                            } else if (!externalCssApplyPreview(rule, selector, declarations)) { externalCssSetStatus(externalCssRussian ? 'Правило нельзя применить в preview' : 'Rule cannot be applied in preview', true); return }
+                            file.source = newSource;
+                            rule.selector = selector;
+                            rule.declarations = declarations;
+                            externalCssRenderDiff();
+                            externalCssSetStatus(externalCssRussian ? 'Изменение подготовлено. Проверьте diff и сохраните CSS.' : 'Change staged. Review the diff and save CSS.');
+                            externalCssApplyButton[disabledProperty] = false
+                        },
+                        saveExternalCss = function() {
+                            var file = externalCssState.files && externalCssState.files[externalCssState.url];
+                            if (!file || file.source === file.original) return;
+                            var token = generateToken();
+                            writeCookie(tokenCookieSuffix, token);
+                            externalCssApplyButton[disabledProperty] = true;
+                            externalCssSetStatus(externalCssRussian ? 'Сохранение CSS…' : 'Saving CSS…');
+                            ajaxRequest('save_css=' + windowObject[encodeURIComponentMethod](base64UrlEncode(file.source)) + '&css_path=' + windowObject[encodeURIComponentMethod](file.url) + tokenParameter + token, function() {
+                                file.original = file.source;
+                                externalCssState.original = file.source;
+                                externalCssRenderDiff();
+                                externalCssSetStatus(externalCssRussian ? 'CSS-файл сохранён с backup.' : 'CSS file saved with backup.');
+                                externalCssApplyButton[disabledProperty] = false
+                            }, function() {
+                                externalCssSetStatus(externalCssRussian ? 'Не удалось сохранить CSS-файл.' : 'CSS file could not be saved.', true);
+                                externalCssApplyButton[disabledProperty] = false
+                            }, function() {
+                                externalCssSetStatus(externalCssRussian ? 'Истекло время сохранения CSS.' : 'CSS save timed out.', true);
+                                externalCssApplyButton[disabledProperty] = false
+                            })
+                        },
                         createStyleInspector = function() {
                             if (styleInspector) return styleInspector;
+                            externalCssRussian = /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '');
                             var visualEditorValue8 = runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '',
                                 visualEditorValue9 = /[А-Яа-яЁё]/.test(visualEditorValue8),
                                 visualEditorValue10 = visualEditorValue9 ? {
@@ -1108,7 +1445,15 @@
                                     tokenName: 'Token',
                                     tokenValue: 'Значение',
                                     tokenApply: 'Применить',
-                                    tokenNew: 'Новый токен'
+                                    tokenNew: 'Новый токен',
+                                    externalCss: 'Внешний CSS',
+                                    externalCssFile: 'Файл',
+                                    externalCssSearch: 'Поиск правила',
+                                    externalCssRule: 'Правило',
+                                    externalCssSelector: 'Селектор',
+                                    externalCssDeclarations: 'Declarations',
+                                    externalCssApply: 'Применить в CSS-файл',
+                                    externalCssSave: 'Сохранить CSS'
                                 } : {
                                     title: 'CSS properties',
                                     close: 'Close',
@@ -1137,7 +1482,15 @@
                                     tokenName: 'Token',
                                     tokenValue: 'Value',
                                     tokenApply: 'Apply',
-                                    tokenNew: 'New token'
+                                    tokenNew: 'New token',
+                                    externalCss: 'External CSS',
+                                    externalCssFile: 'File',
+                                    externalCssSearch: 'Find rule',
+                                    externalCssRule: 'Rule',
+                                    externalCssSelector: 'Selector',
+                                    externalCssDeclarations: 'Declarations',
+                                    externalCssApply: 'Apply to CSS file',
+                                    externalCssSave: 'Save CSS'
                                 },
                                 visualEditorValue11 = function(initializeVisualEditorArgument1, initializeVisualEditorArgument2) {
                                     var visualEditorValue12 = documentObject[createElementMethod]('label'),
@@ -1322,6 +1675,30 @@
                                 designTokenValueField[valueProperty] = '';
                                 designTokenValueField[focusEvent]()
                             });
+                            externalCssFieldset = documentObject[createElementMethod]('fieldset');
+                            externalCssFieldset[classNameProperty] = 'myvibehtml-external-css-fieldset';
+                            externalCssFieldset.hidden = true;
+                            externalCssFieldset[innerHTMLProperty] = '<legend>' + visualEditorValue10.externalCss + '</legend><div class="myvibehtml-external-css-grid"><label><span>' + visualEditorValue10.externalCssFile + '</span><select class="myvibehtml-style-field" data-myvibehtml-external-file aria-label="' + visualEditorValue10.externalCssFile + '"></select></label><label><span>' + visualEditorValue10.externalCssSearch + '</span><input class="myvibehtml-style-field" data-myvibehtml-external-search type="search" spellcheck="false" aria-label="' + visualEditorValue10.externalCssSearch + '"></label><label class="myvibehtml-external-css-field"><span>' + visualEditorValue10.externalCssRule + '</span><select class="myvibehtml-style-field" data-myvibehtml-external-rule aria-label="' + visualEditorValue10.externalCssRule + '"></select></label><label class="myvibehtml-external-css-field"><span>' + visualEditorValue10.externalCssSelector + '</span><input class="myvibehtml-style-field" data-myvibehtml-external-selector spellcheck="false" aria-label="' + visualEditorValue10.externalCssSelector + '"></label><label class="myvibehtml-external-css-field"><span>' + visualEditorValue10.externalCssDeclarations + '</span><textarea class="myvibehtml-style-field myvibehtml-external-css-declarations" data-myvibehtml-external-declarations spellcheck="false" aria-label="' + visualEditorValue10.externalCssDeclarations + '"></textarea></label></div><pre class="myvibehtml-external-css-diff" data-myvibehtml-external-diff hidden></pre><p class="myvibehtml-external-css-status" data-myvibehtml-external-status aria-live="polite"></p><div class="myvibehtml-external-css-actions"><button type="button" data-myvibehtml-external-apply>' + visualEditorValue10.externalCssApply + '</button><button type="button" data-myvibehtml-external-save>' + visualEditorValue10.externalCssSave + '</button></div>';
+                            externalCssFileField = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-file]');
+                            externalCssSearchField = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-search]');
+                            externalCssRuleField = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-rule]');
+                            externalCssSelectorField = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-selector]');
+                            externalCssDeclarationsField = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-declarations]');
+                            externalCssDiff = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-diff]');
+                            externalCssStatus = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-status]');
+                            externalCssApplyButton = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-apply]');
+                            externalCssSaveButton = externalCssFieldset[querySelectorMethod]('[data-myvibehtml-external-save]');
+                            externalCssFileField[addEventListenerMethod](changeEvent, externalCssSelectFile);
+                            externalCssSearchField[addEventListenerMethod](inputEvent, externalCssRenderRules);
+                            externalCssRuleField[addEventListenerMethod](changeEvent, function() {
+                                var file = externalCssState.files && externalCssState.files[externalCssState.url];
+                                externalCssState.selected = file ? file.rules[this[valueProperty] * 1] || null : null;
+                                if (externalCssSelectorField) externalCssSelectorField[valueProperty] = externalCssState.selected ? externalCssState.selected.selector : '';
+                                if (externalCssDeclarationsField) externalCssDeclarationsField[valueProperty] = externalCssState.selected ? externalCssState.selected.declarations : '';
+                                externalCssRenderDiff()
+                            });
+                            externalCssApplyButton[addEventListenerMethod](clickEvent, applyExternalCssRule);
+                            externalCssSaveButton[addEventListenerMethod](clickEvent, saveExternalCss);
                             visualEditorValue25[setAttributeMethod]('novalidate', 'novalidate');
                             for (var visualEditorValue28 = 0, visualEditorValue29 = visualEditorValue18[lengthProperty]; visualEditorValue28 < visualEditorValue29; visualEditorValue28++) {
                                 var visualEditorValue30 = documentObject[createElementMethod]('fieldset'),
@@ -1352,6 +1729,7 @@
                             styleInspector[appendChildMethod](visualEditorValue24);
                             styleInspector[appendChildMethod](markupInspectorFieldset);
                             styleInspector[appendChildMethod](designTokenFieldset);
+                            styleInspector[appendChildMethod](externalCssFieldset);
                             styleInspector[appendChildMethod](visualEditorValue25);
                             styleInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-style-property]');
                             markupInspectorFields = styleInspector[querySelectorAllMethod]('[data-myvibehtml-markup-property]');
@@ -1727,7 +2105,8 @@
                             renderDesignTokens();
                             styleInspectorError.hidden = true;
                             styleInspector.hidden = false;
-                            styleInspector[setAttributeMethod]('aria-hidden', 'false')
+                            styleInspector[setAttributeMethod]('aria-hidden', 'false');
+                            loadExternalCssRules(initializeVisualEditorArgument11)
                         },
                         resetStyleInspector = function() {
                             if (!styleInspectorTarget) return;
@@ -1765,7 +2144,7 @@
                             var visualEditorValue12 = documentObject[createElementMethod]('div');
                             visualEditorValue12[classNameProperty] = 'myvibehtml-context-divider';
                             contextMenu[appendChildMethod](visualEditorValue12);
-                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['markup', 'HTML', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
+                            var visualEditorValue13 = [['style', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS' : 'Edit CSS', null], ['external-css', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Изменить CSS-файл' : 'Edit CSS file', null], ['markup', 'HTML', null], ['add-child', runtimeValue9[getAttributeMethod]('data-context-add-child') || 'Add inside', null], ['add-after', runtimeValue9[getAttributeMethod]('data-context-add-after') || 'Add next to', null], ['save-block', /[А-Яа-яЁё]/.test(runtimeValue9[getAttributeMethod](dataAttributePrefix + 'context-menu') || '') ? 'Сохранить компонент' : 'Save component', null], ['media', runtimeValue9[getAttributeMethod]('data-context-media') || 'Replace image/icon', null], ['clone', runtimeValue9[getAttributeMethod]('data-context-copy') || 'Clone', runtimeValue89], ['up', runtimeValue9[getAttributeMethod]('data-context-up') || 'Move up', runtimeValue90], ['down', runtimeValue9[getAttributeMethod]('data-context-down') || 'Move down', runtimeValue91], ['delete', runtimeValue9[getAttributeMethod]('data-context-delete') || 'Delete', runtimeValue92]];
                             for (var visualEditorValue14 = 0, visualEditorValue15 = visualEditorValue13[lengthProperty]; visualEditorValue14 < visualEditorValue15; visualEditorValue14++) {
                                 var visualEditorValue16 = documentObject[createElementMethod]('button');
                                 visualEditorValue16.type = 'button';
@@ -1788,7 +2167,7 @@
                                         hideContextMenu();
                                         return
                                     }
-                                    if (contextAction == 'style' || contextAction == 'markup') {
+                                    if (contextAction == 'style' || contextAction == 'external-css' || contextAction == 'markup') {
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
                                         if (!visualEditorValue17 || visualEditorValue17 == runtimeValue127.body) {
                                             hideContextMenu();
@@ -1796,6 +2175,7 @@
                                         }
                                         selectContextNode(visualEditorValue17, 'element');
                                         renderStyleInspector(visualEditorValue17);
+                                        if (contextAction == 'external-css' && externalCssFieldset) externalCssFieldset.hidden = false;
                                         hideContextMenu();
                                         return
                                     }

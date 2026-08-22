@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.88 */
+<?php /* MyVibeHTML v0.89 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.88';
+    const VERSION = '0.89';
     private $config;
     private $request;
     private $response;
@@ -1105,7 +1105,17 @@ final class MyVibeHTMLController
         $sitePrefix = trim($this->config->getSiteUrlBase(), '/');
         if ($sitePrefix !== '' && stripos($dispatch1, $sitePrefix . '/') === 0) throw new Exception($this->config->getSiteUrlBase() . $this->getQueryPrefix() . $this->config->getSetting(SETTING_DEFAULT_FILE), 307);
         if ($this->request->getServer(REQUEST_AJAX_HEADER)) {
-            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($dispatch5 = $this->request->getPost('save')) && $this->isValidPostToken()) {
+            if ($this->request->getPost('reload')) $this->createSession(); else if ($this->request->getPost('logout')) $this->destroySession(); else if (($cssSource = $this->request->getPost('save_css')) !== false && ($cssRelativeInput = $this->request->getPost('css_path')) !== false && $this->isValidPostToken()) {
+                $this->response->clearCookie(COOKIE_PREFIX . POST_TOKEN);
+                $cssSource = myvibehtml_base64_decode($cssSource);
+                $cssRelative = $this->getSiteRelativePath(rawurldecode($cssRelativeInput), true);
+                $cssPath = $cssRelative === false ? false : $this->getSafeSitePath($cssRelative);
+                if ($cssSource === false || $cssRelative === false || !$cssPath || !is_file($cssPath) || is_link($cssPath) || strtolower(pathinfo($cssRelative, PATHINFO_EXTENSION)) !== 'css' || !$this->isAllowedExtension('css') || strlen($cssSource) > 524288) $this->response->setStatus(422, 'Unprocessable Entity');
+                else if ($this->createBackup($cssRelative) && $this->writeFileAtomically($cssPath, $cssSource)) {
+                    $this->config->setSetting(SETTING_CACHE, '');
+                    $this->response->setBody('css:saved');
+                } else $this->response->setStatus(409, 'Stylesheet could not be saved');
+            } else if (($dispatch5 = $this->request->getPost('save')) && $this->isValidPostToken()) {
                 $dispatch5 = myvibehtml_base64_decode($dispatch5);
                 if ($dispatch5 === false) {
                     $this->response->setStatus(422, 'Unprocessable Entity');

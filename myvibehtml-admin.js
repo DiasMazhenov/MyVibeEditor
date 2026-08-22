@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.88 admin page interactions. */
+/* MyVibeHTML v0.89 admin page interactions. */
 (function() {
     'use strict';
 

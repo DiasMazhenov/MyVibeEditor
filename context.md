@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.89
+
+- Универсальный CSS-инспектор редактирует встроенные стили и внешние `.css`-файлы в одном `myvibehtml.js`; отдельный CSS-модуль не добавлялся.
+- Для внешнего CSS добавлены разбор правил, поиск/выбор селектора, media-контекст, diff и live-применение. `save_css` проверяет Base64, путь, расширение, размер и доступность файла, затем создаёт backup и выполняет атомарную запись.
+- `dev-router.php` поддерживает локальную конфигурацию с двумя вариантами document root и отдаёт внешний CSS как `text/css`, чтобы после перезагрузки браузер снова загрузил тот же файл.
+- Полная live-проверка Playwright пройдена: авторизация → right-click по `.card` → «Изменить CSS-файл» → ввод `box-shadow` → Apply → Save (`POST 200`) → reload — значение сохранилось; затем значение восстановлено, второй reload вернул `box-shadow: none`.
+- Визуально проверен скриншот открытого CSS-инспектора справа: файл, поиск, правило, declarations и diff видимы без clipping. Артефакт: `/private/tmp/myvibe-unified-css-inspector.png`.
+- Финальные проверки прошли: JS/PHP lint, 33 Node-теста, CI contract, security smoke, `git diff --check` и HTTP regression (`regression: PASS` на `127.0.0.1:8080`).
+- Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit. Временный `.demo-external.css.myvibehtml.lock` после live-проверки удалён.
+
 ## Текущее исправление v0.88
 
 - Найдена причина, почему CSS-изменения не сохранялись: `writeSourceDraft()` записывал новый source, но общий `runtimeValue75()` видел уже синхронизированный `#j` и снова отключал кнопку `Сохранить`, потому что не учитывал dirty-state visual-инспектора.
