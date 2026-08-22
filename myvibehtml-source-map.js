@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.86 source map */
+/* MyVibeHTML v0.87 source map */
 (function(root, factory) {
     if (typeof module == 'object' && module.exports) module.exports = factory();
     else root.MyVibeHTMLSourceMap = factory();
@@ -81,8 +81,20 @@
             var descendants = editorDocument.querySelectorAll('*');
             for (var nodeIndex = 0; nodeIndex < descendants.length; nodeIndex++) if (descendants[nodeIndex] !== editorDocument.documentElement && (!descendants[nodeIndex].getAttribute || descendants[nodeIndex].getAttribute('data-myvibehtml-preview') !== 'true')) nodes.push(descendants[nodeIndex]);
         }
+        var sourceStartsWithDocumentShell = entries.length && entries[0].tag == 'html',
+            sourceStartsWithBody = entries.length && entries[0].tag == 'body';
         for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
-            var nodeTag = (nodes[nodeIndex].tagName || '').toLowerCase();
+            var nodeTag = (nodes[nodeIndex].tagName || '').toLowerCase(),
+                nodeParent = nodes[nodeIndex].parentNode,
+                nodeInSyntheticHead = false;
+            while (!sourceStartsWithDocumentShell && nodeParent) {
+                if ((nodeParent.tagName || '').toLowerCase() == 'head') {
+                    nodeInSyntheticHead = true;
+                    break
+                }
+                nodeParent = nodeParent.parentNode
+            }
+            if (!sourceStartsWithDocumentShell && (nodeTag == 'html' || nodeTag == 'head' || nodeTag == 'base' || nodeTag == 'style' || nodeTag == 'title' || nodeTag == 'meta' || nodeTag == 'link' || nodeInSyntheticHead || (sourceStartsWithBody && nodeTag == 'body' && sourceIndex > 0))) continue;
             if (nodeTag == 'body') {
                 sourceIndex = 0;
                 while (sourceIndex < entries.length && entries[sourceIndex].tag != 'body') sourceIndex++;

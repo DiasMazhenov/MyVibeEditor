@@ -100,6 +100,9 @@ test('Context menu dispatches CSS actions from the clicked menu item', () => {
     assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
     assert.match(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
     assert.match(editor, /renderStyleInspector\(visualEditorValue17\);[\s\S]*?hideContextMenu\(\);/);
+    assert.match(editor, /toUpperCaseMethod = 'toUpperCase'/);
+    assert.match(shell, /uiContracts = window\.MyVibeHTMLUIContracts \|\| \{\},[\s\S]*?previewControls/);
+    assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /sourceStartsWithDocumentShell|sourceStartsWithBody/);
 });
 
 test('brand scrollbars stay graphite and teal across theme and fallback layers', () => {

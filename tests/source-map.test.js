@@ -28,6 +28,12 @@ const previewMap = sourceMap.build(previewSource, {documentElement: previewNodes
 assert.equal(previewMap.ambiguous, false);
 assert.deepEqual(previewMap.openingRangeFor(previewNodes[6]), [previewSource.indexOf('<main>'), previewSource.indexOf('<main>') + 6]);
 
+const bodySource = '<body><main><h1>body fragment</h1></main></body>';
+const bodyNodes = ['html', 'head', 'title', 'base', 'style', 'body', 'main', 'h1'].map((tagName) => ({tagName, getAttribute: (name) => ['base', 'style'].includes(tagName) && name === 'data-myvibehtml-preview' ? 'true' : null}));
+const bodyMap = sourceMap.build(bodySource, {documentElement: bodyNodes[0], querySelectorAll: () => bodyNodes.slice(1)});
+assert.equal(bodyMap.ambiguous, false);
+assert.deepEqual(bodyMap.openingRangeFor(bodyNodes[7]), [bodySource.indexOf('<h1>'), bodySource.indexOf('<h1>') + 4]);
+
 const malformedSource = '<html><body><div><span></div></body></html>';
 const malformedNodes = ['html', 'body', 'div', 'span'].map((tagName) => ({tagName}));
 const malformedMap = sourceMap.build(malformedSource, {documentElement: malformedNodes[0], querySelectorAll: () => malformedNodes.slice(1)});

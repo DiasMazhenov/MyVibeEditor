@@ -1,5 +1,5 @@
 {
-  "version": "0.86",
+  "version": "0.87",
   "surfaces": {
     "auth": true,
     "editor": true,

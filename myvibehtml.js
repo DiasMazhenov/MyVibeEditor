@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.86 */
+/* MyVibeHTML v0.87 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -44,6 +44,7 @@
         indexOfMethod = 'indexOf',
         lastIndexOfMethod = 'lastIndexOf',
         toLowerCaseMethod = 'toLowerCase',
+        toUpperCaseMethod = 'toUpperCase',
         charCodeAtMethod = 'charCodeAt',
         toFixedMethod = 'toFixed',
         toStringMethod = 'toString',

@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.86 shell controls: admin navigation, page navigator, command palette and responsive studio */
+/* MyVibeHTML v0.87 shell controls: admin navigation, page navigator, command palette and responsive studio */
 (function() {
     'use strict';
 
@@ -168,7 +168,9 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        var panel = document.querySelector('#e'), previewControls, previewFrame,
+        var panel = document.querySelector('#e'),
+            uiContracts = window.MyVibeHTMLUIContracts || {},
+            previewControls, previewFrame,
             syncMobileShell = function() {
                 var previewMobile = document.documentElement.id == 'd' && document.documentElement.getAttribute('data-myvibehtml-preview-size') == 'mobile',
                     viewportMobile = window.matchMedia && window.matchMedia('(max-width:900px)').matches;

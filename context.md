@@ -1,5 +1,14 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.87
+
+- Найдена точная причина: CSS-инспектор открывался после клика, но не применял значение, потому что source map становилась `ambiguous`. Редактор хранит пользовательский HTML как body-фрагмент с `{!~head0~!}`, а preview добавляет синтетические `html/head/title/base/style`; карта пыталась сопоставить синтетические узлы с исходником и не назначала диапазон `h1`.
+- `myvibehtml-source-map.js` теперь пропускает синтетические document/head-узлы, когда исходник начинается с body-фрагмента, и сопоставляет реальные body/main/h1-узлы с opening/element ranges. Добавлен регрессионный тест body-фрагмента с synthetic head.
+- Сохранены предыдущие исправления v0.86: явный `data-context-action`, `event.currentTarget`, остановка всплытия и исправленные aliases `toUpperCaseMethod`/`uiContracts`.
+- Версия `0.87` синхронизирована в runtime, заголовках модулей, cache-busting, документации, тестах и UI snapshot. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+- Статические проверки прошли: `node --test tests/source-map.test.js tests/feature-contracts.test.js`. Playwright live-проверка прошла: авторизация → right-click по `h1` → «Изменить CSS» → ввод `42`; получено `inline: font-size: 42px;`, `computed: 42px`, а `#j` содержит `<h1 style="font-size: 42px;">`.
+- Следующий этап: v0.88 — каталог контента с фильтрами изображений, текста, ссылок, кнопок и accessibility-проблем.
+
 ## Текущее исправление v0.86
 
 - Исправлен маршрут контекстного меню: каждая кнопка получает явный `data-context-action`, обработчик читает действие через `event.currentTarget`, вызывает `preventDefault()`/`stopPropagation()` и только затем открывает CSS-инспектор выбранного узла. Это устраняет зависимость от пользовательского expando `button.action` и от document-level обработчика закрытия меню.
