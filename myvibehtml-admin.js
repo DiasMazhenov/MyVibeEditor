@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.91 admin page interactions. */
+/* MyVibeHTML v0.95 admin page interactions. */
 (function() {
     'use strict';
 
@@ -14,6 +14,21 @@
             paste = document.querySelector('[data-admin-paste]'),
             browserPath = '',
             clipboardPath = '',
+            clipboardPaths = [],
+            browserSelected = [],
+            browserCopy = document.querySelector('[data-admin-browser-copy]'),
+            browserPaste = document.querySelector('[data-admin-browser-paste]'),
+            browserMove = document.querySelector('[data-admin-browser-move]'),
+            browserArchive = document.querySelector('[data-admin-browser-archive]'),
+            browserDownload = document.querySelector('[data-admin-browser-download]'),
+            browserRollback = document.querySelector('[data-admin-browser-rollback]'),
+            lastOperationId = '',
+            contentList = document.querySelector('[data-admin-content-list]'),
+            contentSearch = document.querySelector('[data-admin-content-search]'),
+            contentFilter = 'all',
+            mediaGrid = document.querySelector('[data-admin-media-grid]'),
+            contentLoaded = false,
+            mediaLoaded = false,
             pageBrowser = document.querySelector('[data-admin-page-browser]'),
             pageBrowserList = document.querySelector('[data-admin-pages-list]'),
             pageState = {
@@ -54,12 +69,12 @@
                     payload.append('admin_action', action);
                     payload.append('token', token);
                     payload.append('file', file);
-                    for (key in values) payload.append(key, values[key])
+                    for (key in values) payload.append(key, key == 'sources' && Array.isArray(values[key]) ? JSON.stringify(values[key]) : values[key])
                 } else {
                     payload = new URLSearchParams();
                     payload.append('admin_action', action);
                     payload.append('token', token);
-                    for (key in values) payload.append(key, values[key])
+                    for (key in values) payload.append(key, key == 'sources' && Array.isArray(values[key]) ? JSON.stringify(values[key]) : values[key])
                 }
                 return fetch(endpoint, {method: 'POST', headers: {'AJAX': '1'}, body: payload, credentials: 'same-origin'}).then(function(response) {
                     return response.json().catch(function() { return {ok: false, error: 'invalid_response'} }).then(function(result) {
@@ -124,8 +139,16 @@
                 if (pagePaste) pagePaste.disabled = !pageState.clipboardPath;
                 if (pageUp) pageUp.disabled = !pageState.path;
             },
+            updateBrowserActions = function() {
+                var hasSelection = browserSelected.length > 0;
+                if (browserCopy) browserCopy.disabled = !hasSelection;
+                if (browserMove) browserMove.disabled = !hasSelection;
+                if (browserArchive) browserArchive.disabled = !hasSelection;
+                if (browserDownload) browserDownload.disabled = !hasSelection;
+                if (browserPaste) browserPaste.disabled = !clipboardPath;
+            },
             renderListing = function(listing) {
-                var index, entry, row, nameCell, nameWrap, nameButton, meta, actions, actionButton, sizeCell;
+                var index, entry, row, selectCell, checkbox, nameCell, nameWrap, nameButton, meta, actions, actionButton, sizeCell;
                 if (!browserList) return;
                 if (!paste) {
                     paste = document.createElement('button');
@@ -138,17 +161,32 @@
                     if (toolbar) toolbar.appendChild(paste)
                 }
                 browserPath = listing.path || '';
+                browserSelected = [];
                 if (browser) browser.setAttribute('data-admin-browser-path', browserPath);
                 var breadcrumb = document.querySelector('[data-admin-browser-breadcrumb]');
                 if (breadcrumb) breadcrumb.textContent = '/' + (browserPath ? browserPath + '/' : '');
                 var up = document.querySelector('[data-admin-browser-up]');
                 if (up) up.disabled = !listing.parent && listing.parent !== '';
                 browserList.textContent = '';
+                updateBrowserActions();
                 for (index = 0; index < listing.entries.length; index++) {
                     entry = listing.entries[index];
                     (function(entryPath, entryName, entryType, entryUrl, entryEditable, entrySize) {
                         row = document.createElement('tr');
                         row.setAttribute('data-admin-browser-row', '');
+                        selectCell = document.createElement('td');
+                        checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.setAttribute('data-admin-file-select', entryPath);
+                        checkbox.setAttribute('aria-label', entryName);
+                        checkbox.addEventListener('change', function() {
+                            var selectedIndex = browserSelected.indexOf(entryPath);
+                            if (this.checked && selectedIndex < 0) browserSelected.push(entryPath);
+                            if (!this.checked && selectedIndex >= 0) browserSelected.splice(selectedIndex, 1);
+                            updateBrowserActions()
+                        });
+                        selectCell.appendChild(checkbox);
+                        row.appendChild(selectCell);
                         nameCell = document.createElement('td');
                         nameButton = document.createElement(entryType == 'directory' ? 'button' : 'a');
                         nameButton.className = 'myvibehtml-admin-file-link';
@@ -162,11 +200,6 @@
                         }
                         nameWrap = addEntryIcon(nameCell, entryType == 'directory');
                         nameWrap.appendChild(nameButton);
-                        if (entryType != 'directory') {
-                            meta = document.createElement('small');
-                            meta.textContent = (entryName.split('.').pop() || 'File').toUpperCase();
-                            nameCell.appendChild(meta)
-                        }
                         row.appendChild(nameCell);
                         sizeCell = document.createElement('td');
                         sizeCell.textContent = entryType == 'directory' ? '—' : formatSize(entrySize || 0);
@@ -187,6 +220,7 @@
                         browserList.appendChild(row)
                     }(entry.path, entry.name, entry.type, entry.url, entry.editable, entry.size))
                 }
+                updateBrowserActions()
             },
             renderPageListing = function(listing) {
                 var index, entry, extension, row, selectCell, checkbox, nameCell, nameWrap, nameControl, meta, sizeCell, dateCell;
@@ -241,6 +275,49 @@
                 }
                 updatePageActions()
             },
+            renderContentCatalog = function(catalog) {
+                var index, item, row, cell, link, labels = {image: 'Image', text: 'Text', link: 'Link', button: 'Button'};
+                if (!contentList) return;
+                contentList.textContent = '';
+                for (index = 0; index < catalog.items.length; index++) {
+                    item = catalog.items[index];
+                    row = document.createElement('tr');
+                    cell = document.createElement('td'); cell.textContent = labels[item.kind] || item.kind; row.appendChild(cell);
+                    cell = document.createElement('td'); link = document.createElement('a'); link.className = 'myvibehtml-admin-table-action'; link.href = item.url; link.textContent = item.file; cell.appendChild(link); row.appendChild(cell);
+                    cell = document.createElement('td'); cell.textContent = item.detail || '—'; row.appendChild(cell);
+                    cell = document.createElement('td'); cell.textContent = item.issue || 'OK'; cell.className = item.issue ? 'is-warning' : 'is-ok'; row.appendChild(cell);
+                    contentList.appendChild(row)
+                }
+                if (!catalog.items.length) { row = document.createElement('tr'); cell = document.createElement('td'); cell.colSpan = 4; cell.className = 'myvibehtml-admin-empty'; cell.textContent = 'No matching content'; row.appendChild(cell); contentList.appendChild(row) }
+            },
+            loadContentCatalog = function() {
+                request('catalog', {filter: contentFilter}).then(function(result) { renderContentCatalog(result.catalog); contentLoaded = true }).catch(function(error) { if (contentList) contentList.innerHTML = '<tr><td colspan="4" class="myvibehtml-admin-empty is-warning">' + error.message + '</td></tr>' })
+            },
+            renderMediaCatalog = function(media) {
+                var index, item, card, preview, image, meta, strong, detail, link, replace, input, replaceButton, diff, isImage;
+                if (!mediaGrid) return;
+                mediaGrid.textContent = '';
+                for (index = 0; index < media.items.length; index++) {
+                    item = media.items[index];
+                    card = document.createElement('article'); card.className = 'myvibehtml-admin-media-card'; card.setAttribute('data-media-path', item.relative);
+                    preview = document.createElement('div'); preview.className = 'myvibehtml-admin-media-preview'; isImage = /^image\//.test(item.mime || '') || /^(avif|gif|jpe?g|png|svg|webp|ico)$/i.test(item.extension || ''); if (isImage) { image = document.createElement('img'); image.src = item.url; image.alt = item.name; image.loading = 'lazy'; preview.appendChild(image) } else { preview.textContent = item.mime || 'Media file'; preview.setAttribute('aria-label', item.mime || 'Media file') } card.appendChild(preview);
+                    meta = document.createElement('div'); meta.className = 'myvibehtml-admin-media-meta'; strong = document.createElement('strong'); strong.textContent = item.name; meta.appendChild(strong);
+                    detail = document.createElement('small'); detail.textContent = (item.mime || 'unknown') + ' · ' + (item.width && item.height ? item.width + '×' + item.height + ' · ' : '') + formatSize(item.size || 0) + ' · Alt: ' + (item.alt || 'missing'); meta.appendChild(detail);
+                    replace = document.createElement('div'); replace.className = 'myvibehtml-admin-media-actions'; input = document.createElement('input'); input.type = 'file'; input.accept = '.' + item.extension; input.setAttribute('data-media-replace', ''); input.setAttribute('aria-label', 'Replace ' + item.name); replace.appendChild(input); replaceButton = document.createElement('button'); replaceButton.type = 'button'; replaceButton.textContent = 'Replace'; replaceButton.addEventListener('click', function() { if (input.files[0]) replaceMedia(item.relative, input.files[0], card, diff); }); replace.appendChild(replaceButton); meta.appendChild(replace);
+                    diff = document.createElement('pre'); diff.className = 'myvibehtml-admin-media-diff'; diff.hidden = true; meta.appendChild(diff);
+                    link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'Open'; meta.appendChild(link); card.appendChild(meta); mediaGrid.appendChild(card)
+                }
+                if (!media.items.length) { var empty = document.createElement('p'); empty.className = 'myvibehtml-admin-empty'; empty.textContent = 'No media found'; mediaGrid.appendChild(empty) }
+            },
+            replaceMedia = function(path, file, card, diff) {
+                var before = card.querySelector('img'), beforeUrl = before ? before.src : '', payload = new FormData();
+                payload.append('admin_action', 'media_replace'); payload.append('token', token); payload.append('path', ''); payload.append('media_path', path); payload.append('file', file);
+                if (diff) { diff.hidden = false; diff.textContent = 'Before: ' + beforeUrl + '\nAfter: ' + file.name + ' · ' + formatSize(file.size); }
+                fetch(endpoint, {method: 'POST', headers: {'AJAX': '1'}, body: payload, credentials: 'same-origin'}).then(function(response) { return response.json().then(function(result) { if (result.token) token = result.token; if (!response.ok || !result.ok) throw new Error(result.error || 'replace_failed'); return result }) }).then(function(result) { renderMediaCatalog(result.media); }).catch(function(error) { if (diff) { diff.hidden = false; diff.textContent += '\nError: ' + error.message } })
+            },
+            loadMediaCatalog = function() {
+                request('media', {}).then(function(result) { renderMediaCatalog(result.media); mediaLoaded = true }).catch(function(error) { if (mediaGrid) mediaGrid.innerHTML = '<p class="myvibehtml-admin-empty is-warning">' + error.message + '</p>' })
+            },
             loadListing = function(path, mode) {
                 var isPages = mode == 'pages';
                 request('list', {path: path || ''}).then(function(result) {
@@ -251,8 +328,9 @@
             operate = function(action, values, file, mode) {
                 var isPages = mode == 'pages', path = isPages ? pageState.path : browserPath;
                 values = values || {};
-                values.path = path;
-                request(action, values, file).then(function() {
+                if (typeof values.path == 'undefined') values.path = path;
+                request(action, values, file).then(function(result) {
+                    if (result.operation_id) { lastOperationId = result.operation_id; if (browserRollback) browserRollback.hidden = false }
                     if (isPages) { pageState.selectedPath = ''; loadListing(path, 'pages'); setPageStatus('Saved', 'ok') }
                     else { loadListing(path); setStatus('Saved', 'ok') }
                 }).catch(function(error) { if (isPages) setPageStatus(error.message, 'warning'); else setStatus(error.message, 'warning') })
@@ -272,7 +350,9 @@
                 body.removeAttribute('data-admin-sidebar-open');
                 if (menu) menu.setAttribute('aria-expanded', 'false');
                 if (targetName == 'browser') loadListing(browserPath);
-                if (targetName == 'pages') loadListing(pageState.path, 'pages')
+                if (targetName == 'pages') loadListing(pageState.path, 'pages');
+                if (targetName == 'content') loadContentCatalog();
+                if (targetName == 'media') loadMediaCatalog()
             },
             initial = (window.location.hash || '#overview').slice(1);
         if (!document.querySelector('[data-admin-section="' + initial + '"]') && initial != 'files') initial = 'overview';
@@ -308,6 +388,15 @@
         if (paste) paste.addEventListener('click', function() { if (clipboardPath) operate('duplicate', {source: clipboardPath}) });
         var up = document.querySelector('[data-admin-browser-up]');
         if (up) up.addEventListener('click', function() { loadListing(parentPath(browserPath)) });
+        if (browserCopy) browserCopy.addEventListener('click', function() { if (browserSelected.length) { clipboardPaths = browserSelected.slice(); clipboardPath = clipboardPaths[0]; if (browserPaste) browserPaste.disabled = false; setStatus('Copied ' + clipboardPaths.length + ' item(s)', 'ok') } });
+        if (browserPaste) browserPaste.addEventListener('click', function() { if (clipboardPaths.length) operate('duplicate', {sources: clipboardPaths}) });
+        if (browserMove) browserMove.addEventListener('click', function() { if (browserSelected.length) { var destination = window.prompt('Destination folder relative to site root', browserPath); if (destination !== null) { destination = destination.replace(/^\/+|\/+$/g, ''); operate('move', {path: destination, sources: browserSelected.slice()}) } } });
+        if (browserArchive || browserDownload) {
+            var downloadSelected = function(action) { if (browserSelected.length) request(action, {path: browserPath, sources: browserSelected.slice()}).then(function(result) { if (result.download) window.location.href = result.download; if (result.operation_id) { lastOperationId = result.operation_id; if (browserRollback) browserRollback.hidden = false } }).catch(function(error) { setStatus(error.message, 'warning') }) };
+            if (browserArchive) browserArchive.addEventListener('click', function() { downloadSelected('archive') });
+            if (browserDownload) browserDownload.addEventListener('click', function() { downloadSelected('download') })
+        }
+        if (browserRollback) browserRollback.addEventListener('click', function() { if (lastOperationId) request('rollback', {operation_id: lastOperationId}).then(function() { browserRollback.hidden = true; lastOperationId = ''; loadListing(browserPath); setStatus('Rolled back', 'ok') }).catch(function(error) { setStatus(error.message, 'warning') }) });
         if (pageUp) pageUp.addEventListener('click', function() { if (pageState.path) loadListing(parentPath(pageState.path), 'pages') });
         if (pageCopy) pageCopy.addEventListener('click', function() { if (pageState.selectedPath) { pageState.clipboardPath = pageState.selectedPath; setPageStatus('Copied: ' + pageState.selectedPath, 'ok'); updatePageActions() } });
         if (pagePaste) pagePaste.addEventListener('click', function() { if (pageState.clipboardPath) operate('duplicate', {source: pageState.clipboardPath}, null, 'pages') });
@@ -336,7 +425,18 @@
             })
         }
         if (pageMkdir) pageMkdir.addEventListener('click', function() { var name = window.prompt('Folder name'); if (name) operate('mkdir', {name: name}, null, 'pages') });
+        var contentFilters = document.querySelectorAll('[data-admin-content-filter]');
+        for (var filterIndex = 0; filterIndex < contentFilters.length; filterIndex++) contentFilters[filterIndex].addEventListener('click', function() {
+            contentFilter = this.getAttribute('data-admin-content-filter') || 'all';
+            for (var buttonIndex = 0; buttonIndex < contentFilters.length; buttonIndex++) contentFilters[buttonIndex].setAttribute('aria-pressed', contentFilters[buttonIndex] === this ? 'true' : 'false');
+            loadContentCatalog()
+        });
+        if (contentSearch) contentSearch.addEventListener('input', function() {
+            var term = this.value.toLowerCase().replace(/^\s+|\s+$/g, ''), rows = contentList ? contentList.querySelectorAll('tr') : [];
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) rows[rowIndex].hidden = !!term && rows[rowIndex].textContent.toLowerCase().indexOf(term) < 0
+        });
         decoratePageToolbar();
-        updatePageActions()
+        updatePageActions();
+        updateBrowserActions()
     })
 }());

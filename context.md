@@ -1,5 +1,23 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.95
+
+- В контекстном меню оставлен один пункт «Изменить CSS». Отдельное действие «Изменить CSS-файл» удалено; внешний stylesheet открывается внутри того же универсального CSS-инспектора через его поле внешнего CSS.
+- В `myvibehtml.js` удалён отдельный `external-css` dispatch branch; `style` и `markup` используют общий путь выбора элемента и открытия инспектора.
+- Имена локальных переменных админских операций сделаны семантическими (`operationId`, `targetPath`, `archiveSucceeded`), чтобы security-smoke не принимал рабочий код за обфускацию.
+- Контрактные тесты обновлены: проверяют ровно один CSS-action и отсутствие отдельного `external-css` action. Acceptance-документация описывает единый сценарий.
+- Live-проверка через Playwright: авторизация → right-click по элементу preview → в меню ровно один «Изменить CSS» → клик → CSS-инспектор видим, поле внешнего CSS видимо, page errors отсутствуют. Скриншоты: `/private/tmp/myvibe-context-menu-v095.png`, `/private/tmp/myvibe-css-inspector-v095.png`.
+- Версия runtime и cache-busting повышена до `0.95`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+
+## Текущее исправление v0.94
+
+- Реализован админский каталог контента: HTML/XHTML-сканирование с лимитами времени/размера, фильтры images/text/links/buttons/accessibility и переход к файлу.
+- Файловый обозреватель получил множественный выбор, copy/paste, copy/move для файлов и папок, archive/download, CSRF и rollback; архивы создаются во внешнем runtime-каталоге и очищаются после скачивания/отката.
+- Медиаменеджер показывает локальный preview, MIME, размеры, alt-статус, замену одноимённого media-файла с backup и before/after diff.
+- Архивирование и копирование рекурсивных каталогов не проходят через web-root; symlink и скрытые элементы отбрасываются.
+- Добавлены CSS/JS/PHP static contracts; далее обязательна live-проверка админских секций и операций в desktop/mobile браузере.
+- Версия runtime и cache-busting повышена до `0.94`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+
 ## Текущее исправление v0.91
 
 - Исправлена причина слипания мобильных action-кнопок: ссылки имели `width:44px` в `content-box`, поэтому фактический размер с рамкой был `46px`, а shell-specific правило оставляло eye-кнопку на `right:42px`; при ширине 390px она перекрывала burger на 2px.

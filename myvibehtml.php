@@ -1,4 +1,4 @@
-<?php /* MyVibeHTML v0.91 */
+<?php /* MyVibeHTML v0.95 */
 require_once __DIR__ . '/myvibehtml-runtime.php';
 
 $myvibehtmlRuntimeDirectory = myvibehtml_runtime_directory();
@@ -617,7 +617,7 @@ final class MyVibeHTMLConfig
 
 final class MyVibeHTMLController
 {
-    const VERSION = '0.91';
+    const VERSION = '0.95';
     private $config;
     private $request;
     private $response;
@@ -790,7 +790,8 @@ final class MyVibeHTMLController
             if ($this->request->getCookie(COOKIE_PREFIX . 'auth_redirect') === '1') {
                 $this->response->clearCookie(COOKIE_PREFIX . 'auth_redirect', $this->config->getSiteUrlBase());
                 $this->dispatch();
-            } else if ($this->isAdminRequest() && $this->request->getServer(REQUEST_AJAX_HEADER)) $this->dispatchAdminRequest();
+            } else if ($this->isAdminRequest() && $this->request->getQuery('admin_download')) $this->dispatchAdminDownload();
+            else if ($this->isAdminRequest() && $this->request->getServer(REQUEST_AJAX_HEADER)) $this->dispatchAdminRequest();
             else if ($this->isAdminRequest()) $this->renderAdminDashboard(); else $this->dispatch();
         } else {
             if ($sessionMatches) {
@@ -925,6 +926,279 @@ final class MyVibeHTMLController
         return ['path' => $relativeDirectory, 'parent' => $relativeDirectory === '' ? false : (dirname($relativeDirectory) === '.' ? '' : dirname($relativeDirectory)), 'entries' => $entries];
     }
 
+    private function collectAdminContentCatalog($filter = 'all')
+    {
+        $filter = in_array($filter, ['all', 'image', 'text', 'link', 'button', 'accessibility'], true) ? $filter : 'all';
+        $items = [];
+        $deadline = microtime(true) + 0.7;
+        $walk = function ($directory, $relativeDirectory, $depth) use (&$walk, &$items, $deadline, $filter) {
+            if ($depth > 16 || microtime(true) > $deadline || count($items) >= 500 || !($handle = @opendir($directory))) return;
+            while (($name = readdir($handle)) !== false && microtime(true) <= $deadline && count($items) < 500) {
+                if ($name === '.' || $name === '..' || $name[0] === '.') continue;
+                $path = $directory . $name;
+                $relative = $relativeDirectory === '' ? $name : $relativeDirectory . '/' . $name;
+                if (is_link($path)) continue;
+                if (is_dir($path)) { $walk($path . '/', $relative, $depth + 1); continue; }
+                if (!is_file($path) || !preg_match('~^(?:html?|xhtml)$~i', pathinfo($name, PATHINFO_EXTENSION)) || @filesize($path) > 2097152) continue;
+                $source = @file_get_contents($path);
+                if ($source === false || strpos($source, "\0") !== false) continue;
+                $dom = new DOMDocument();
+                @$dom->loadHTML($source, LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING);
+                $xpath = new DOMXPath($dom);
+                $add = function ($kind, $node, $detail, $issue = '') use (&$items, $filter, $relative) {
+                    if ($filter !== 'all' && $filter !== $kind && !($filter === 'accessibility' && $issue !== '')) return;
+                    if ($filter === 'accessibility' && $issue === '') return;
+                    $items[] = ['kind' => $kind, 'file' => $relative, 'detail' => trim(preg_replace('~\s+~', ' ', (string)$detail)), 'issue' => $issue, 'url' => $this->getEditorUrl($relative)];
+                };
+                foreach ($xpath->query('//img') as $node) {
+                    $alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : '';
+                    $add('image', $node, $node->getAttribute('src') ?: '(без src)', $alt === '' ? 'missing-alt' : '');
+                }
+                foreach ($xpath->query('//a') as $node) {
+                    $label = trim($node->textContent) ?: $node->getAttribute('aria-label') ?: $node->getAttribute('title');
+                    $add('link', $node, $node->getAttribute('href') ?: '(без href)', $label === '' ? 'missing-name' : '');
+                }
+                foreach ($xpath->query('//button | //input[@type="button"] | //input[@type="submit"]') as $node) {
+                    $label = trim($node->textContent) ?: $node->getAttribute('aria-label') ?: $node->getAttribute('value') ?: $node->getAttribute('title');
+                    $add('button', $node, $label ?: '(без названия)', $label === '' ? 'missing-name' : '');
+                }
+                foreach ($xpath->query('//h1 | //h2 | //h3 | //h4 | //h5 | //h6 | //p | //li') as $node) {
+                    $text = trim(preg_replace('~\s+~', ' ', $node->textContent));
+                    if ($text !== '') $add('text', $node, mb_strimwidth($text, 0, 140, '…'));
+                }
+            }
+            closedir($handle);
+        };
+        $walk(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', 0);
+        return ['filter' => $filter, 'count' => count($items), 'items' => $items];
+    }
+
+    private function collectAdminMediaCatalog()
+    {
+        $stats = ['files' => 0, 'folders' => 0, 'html' => 0, 'css' => 0, 'js' => 0, 'media' => 0];
+        $entries = [];
+        $pages = [];
+        $media = [];
+        $altMap = $this->collectAdminMediaAltMap();
+        $this->collectAdminEntries(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', $stats, $entries, $pages, $media, microtime(true) + 0.7);
+        foreach ($media as &$entry) {
+            $extension = strtolower(pathinfo($entry['name'], PATHINFO_EXTENSION));
+            $mime = 'application/octet-stream';
+            if (function_exists('finfo_open')) { $fileInfo = finfo_open(FILEINFO_MIME_TYPE); if ($fileInfo) { $mime = (string)finfo_file($fileInfo, $entry['path']); finfo_close($fileInfo); } }
+            $dimensions = @getimagesize($entry['path']);
+            $entry['mime'] = $mime;
+            $entry['width'] = is_array($dimensions) ? (int)$dimensions[0] : 0;
+            $entry['height'] = is_array($dimensions) ? (int)$dimensions[1] : 0;
+            $entry['url'] = $this->getPublicFileUrl($entry['path']);
+            $entry['relative'] = $entry['name'];
+            $entry['name'] = basename($entry['name']);
+            $entry['alt'] = isset($altMap[$entry['relative']]) ? $altMap[$entry['relative']] : (isset($altMap[$entry['name']]) && $altMap[$entry['name']] !== false ? $altMap[$entry['name']] : '');
+            $entry['extension'] = $extension;
+            unset($entry['path']);
+        }
+        unset($entry);
+        usort($media, function ($left, $right) { return strnatcasecmp($left['name'], $right['name']); });
+        return ['count' => count($media), 'items' => $media];
+    }
+
+    private function collectAdminMediaAltMap()
+    {
+        $map = [];
+        $deadline = microtime(true) + 0.35;
+        $sitePath = trim((string)parse_url((string)$this->config->getSiteUrl(), PHP_URL_PATH), '/');
+        $walk = function ($directory, $relativeDirectory, $depth) use (&$walk, &$map, $deadline, $sitePath) {
+            if ($depth > 12 || microtime(true) > $deadline || !($handle = @opendir($directory))) return;
+            while (($name = readdir($handle)) !== false && microtime(true) <= $deadline) {
+                if ($name === '.' || $name === '..' || $name[0] === '.') continue;
+                $path = $directory . $name;
+                if (is_link($path)) continue;
+                if (is_dir($path)) { $walk($path . '/', $relativeDirectory . $name . '/', $depth + 1); continue; }
+                if (!is_file($path) || !preg_match('~^(?:html?|xhtml)$~i', pathinfo($name, PATHINFO_EXTENSION)) || @filesize($path) > 2097152) continue;
+                $source = @file_get_contents($path);
+                if ($source === false) continue;
+                $dom = new DOMDocument();
+                @$dom->loadHTML($source, LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING);
+                foreach ((new DOMXPath($dom))->query('//img[@src]') as $node) {
+                    $imagePath = parse_url($node->getAttribute('src'), PHP_URL_PATH);
+                    if (!is_string($imagePath) || $imagePath === '') continue;
+                    $imagePath = ltrim($imagePath, '/');
+                    if ($sitePath !== '' && strpos($imagePath, $sitePath . '/') === 0) $imagePath = substr($imagePath, strlen($sitePath) + 1);
+                    $imagePath = $this->normalizeRelativePath(rawurldecode($imagePath));
+                    if ($imagePath === false || $imagePath === '') continue;
+                    $alt = $node->hasAttribute('alt') ? trim($node->getAttribute('alt')) : '';
+                    $map[$imagePath] = $alt;
+                    $basename = basename($imagePath);
+                    if (isset($map[$basename]) && $map[$basename] !== $alt) $map[$basename] = false; else $map[$basename] = $alt;
+                }
+            }
+            closedir($handle);
+        };
+        $walk(rtrim($this->config->getSiteRoot(), '/\\') . '/', '', 0);
+        return $map;
+    }
+
+    private function getAdminSources()
+    {
+        $raw = (string)$this->request->getPost('sources');
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) $decoded = $raw === '' ? [] : explode("\n", $raw);
+        $sources = [];
+        foreach ($decoded as $source) {
+            $source = $this->normalizeRelativePath((string)$source);
+            if ($source === false || $source === '' || in_array($source, $sources, true)) continue;
+            $sources[] = $source;
+            if (count($sources) >= 100) break;
+        }
+        return $sources;
+    }
+
+    private function getAdminCopyPath($directory, $name)
+    {
+        $info = pathinfo($name);
+        $stem = isset($info['filename']) ? $info['filename'] : $name;
+        $extension = isset($info['extension']) && $info['extension'] !== '' ? '.' . $info['extension'] : '';
+        for ($suffix = 1; $suffix <= 100; $suffix++) {
+            $candidate = $stem . '-copy' . ($suffix > 1 ? '-' . $suffix : '') . $extension;
+            $relative = $directory === '' ? $candidate : $directory . '/' . $candidate;
+            $target = $this->getSafeSitePath($relative, true);
+            if ($target && !file_exists($target)) return $relative;
+        }
+        return false;
+    }
+
+    private function copyAdminTree($source, $target)
+    {
+        if (is_link($source) || is_link($target)) return false;
+        if (is_file($source)) return @copy($source, $target);
+        if (!is_dir($source) || file_exists($target) && !is_dir($target)) return false;
+        if (!is_dir($target) && !@mkdir($target, 0755, true)) return false;
+        $handle = @opendir($source);
+        if (!$handle) return false;
+        $copied = true;
+        while (($name = readdir($handle)) !== false) {
+            if ($name === '.' || $name === '..' || $name[0] === '.') continue;
+            $childSource = rtrim($source, '/\\') . '/' . $name;
+            $childTarget = rtrim($target, '/\\') . '/' . $name;
+            if (is_link($childSource) || (!$this->copyAdminTree($childSource, $childTarget))) { $copied = false; break; }
+        }
+        closedir($handle);
+        if (!$copied) $this->removeAdminTree($target);
+        return $copied;
+    }
+
+    private function removeAdminTree($path)
+    {
+        if (is_link($path)) return false;
+        if (is_file($path)) return @unlink($path);
+        if (!is_dir($path)) return true;
+        $handle = @opendir($path);
+        if (!$handle) return false;
+        $removed = true;
+        while (($name = readdir($handle)) !== false) {
+            if ($name === '.' || $name === '..') continue;
+            $child = rtrim($path, '/\\') . '/' . $name;
+            if (!$this->removeAdminTree($child)) { $removed = false; break; }
+        }
+        closedir($handle);
+        return $removed && @rmdir($path);
+    }
+
+    private function getAdminOperationPath($operationId)
+    {
+        if (!preg_match('~^[a-f0-9]{32}$~i', (string)$operationId) || !$this->config->getRuntimeDirectory()) return false;
+        $path = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-operation-' . strtolower($operationId) . '.json';
+        return $this->isSafeRuntimePath($path, true) ? $path : false;
+    }
+
+    private function saveAdminOperation($operation)
+    {
+        $operationId = bin2hex(random_bytes(16));
+        $path = $this->getAdminOperationPath($operationId);
+        if (!$path || !myvibehtml_atomic_write($path, json_encode($operation, JSON_UNESCAPED_SLASHES), 0600, '.admin-operation.lock')) return false;
+        $last = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-operation-last';
+        if (!myvibehtml_atomic_write($last, $operationId, 0600, '.admin-operation-last.lock')) { @unlink($path); return false; }
+        return $operationId;
+    }
+
+    private function rollbackAdminOperation($operationId)
+    {
+        $path = $this->getAdminOperationPath($operationId);
+        if (!$path || !is_file($path)) return false;
+        $operation = json_decode((string)@file_get_contents($path), true);
+        if (!is_array($operation) || empty($operation['type']) || !is_array($operation['entries'])) return false;
+        if ($operation['type'] === 'archive' && !empty($operation['archive']) && $this->config->getRuntimeDirectory()) {
+            $archive = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-archive-' . $operation['archive'] . '.zip';
+            if ($this->isSafeRuntimePath($archive, true)) @unlink($archive);
+        }
+        foreach (array_reverse($operation['entries']) as $entry) {
+            $from = $this->getSafeSitePath($entry['from'] ?? '');
+            $targetPath = $this->getSafeSitePath($entry['to'] ?? '');
+            if (!$from || !$targetPath) return false;
+            if ($operation['type'] === 'move') { if ((!is_file($targetPath) && !is_dir($targetPath)) || file_exists($from) || !@rename($targetPath, $from)) return false; }
+            else if ($operation['type'] === 'duplicate') { if (file_exists($targetPath) && !$this->removeAdminTree($targetPath)) return false; }
+        }
+        @unlink($path);
+        return true;
+    }
+
+    private function addAdminArchivePath($zip, $source, $relative, &$added, $depth = 0)
+    {
+        if ($depth > 16 || is_link($source)) return false;
+        if (is_file($source)) {
+            if (!$zip->addFile($source, $relative)) return false;
+            $added++;
+            return true;
+        }
+        if (!is_dir($source)) return false;
+        $handle = @opendir($source);
+        if (!$handle) return false;
+        $hasChildren = false;
+        $archiveSucceeded = true;
+        while (($name = readdir($handle)) !== false) {
+            if ($name === '.' || $name === '..' || $name[0] === '.') continue;
+            $hasChildren = true;
+            $childSource = rtrim($source, '/\\') . '/' . $name;
+            $childRelative = rtrim($relative, '/') . '/' . $name;
+            if (!$this->addAdminArchivePath($zip, $childSource, $childRelative, $added, $depth + 1)) { $archiveSucceeded = false; break; }
+        }
+        closedir($handle);
+        if ($archiveSucceeded && !$hasChildren) $archiveSucceeded = $zip->addEmptyDir($relative);
+        return $archiveSucceeded;
+    }
+
+    private function createAdminArchive($sources)
+    {
+        if (!class_exists('ZipArchive') || !count($sources) || !$this->config->getRuntimeDirectory()) return false;
+        $operationId = bin2hex(random_bytes(16));
+        $archivePath = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-archive-' . $operationId . '.zip';
+        if (!$this->isSafeRuntimePath($archivePath, true)) return false;
+        $zip = new ZipArchive();
+        if ($zip->open($archivePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) return false;
+        $added = 0;
+        foreach ($sources as $source) {
+            $safe = $this->getSafeSitePath($source);
+            if ($safe) $this->addAdminArchivePath($zip, $safe, $source, $added);
+        }
+        if (!$added || !$zip->close()) { @unlink($archivePath); return false; }
+        @chmod($archivePath, 0600);
+        return ['id' => $operationId, 'url' => htmlspecialchars_decode($this->getAdminUrl(), ENT_QUOTES) . '&admin_download=' . $operationId];
+    }
+
+    private function dispatchAdminDownload()
+    {
+        $operationId = trim((string)$this->request->getQuery('admin_download'));
+        if (!preg_match('~^[a-f0-9]{32}$~i', $operationId) || !$this->config->getRuntimeDirectory()) { $this->response->setStatus(404, 'Not Found'); return; }
+        $archivePath = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-archive-' . strtolower($operationId) . '.zip';
+        if (!$this->isSafeRuntimePath($archivePath) || !is_file($archivePath) || is_link($archivePath)) { $this->response->setStatus(404, 'Not Found'); return; }
+        $body = @file_get_contents($archivePath);
+        if ($body === false) { $this->response->setStatus(404, 'Not Found'); return; }
+        $this->response->addHeader('Content-type:application/zip');
+        $this->response->addHeader('Content-Disposition:attachment; filename="myvibehtml-' . $operationId . '.zip"');
+        $this->response->addHeader('Content-Length:' . strlen($body));
+        $this->response->setBody($body);
+        @unlink($archivePath);
+    }
+
     private function dispatchAdminRequest()
     {
         if (!$this->isValidPostToken()) {
@@ -943,6 +1217,20 @@ final class MyVibeHTMLController
             if ($listing === false) $this->adminJson(['ok' => false, 'error' => 'not_found', 'token' => $this->issueAdminToken()], 404); else $this->adminJson(['ok' => true, 'listing' => $listing, 'token' => $this->issueAdminToken()]);
             return;
         }
+        if ($action === 'catalog') {
+            $this->adminJson(['ok' => true, 'catalog' => $this->collectAdminContentCatalog((string)$this->request->getPost('filter')), 'token' => $this->issueAdminToken()]);
+            return;
+        }
+        if ($action === 'media') {
+            $this->adminJson(['ok' => true, 'media' => $this->collectAdminMediaCatalog(), 'token' => $this->issueAdminToken()]);
+            return;
+        }
+        if ($action === 'rollback') {
+            $operationId = trim((string)$this->request->getPost('operation_id'));
+            $rolledBack = $this->rollbackAdminOperation($operationId);
+            $this->adminJson(['ok' => $rolledBack, 'error' => $rolledBack ? '' : 'rollback_failed', 'token' => $this->issueAdminToken()], $rolledBack ? 200 : 409);
+            return;
+        }
         $directory = $this->getSafeSitePath($path);
         if ($action === 'mkdir') {
             $name = $this->normalizeManagerName($this->request->getPost('name'));
@@ -954,20 +1242,70 @@ final class MyVibeHTMLController
             $target = $name ? $this->getSafeSitePath($path === '' ? $name : $path . '/' . $name, true) : false;
             $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
             $operationSucceeded = $target && isset($file[FILE_TMP_NAME]) && (int)$file[FILE_ERROR] === 0 && ($this->isAllowedExtension($extension) || (bool)preg_match('~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~', $extension)) && !file_exists($target) && move_uploaded_file($file[FILE_TMP_NAME], $target);
-        } else if ($action === 'duplicate') {
-            $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
-            $sourcePath = $source === false ? false : $this->getSafeSitePath($source);
-            $name = $this->normalizeManagerName($this->request->getPost('name'));
-            if (!$name && $sourcePath) {
-                $sourceInfo = pathinfo($sourcePath);
-                $name = $sourceInfo['filename'] . '-copy' . (isset($sourceInfo['extension']) && $sourceInfo['extension'] !== '' ? '.' . $sourceInfo['extension'] : '');
+        } else if ($action === 'duplicate' || $action === 'move') {
+            $sources = $this->getAdminSources();
+            if (!count($sources)) {
+                $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
+                if ($source !== false && $source !== '') $sources = [$source];
             }
-            $target = $name ? $this->getSafeSitePath($path === '' ? $name : $path . '/' . $name, true) : false;
-            $operationSucceeded = $sourcePath && $target && is_file($sourcePath) && !file_exists($target) && @copy($sourcePath, $target);
+            $operationEntries = [];
+            $operationSucceeded = count($sources) > 0;
+            foreach ($sources as $source) {
+                $sourcePath = $this->getSafeSitePath($source);
+                $sourceName = basename($source);
+                $targetRelative = $path === '' ? $sourceName : $path . '/' . $sourceName;
+                $requestedName = $this->normalizeManagerName($this->request->getPost('name'));
+                if ($action === 'duplicate' && count($sources) === 1 && $requestedName) $targetRelative = $path === '' ? $requestedName : $path . '/' . $requestedName;
+                else if ($action === 'duplicate' && !$requestedName && file_exists($this->getSafeSitePath($targetRelative))) $targetRelative = $this->getAdminCopyPath($path, $sourceName);
+                $target = $this->getSafeSitePath($targetRelative, true);
+                if (!$sourcePath || !$target || (!is_file($sourcePath) && !is_dir($sourcePath)) || file_exists($target)) { $operationSucceeded = false; break; }
+                $copied = $action === 'duplicate' ? $this->copyAdminTree($sourcePath, $target) : @rename($sourcePath, $target);
+                if (!$copied) { $operationSucceeded = false; break; }
+                $operationEntries[] = ['from' => $source, 'to' => $targetRelative];
+            }
+            if (!$operationSucceeded) {
+                foreach (array_reverse($operationEntries) as $operationEntry) {
+                    $from = $this->getSafeSitePath($operationEntry['from']);
+                    $targetPath = $this->getSafeSitePath($operationEntry['to']);
+                    if ($action === 'move' && $targetPath && $from && file_exists($targetPath)) @rename($targetPath, $from); else if ($targetPath && file_exists($targetPath)) $this->removeAdminTree($targetPath);
+                }
+            }
+            $operationId = $operationSucceeded && count($operationEntries) ? $this->saveAdminOperation(['type' => $action, 'entries' => $operationEntries]) : false;
+            if ($operationSucceeded && !$operationId) {
+                foreach (array_reverse($operationEntries) as $operationEntry) {
+                    $from = $this->getSafeSitePath($operationEntry['from']);
+                    $targetPath = $this->getSafeSitePath($operationEntry['to']);
+                    if ($action === 'move' && $targetPath && $from && file_exists($targetPath)) @rename($targetPath, $from); else if ($targetPath && file_exists($targetPath)) $this->removeAdminTree($targetPath);
+                }
+                $operationSucceeded = false;
+            }
         } else if ($action === 'delete') {
             $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
             $target = $source === false ? false : $this->getSafeSitePath($source);
             $operationSucceeded = $target && $source !== '' && ((is_file($target) && $this->createBackup($source) && @unlink($target)) || (is_dir($target) && @rmdir($target)));
+        } else if ($action === 'archive' || $action === 'download') {
+            $sources = $this->getAdminSources();
+            if (!count($sources)) {
+                $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
+                if ($source !== false && $source !== '') $sources = [$source];
+            }
+            $archive = $this->createAdminArchive($sources);
+            $operationId = $archive ? $this->saveAdminOperation(['type' => 'archive', 'entries' => [], 'archive' => $archive['id']]) : false;
+            if ($archive && !$operationId && $this->config->getRuntimeDirectory()) {
+                $archivePath = rtrim($this->config->getRuntimeDirectory(), '/\\') . '/admin-archive-' . $archive['id'] . '.zip';
+                if ($this->isSafeRuntimePath($archivePath, true)) @unlink($archivePath);
+            }
+            $operationSucceeded = (bool)$archive && (bool)$operationId;
+        } else if ($action === 'media_replace') {
+            $mediaRelative = $this->normalizeRelativePath((string)$this->request->getPost('media_path'));
+            $mediaPath = $mediaRelative === false ? false : $this->getSafeSitePath($mediaRelative);
+            $file = $this->request->getFile(FILE_CONTENT);
+            $name = isset($file[FILE_NAME]) ? $this->normalizeUploadFilename($file[FILE_NAME]) : false;
+            $extension = strtolower(pathinfo((string)$name, PATHINFO_EXTENSION));
+            $mediaPattern = '~^(?:avif|gif|jpe?g|png|svg|webp|ico|mp4|webm|mp3|wav)$~';
+            $before = $mediaPath && is_file($mediaPath) ? ['size' => (int)@filesize($mediaPath), 'mime' => function_exists('mime_content_type') ? (string)@mime_content_type($mediaPath) : ''] : false;
+            $operationSucceeded = $mediaPath && $name && isset($file[FILE_TMP_NAME]) && (int)$file[FILE_ERROR] === 0 && preg_match($mediaPattern, $extension) && strtolower(pathinfo($mediaRelative, PATHINFO_EXTENSION)) === $extension && (int)@filesize($file[FILE_TMP_NAME]) <= 26214400 && $this->createBackup($mediaRelative) && $this->copyFileAtomically($file[FILE_TMP_NAME], $mediaPath);
+            $after = $operationSucceeded ? ['size' => (int)@filesize($mediaPath), 'mime' => function_exists('mime_content_type') ? (string)@mime_content_type($mediaPath) : ''] : false;
         } else if ($action === 'rename') {
             $source = $this->normalizeRelativePath((string)$this->request->getPost('source'));
             $name = $this->normalizeManagerName($this->request->getPost('name'));
@@ -983,7 +1321,11 @@ final class MyVibeHTMLController
             return;
         }
         $this->config->setSetting(SETTING_CACHE, '');
-        $this->adminJson(['ok' => true, 'token' => $this->issueAdminToken()]);
+        $payload = ['ok' => true, 'token' => $this->issueAdminToken()];
+        if (!empty($operationId)) $payload['operation_id'] = $operationId;
+        if ($action === 'archive' || $action === 'download') $payload['download'] = $archive['url'];
+        if ($action === 'media_replace') $payload['media'] = $this->collectAdminMediaCatalog();
+        $this->adminJson($payload);
     }
 
     private function collectAdminEntries($directory, $relativeDirectory, &$stats, &$entries, &$pages, &$mediaEntries, $deadline, $depth = 0)
@@ -1050,9 +1392,10 @@ final class MyVibeHTMLController
         $browser = $this->collectAdminBrowserEntries('');
         $browserRows = '';
         if ($browser) foreach ($browser['entries'] as $browserEntry) {
-            $browserRows .= '<tr data-admin-browser-row data-admin-browser-type="' . $this->escapeHtml($browserEntry['type']) . '"><td><button type="button" class="myvibehtml-admin-file-link" data-admin-browser-open="' . $this->escapeHtml($browserEntry['path']) . '">' . $this->escapeHtml($browserEntry['name']) . '</button><small>' . $this->escapeHtml($browserEntry['type'] === 'directory' ? $this->adminText('admin_folder', 'Folder') : strtoupper(pathinfo($browserEntry['name'], PATHINFO_EXTENSION))) . '</small></td><td>' . $this->escapeHtml($browserEntry['type'] === 'directory' ? '—' : $this->formatAdminSize($browserEntry['size'])) . '</td><td><button type="button" data-admin-browser-copy="' . $this->escapeHtml($browserEntry['path']) . '">' . $this->adminText('admin_copy', 'Copy') . '</button> <button type="button" data-admin-browser-duplicate="' . $this->escapeHtml($browserEntry['path']) . '">' . $this->adminText('admin_duplicate', 'Duplicate') . '</button> <button type="button" data-admin-browser-delete="' . $this->escapeHtml($browserEntry['path']) . '">' . $this->adminText('admin_delete', 'Delete') . '</button></td></tr>';
+            $browserIcon = $browserEntry['type'] === 'directory' ? '<span class="myvibehtml-admin-folder-icon" aria-hidden="true"></span>' : '<span class="myvibehtml-admin-file-icon" aria-hidden="true"></span>';
+            $browserRows .= '<tr data-admin-browser-row data-admin-browser-type="' . $this->escapeHtml($browserEntry['type']) . '"><td><input type="checkbox" data-admin-file-select="' . $this->escapeHtml($browserEntry['path']) . '" aria-label="' . $this->escapeHtml($browserEntry['name']) . '"></td><td><span class="myvibehtml-admin-entry-name">' . $browserIcon . '<button type="button" class="myvibehtml-admin-file-link" data-admin-browser-open="' . $this->escapeHtml($browserEntry['path']) . '">' . $this->escapeHtml($browserEntry['name']) . '</button></span></td><td>' . $this->escapeHtml($browserEntry['type'] === 'directory' ? '—' : $this->formatAdminSize($browserEntry['size'])) . '</td><td></td></tr>';
         }
-        if ($browserRows === '') $browserRows = '<tr><td colspan="3" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_files', 'No files found') . '</td></tr>';
+        if ($browserRows === '') $browserRows = '<tr><td colspan="4" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_files', 'No files found') . '</td></tr>';
         $pageRows = '';
         foreach ($pages as $page) $pageRows .= '<tr data-admin-page-row><td><a class="myvibehtml-admin-file-name myvibehtml-admin-table-action" href="' . $this->getEditorUrl($page['name']) . '">' . $this->escapeHtml($page['name']) . '</a></td><td>' . $this->escapeHtml($this->formatAdminSize($page['size'])) . '</td><td>' . $this->escapeHtml($page['date'] ? date('d.m.Y H:i', $page['date']) : '—') . '</td></tr>';
         if ($pageRows === '') $pageRows = '<tr><td colspan="3" class="myvibehtml-admin-empty">' . $this->adminText('admin_no_pages', 'No HTML pages found') . '</td></tr>';
@@ -1080,14 +1423,15 @@ final class MyVibeHTMLController
         $health = function ($label, $healthState, $detail) {
             return '<li><span><strong>' . $this->escapeHtml($label) . '</strong><small>' . $this->escapeHtml($detail) . '</small></span><b class="' . ($healthState ? 'is-ok' : 'is-warning') . '">' . $this->adminText($healthState ? 'admin_ok' : 'admin_attention', $healthState ? 'OK' : 'Check') . '</b></li>';
         };
-        $html = '<!doctype html><html id="myvibehtml-admin" lang="' . $this->escapeHtml($this->language) . '"><head><title>' . $this->escapeHtml($this->adminText('admin_title', 'Project dashboard')) . ' - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.css?v=' . self::VERSION . '"></head><body data-admin-token="' . $adminToken . '"><div class="myvibehtml-admin-shell"><aside id="myvibehtml-admin-sidebar" class="myvibehtml-admin-sidebar" data-admin-sidebar><a class="myvibehtml-admin-brand" href="' . $adminUrl . '"><span class="myvibehtml-admin-mark" aria-hidden="true"></span><span><strong>MyVibeHTML</strong><small>v' . self::VERSION . '</small></span></a><nav aria-label="' . $this->escapeHtml($this->adminText('admin_navigation', 'Navigation')) . '"><button type="button" data-admin-nav="overview" aria-current="page">' . $this->adminText('admin_overview', 'Overview') . '</button><button type="button" data-admin-nav="pages">' . $this->adminText('admin_pages', 'Pages') . '</button><button type="button" data-admin-nav="media">' . $this->adminText('admin_media', 'Media') . '</button><button type="button" data-admin-nav="files">' . $this->adminText('admin_files', 'Files') . '</button><button type="button" data-admin-nav="settings">' . $this->adminText('admin_settings', 'Settings') . '</button><button type="button" data-admin-nav="health">' . $this->adminText('admin_health', 'Health') . '</button></nav><div class="myvibehtml-admin-sidebar-foot"><span>' . $this->adminText('admin_local_only', 'Local control surface') . '</span><a href="' . $editorUrl . '">' . $this->adminText('admin_back_editor', 'Back to editor') . '</a></div></aside><main class="myvibehtml-admin-main"><header class="myvibehtml-admin-topbar"><button type="button" class="myvibehtml-admin-menu" data-admin-menu aria-expanded="false" aria-controls="myvibehtml-admin-sidebar">' . $this->adminText('admin_menu', 'Menu') . '</button><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_kicker', 'Local administration') . '</span><strong>' . $this->escapeHtml($this->config->getSiteUrl()) . '</strong></div><div class="myvibehtml-admin-top-actions"><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor', 'Open editor') . '</a><a href="' . $siteUrl . '" target="_blank" rel="noopener">' . $this->adminText('admin_open_site', 'Open site') . '</a></div></header><div class="myvibehtml-admin-content">';
+        $html = '<!doctype html><html id="myvibehtml-admin" lang="' . $this->escapeHtml($this->language) . '"><head><title>' . $this->escapeHtml($this->adminText('admin_title', 'Project dashboard')) . ' - MyVibeHTML</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.css?v=' . self::VERSION . '"></head><body data-admin-token="' . $adminToken . '"><div class="myvibehtml-admin-shell"><aside id="myvibehtml-admin-sidebar" class="myvibehtml-admin-sidebar" data-admin-sidebar><a class="myvibehtml-admin-brand" href="' . $adminUrl . '"><span class="myvibehtml-admin-mark" aria-hidden="true"></span><span><strong>MyVibeHTML</strong><small>v' . self::VERSION . '</small></span></a><nav aria-label="' . $this->escapeHtml($this->adminText('admin_navigation', 'Navigation')) . '"><button type="button" data-admin-nav="overview" aria-current="page">' . $this->adminText('admin_overview', 'Overview') . '</button><button type="button" data-admin-nav="pages">' . $this->adminText('admin_pages', 'Pages') . '</button><button type="button" data-admin-nav="content">' . $this->adminText('admin_content', 'Content') . '</button><button type="button" data-admin-nav="media">' . $this->adminText('admin_media', 'Media') . '</button><button type="button" data-admin-nav="files">' . $this->adminText('admin_files', 'Files') . '</button><button type="button" data-admin-nav="settings">' . $this->adminText('admin_settings', 'Settings') . '</button><button type="button" data-admin-nav="health">' . $this->adminText('admin_health', 'Health') . '</button></nav><div class="myvibehtml-admin-sidebar-foot"><span>' . $this->adminText('admin_local_only', 'Local control surface') . '</span><a href="' . $editorUrl . '">' . $this->adminText('admin_back_editor', 'Back to editor') . '</a></div></aside><main class="myvibehtml-admin-main"><header class="myvibehtml-admin-topbar"><button type="button" class="myvibehtml-admin-menu" data-admin-menu aria-expanded="false" aria-controls="myvibehtml-admin-sidebar">' . $this->adminText('admin_menu', 'Menu') . '</button><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_kicker', 'Local administration') . '</span><strong>' . $this->escapeHtml($this->config->getSiteUrl()) . '</strong></div><div class="myvibehtml-admin-top-actions"><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor', 'Open editor') . '</a><a href="' . $siteUrl . '" target="_blank" rel="noopener">' . $this->adminText('admin_open_site', 'Open site') . '</a></div></header><div class="myvibehtml-admin-content">';
         $html .= '<section data-admin-section="overview"><header class="myvibehtml-admin-hero"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_overview', 'Overview') . '</span><h1>' . $this->escapeHtml($this->adminText('admin_title', 'Project dashboard')) . '</h1><p>' . $this->escapeHtml($this->adminText('admin_subtitle', 'A clear control surface for your local site.')) . '</p></div><span class="myvibehtml-admin-status ' . ($statusOk ? 'is-ok' : 'is-warning') . '">' . $this->adminText($statusOk ? 'admin_status_ready' : 'admin_status_attention', $statusOk ? 'System ready' : 'Needs attention') . '</span></header><div class="myvibehtml-admin-stats"><article><span>' . $this->adminText('dashboard_files', 'Files') . '</span><strong>' . $stats['files'] . '</strong><small>' . $stats['html'] . ' HTML · ' . $stats['css'] . ' CSS · ' . $stats['js'] . ' JS</small></article><article><span>' . $this->adminText('dashboard_folders', 'Folders') . '</span><strong>' . $stats['folders'] . '</strong><small>' . $this->adminText('admin_scanned', 'Scanned locally') . '</small></article><article><span>' . $this->adminText('dashboard_media', 'Media') . '</span><strong>' . $stats['media'] . '</strong><small>' . $this->adminText('admin_assets', 'Images and media') . '</small></article><article><span>' . $this->adminText('admin_version', 'Version') . '</span><strong>v' . self::VERSION . '</strong><small>' . $this->adminText('admin_current', 'Current build') . '</small></article></div><div class="myvibehtml-admin-columns"><article class="myvibehtml-admin-panel myvibehtml-admin-current"><div class="myvibehtml-admin-panel-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('dashboard_current_file', 'Current file') . '</span><h2>' . $defaultFile . '</h2></div><span class="myvibehtml-admin-file-badge">HTML</span></div><p>' . $this->adminText('admin_current_hint', 'The default file opens in the visual editor and remains protected by the current session.') . '</p><div class="myvibehtml-admin-actions"><a class="is-primary" href="' . $editorUrl . '">' . $this->adminText('admin_edit_file', 'Edit file') . '</a><button type="button" data-admin-nav="files">' . $this->adminText('admin_browse_files', 'Browse files') . '</button></div></article><article class="myvibehtml-admin-panel"><div class="myvibehtml-admin-panel-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_health', 'Health') . '</span><h2>' . $this->adminText('admin_health_summary', 'Runtime checks') . '</h2></div><span class="myvibehtml-admin-health-score ' . ($statusOk ? 'is-ok' : 'is-warning') . '">' . ($statusOk ? '4/4' : '3/4') . '</span></div><ul class="myvibehtml-admin-check-list">' . $health($this->adminText('admin_check_root', 'Document root'), $rootReady, $rootReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_runtime', 'Runtime storage'), $runtimeReady, $runtimeReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_config', 'Configuration'), $writable, $writable ? $this->adminText('admin_writable', 'Writable') : $this->adminText('admin_readonly', 'Read only')) . $health($this->adminText('admin_check_scripts', 'Preview scripts'), !$scriptsEnabled, $scriptsEnabled ? $this->adminText('admin_enabled', 'Enabled') : $this->adminText('admin_disabled', 'Disabled')) . '</ul></article></div></section>';
         $html .= '<section data-admin-section="files" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_files_title', 'Project files') . '</h1><p>' . $this->adminText('admin_files_subtitle', 'Open editable files in the editor or public assets in a new tab.') . '</p></div><input type="search" data-admin-file-search placeholder="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '" aria-label="' . $this->escapeHtml($this->adminText('admin_search_files', 'Search files')) . '"></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th><th></th></tr></thead><tbody>' . $rows . '</tbody></table></article></section>';
         $html .= '<section data-admin-section="settings" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_settings', 'Settings') . '</span><h1>' . $this->adminText('admin_settings_title', 'Workspace settings') . '</h1><p>' . $this->adminText('admin_settings_subtitle', 'Review the active editor policy before changing the site.') . '</p></div></header><div class="myvibehtml-admin-settings-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_editor_policy', 'Editor policy') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_default', 'Default file') . '</dt><dd>' . $defaultFile . '</dd></div><div><dt>' . $this->adminText('admin_setting_extensions', 'Editable extensions') . '</dt><dd>' . $this->escapeHtml((string)$this->config->getSetting(SETTING_ALLOWED_EXTENSIONS)) . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_setting_preview', 'Preview behavior') . '</h2><dl><div><dt>' . $this->adminText('admin_setting_scripts', 'Site scripts') . '</dt><dd>' . $this->adminText($scriptsEnabled ? 'admin_enabled' : 'admin_disabled', $scriptsEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_styles', 'Site styles') . '</dt><dd>' . $this->adminText($stylesEnabled ? 'admin_enabled' : 'admin_disabled', $stylesEnabled ? 'Enabled' : 'Disabled') . '</dd></div><div><dt>' . $this->adminText('admin_setting_recovery', 'Recovery points') . '</dt><dd>' . $this->escapeHtml($this->config->getSetting(SETTING_RECOVERY_POINTS)) . '</dd></div></dl></article></div><div class="myvibehtml-admin-callout"><span class="myvibehtml-admin-callout-icon">i</span><p>' . $this->adminText('admin_settings_note', 'Use the editor Settings tab for changes. This page is a read-first control surface so policy changes remain explicit.') . '</p><a href="' . $editorUrl . '">' . $this->adminText('admin_open_editor_settings', 'Open editor settings') . '</a></div></section>';
         $html .= '<section data-admin-section="health" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_health', 'Health') . '</span><h1>' . $this->adminText('admin_health_title', 'System health') . '</h1><p>' . $this->adminText('admin_health_subtitle', 'Small, actionable checks for a safe local editing session.') . '</p></div></header><div class="myvibehtml-admin-health-grid"><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_security_state', 'Security state') . '</h2><ul class="myvibehtml-admin-check-list">' . $health($this->adminText('admin_check_root', 'Document root'), $rootReady, $rootReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_runtime', 'Runtime storage'), $runtimeReady, $runtimeReady ? $this->adminText('admin_available', 'Available') : $this->adminText('admin_missing', 'Missing')) . $health($this->adminText('admin_check_config', 'Configuration'), $writable, $writable ? $this->adminText('admin_writable', 'Writable') : $this->adminText('admin_readonly', 'Read only')) . '</ul></article><article class="myvibehtml-admin-panel"><h2>' . $this->adminText('admin_session', 'Session') . '</h2><p class="myvibehtml-admin-health-copy">' . $this->adminText('admin_session_hint', 'This page is available only after the existing MyVibeHTML session check.') . '</p><dl><div><dt>' . $this->adminText('admin_version', 'Version') . '</dt><dd>v' . self::VERSION . '</dd></div><div><dt>' . $this->adminText('admin_setting_php', 'PHP editing') . '</dt><dd class="' . ($allowPhp ? 'is-warning' : 'is-ok') . '">' . $this->adminText($allowPhp ? 'admin_enabled' : 'admin_disabled', $allowPhp ? 'Enabled' : 'Disabled') . '</dd></div></dl></article></div></section>';
         $html .= '<section data-admin-section="pages-legacy" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_pages', 'Pages') . '</span><h1>' . $this->adminText('admin_pages_title', 'Editable pages') . '</h1><p>' . $this->adminText('admin_pages_subtitle', 'Open any HTML page directly in the visual editor.') . '</p></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_file_changed', 'Changed') . '</th></tr></thead><tbody>' . $pageRows . '</tbody></table></article></section>';
-        $html .= '<section data-admin-section="media" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_media', 'Media') . '</span><h1>' . $this->adminText('admin_media_title', 'Media browser') . '</h1><p>' . $this->adminText('admin_media_subtitle', 'Preview images and open the original asset in a new tab.') . '</p></div></header><div class="myvibehtml-admin-media-grid">' . $mediaCards . '</div></section>';
-        $html .= '<section data-admin-section="browser" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_browser_title', 'File browser') . '</h1><p>' . $this->adminText('admin_browser_subtitle', 'Upload, copy, duplicate and remove project files without leaving the admin page.') . '</p></div><div class="myvibehtml-admin-file-toolbar"><input type="file" data-admin-upload aria-label="' . $this->escapeHtml($this->adminText('admin_upload', 'Upload file')) . '"><button type="button" data-admin-upload-submit>' . $this->adminText('admin_upload', 'Upload') . '</button><button type="button" data-admin-mkdir>' . $this->adminText('admin_new_folder', 'New folder') . '</button></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-browser" data-admin-browser data-admin-browser-path=""><div class="myvibehtml-admin-browser-bar"><button type="button" data-admin-browser-up disabled>← ' . $this->adminText('admin_up', 'Up') . '</button><strong data-admin-browser-breadcrumb>/</strong><span data-admin-browser-status aria-live="polite"></span></div><div class="myvibehtml-admin-table-wrap"><table><thead><tr><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_actions', 'Actions') . '</th></tr></thead><tbody data-admin-browser-list>' . $browserRows . '</tbody></table></div></article></section>';
+        $html .= '<section data-admin-section="content" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_content', 'Content') . '</span><h1>' . $this->adminText('admin_content_title', 'Content catalog') . '</h1><p>' . $this->adminText('admin_content_subtitle', 'Find images, text, links, buttons and accessibility issues across HTML pages.') . '</p></div><div class="myvibehtml-admin-content-tools"><input type="search" data-admin-content-search placeholder="' . $this->escapeHtml($this->adminText('admin_content_search', 'Search catalog')) . '" aria-label="' . $this->escapeHtml($this->adminText('admin_content_search', 'Search catalog')) . '"><div class="myvibehtml-admin-filter-group" role="group" aria-label="' . $this->escapeHtml($this->adminText('admin_content_filters', 'Content filters')) . '"><button type="button" data-admin-content-filter="all" aria-pressed="true">' . $this->adminText('admin_filter_all', 'All') . '</button><button type="button" data-admin-content-filter="image" aria-pressed="false">' . $this->adminText('admin_filter_images', 'Images') . '</button><button type="button" data-admin-content-filter="text" aria-pressed="false">' . $this->adminText('admin_filter_text', 'Text') . '</button><button type="button" data-admin-content-filter="link" aria-pressed="false">' . $this->adminText('admin_filter_links', 'Links') . '</button><button type="button" data-admin-content-filter="button" aria-pressed="false">' . $this->adminText('admin_filter_buttons', 'Buttons') . '</button><button type="button" data-admin-content-filter="accessibility" aria-pressed="false">' . $this->adminText('admin_filter_accessibility', 'Accessibility') . '</button></div></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-table-wrap myvibehtml-admin-content-catalog" data-admin-content-catalog><table><thead><tr><th>' . $this->adminText('admin_content_type', 'Type') . '</th><th>' . $this->adminText('admin_content_file', 'File') . '</th><th>' . $this->adminText('admin_content_detail', 'Details') . '</th><th>' . $this->adminText('admin_content_issue', 'Status') . '</th></tr></thead><tbody data-admin-content-list><tr><td colspan="4" class="myvibehtml-admin-empty">' . $this->adminText('admin_loading', 'Loading…') . '</td></tr></tbody></table></article></section>';
+        $html .= '<section data-admin-section="media" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_media', 'Media') . '</span><h1>' . $this->adminText('admin_media_title', 'Media browser') . '</h1><p>' . $this->adminText('admin_media_subtitle', 'Preview, inspect and replace media files with a before/after diff.') . '</p></div></header><div class="myvibehtml-admin-media-grid" data-admin-media-grid>' . $mediaCards . '</div></section>';
+        $html .= '<section data-admin-section="browser" hidden><header class="myvibehtml-admin-section-heading"><div><span class="myvibehtml-admin-kicker">' . $this->adminText('admin_files', 'Files') . '</span><h1>' . $this->adminText('admin_browser_title', 'File browser') . '</h1><p>' . $this->adminText('admin_browser_subtitle', 'Upload and manage selected files with safe copy, move, archive, download and rollback actions.') . '</p></div><div class="myvibehtml-admin-file-toolbar"><input type="file" data-admin-upload aria-label="' . $this->escapeHtml($this->adminText('admin_upload', 'Upload file')) . '"><button type="button" data-admin-upload-submit>' . $this->adminText('admin_upload', 'Upload') . '</button><button type="button" data-admin-mkdir>' . $this->adminText('admin_new_folder', 'New folder') . '</button><button type="button" data-admin-browser-copy disabled>' . $this->adminText('admin_copy', 'Copy') . '</button><button type="button" data-admin-browser-paste disabled>' . $this->adminText('admin_paste', 'Paste') . '</button><button type="button" data-admin-browser-move disabled>' . $this->adminText('admin_move', 'Move') . '</button><button type="button" data-admin-browser-archive disabled>' . $this->adminText('admin_archive', 'Archive') . '</button><button type="button" data-admin-browser-download disabled>' . $this->adminText('admin_download', 'Download') . '</button><button type="button" data-admin-browser-rollback hidden>' . $this->adminText('admin_rollback', 'Rollback') . '</button></div></header><article class="myvibehtml-admin-panel myvibehtml-admin-browser" data-admin-browser data-admin-browser-path=""><div class="myvibehtml-admin-browser-bar"><button type="button" data-admin-browser-up disabled>← ' . $this->adminText('admin_up', 'Up') . '</button><strong data-admin-browser-breadcrumb>/</strong><span data-admin-browser-status aria-live="polite"></span></div><div class="myvibehtml-admin-table-wrap"><table><thead><tr><th></th><th>' . $this->adminText('admin_file_name', 'Name') . '</th><th>' . $this->adminText('admin_file_size', 'Size') . '</th><th>' . $this->adminText('admin_actions', 'Actions') . '</th></tr></thead><tbody data-admin-browser-list>' . $browserRows . '</tbody></table></div></article></section>';
         $html .= $this->renderAdminPagesBrowser();
         $html .= '</div></main></div><script src="' . $this->escapeHtml($this->config->getSiteUrlBase()) . 'myvibehtml-admin.js?v=' . self::VERSION . '"></script></body></html>';
         $this->response->setBody($html);

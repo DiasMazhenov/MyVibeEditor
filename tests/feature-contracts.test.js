@@ -89,7 +89,8 @@ test('External CSS editor exposes rule search, media context, diff and guarded s
     assert.match(editor, /data-myvibehtml-external-declarations/);
     assert.match(editor, /data-myvibehtml-external-diff/);
     assert.match(editor, /data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]/);
-    assert.match(editor, /external-css.*Изменить CSS-файл|external-css.*Edit CSS file/);
+    assert.match(editor, /\['style',[^\n]+Изменить CSS/);
+    assert.doesNotMatch(editor, /\['external-css'/);
     assert.match(editor, /save_css/);
     assert.match(php, /getSiteRelativePath\(rawurldecode\(\$cssRelativeInput\), true\)/);
     assert.match(php, /strtolower\(pathinfo\(\$cssRelative, PATHINFO_EXTENSION\)\) !== 'css'/);
@@ -139,7 +140,8 @@ test('Visual CSS changes keep save enabled and send the edited source', () => {
 test('Context menu dispatches CSS actions from the clicked menu item', () => {
     assert.match(editor, /setAttributeMethod\]\('data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]\)/);
     assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
-    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'external-css' \|\| contextAction == 'markup'/);
+    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
+    assert.doesNotMatch(editor, /contextAction == 'external-css'/);
     assert.match(editor, /renderStyleInspector\(visualEditorValue17\);[\s\S]*?hideContextMenu\(\);/);
     assert.match(editor, /toUpperCaseMethod = 'toUpperCase'/);
     assert.match(shell, /uiContracts = window\.MyVibeHTMLUIContracts \|\| \{\},[\s\S]*?previewControls/);
@@ -192,11 +194,24 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.match(php, /data-admin-page-select/);
     assert.match(php, /renderAdminPagesBrowser/);
     assert.match(php, /data-admin-section="media"/);
+    assert.match(php, /data-admin-section="content"/);
     assert.match(php, /data-admin-section="browser"/);
     assert.match(php, /private function dispatchAdminRequest\(\)/);
     assert.match(php, /admin_action/);
     assert.match(php, /collectAdminBrowserEntries/);
+    assert.match(php, /collectAdminContentCatalog/);
+    assert.match(php, /copyAdminTree/);
+    assert.match(php, /addAdminArchivePath/);
+    assert.match(php, /collectAdminMediaAltMap/);
+    assert.match(php, /getAdminCopyPath/);
     assert.match(adminJs, /data-admin-upload-submit/);
+    assert.match(adminJs, /data-admin-content-filter/);
+    assert.match(adminJs, /renderContentCatalog/);
+    assert.match(adminJs, /renderMediaCatalog/);
+    assert.match(adminJs, /data-admin-browser-archive/);
+    assert.match(adminJs, /data-admin-browser-download/);
+    assert.match(adminJs, /data-admin-browser-rollback/);
+    assert.match(adminJs, /sources: browserSelected.slice()/);
     assert.match(adminJs, /data-admin-browser-duplicate|operate\('duplicate'/);
     assert.match(adminJs, /operate\('rename'/);
     assert.match(adminJs, /data-admin-browser-delete|operate\('delete'/);
@@ -213,6 +228,7 @@ test('Admin content workspace exposes pages, media previews and guarded file ope
     assert.doesNotMatch(php, /entry\['type'\] === 'directory' \? this->adminText\('admin_folder'/);
     assert.match(php, /preg_match\('\~\^\(\?:avif\|gif\|jpe\?g\|png\|svg\|webp\|ico\|mp4\|webm\|mp3\|wav\)\$\~'/);
     assert.match(adminCss, /myvibehtml-admin-media-grid/);
+    assert.match(adminCss, /myvibehtml-admin-browser td:first-child input/);
     assert.match(adminCss, /myvibehtml-admin-page-browser input\[type="checkbox"\]/);
     assert.match(adminCss, /data-admin-pages-upload-file/);
     assert.match(adminCss, /is-dragover/);
