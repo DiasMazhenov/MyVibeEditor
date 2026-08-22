@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.90
+
+- Применён `ui-ux-pro-max` для editor/admin UI: сохранены graphite/teal-токены проекта, добавлены устойчивый responsive rhythm, 44px mobile touch targets, единые active/focus transitions и защита от горизонтального overflow.
+- На мобильном editor topbar кнопки просмотра, админки и burger выровнены в одну action-группу; увеличены до 44px без layout shift. Mobile menu buttons также получили 44px высоту.
+- На мобильной админке topbar теперь центрирован по вертикали, kicker не переносится на несколько строк, центральный блок сжимается безопасно, а действия и sidebar controls соответствуют touch-target рекомендациям.
+- Визуальный аудит выполнен на 1440×900 и 390×844; исходные screenshots сохранены во временных файлах `/private/tmp/myvibe-ui-before-desktop.png`, `/private/tmp/myvibe-ui-before-mobile.png`, `/private/tmp/myvibe-admin-before-desktop.png`, `/private/tmp/myvibe-admin-before-mobile.png`.
+- Интерактивная mobile-проверка пройдена: burger editor и admin menu открываются кликом, editor actions имеют фактические размеры 46×46/44×44, sidebar после transition имеет `x=0` и ширину `280px`, горизонтальный overflow отсутствует. Финальные screenshots меню: `/private/tmp/myvibe-ui-mobile-menu-open.png`, `/private/tmp/myvibe-admin-mobile-menu-open.png`.
+- После правок проходят 34 Node-теста, CI contract, JS/PHP lint, security smoke, `git diff --check` и HTTP regression (`regression: PASS`).
+- Версия runtime и browser cache-busting повышена до `0.90`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+
 ## Текущее исправление v0.89
 
 - Универсальный CSS-инспектор редактирует встроенные стили и внешние `.css`-файлы в одном `myvibehtml.js`; отдельный CSS-модуль не добавлялся.

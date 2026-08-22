@@ -43,6 +43,15 @@ test('mobile navigation exposes the burger and clear editor mode labels', () => 
     assert.match(fallback, /#e\[data-myvibehtml-mobile-shell="true"\].*#myvibehtml-mobile-menu-toggle\{display:grid!important/);
 });
 
+test('UI/UX Pro Max responsive pass keeps mobile actions touchable and aligned', () => {
+    assert.match(theme, /v0\.90 UI\/UX Pro Max pass/);
+    assert.match(theme, /#e #myvibehtml-site-preview,#e #myvibehtml-admin-link,#e #myvibehtml-mobile-menu-toggle\{width:44px;height:44px\}/);
+    assert.match(fallback, /v0\.90 UI\/UX Pro Max pass/);
+    assert.match(fallback, /#e #myvibehtml-site-preview,#e #myvibehtml-admin-link,#e #myvibehtml-mobile-menu-toggle\{width:44px;height:44px\}/);
+    assert.match(adminCss, /\.myvibehtml-admin-kicker \{ overflow: hidden; font-size: 9px;.*white-space: nowrap; \}/);
+    assert.match(adminCss, /\.myvibehtml-admin-menu, \.myvibehtml-admin-top-actions a:last-child \{ min-height: 44px; \}/);
+});
+
 test('Reusable Components extend the existing local block library', () => {
     assert.match(editor, /type:'component'/);
     assert.match(editor, /updateBlockPreset = function/);

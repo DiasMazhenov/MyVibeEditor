@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.89 admin page: quiet graphite workspace with one teal action color. */
+/* MyVibeHTML v0.90 admin page: quiet graphite workspace with one teal action color. */
 :root {
     color-scheme: dark;
     --admin-bg: #0b1117;
@@ -166,7 +166,12 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
     .myvibehtml-admin-content { padding: 28px 16px 40px; }
 }
 @media (max-width: 700px) {
-    .myvibehtml-admin-topbar { align-items: flex-start; }
+    .myvibehtml-admin-topbar { align-items: center; min-height: 68px; gap: 8px; padding-block: 12px; overflow: hidden; }
+    .myvibehtml-admin-topbar > div:first-of-type { flex: 1 1 auto; min-width: 0; }
+    .myvibehtml-admin-kicker { overflow: hidden; font-size: 9px; letter-spacing: .1em; text-overflow: ellipsis; white-space: nowrap; }
+    .myvibehtml-admin-menu, .myvibehtml-admin-top-actions a:last-child { min-height: 44px; }
+    .myvibehtml-admin-menu { padding-inline: 14px; }
+    .myvibehtml-admin-top-actions { flex: 0 0 auto; }
     .myvibehtml-admin-top-actions a:first-child { display: none; }
     .myvibehtml-admin-hero, .myvibehtml-admin-section-heading { display: grid; gap: 14px; }
     .myvibehtml-admin-hero h1, .myvibehtml-admin-section-heading h1 { font-size: 26px; }
@@ -180,7 +185,13 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
     .myvibehtml-admin-callout { align-items: flex-start; flex-wrap: wrap; }
     .myvibehtml-admin-callout p { flex-basis: calc(100% - 40px); }
     .myvibehtml-admin-callout a { margin-left: 36px; }
+    .myvibehtml-admin-sidebar nav button { min-height: 44px; }
+    .myvibehtml-admin-file-toolbar button, .myvibehtml-admin-browser-bar button, .myvibehtml-admin-browser td button { min-height: 44px; }
+    .myvibehtml-admin-pages-toolbar button { width: 44px; min-width: 44px; height: 44px; }
 }
+
+.myvibehtml-admin-topbar a, .myvibehtml-admin-menu, .myvibehtml-admin-sidebar nav button, .myvibehtml-admin-actions button, .myvibehtml-admin-file-toolbar button, .myvibehtml-admin-browser-bar button { transition: background-color .18s ease, border-color .18s ease, color .18s ease, filter .18s ease; }
+.myvibehtml-admin-topbar a:active, .myvibehtml-admin-menu:active, .myvibehtml-admin-sidebar nav button:active, .myvibehtml-admin-actions button:active, .myvibehtml-admin-file-toolbar button:active, .myvibehtml-admin-browser-bar button:active { filter: brightness(.92); }
 @media (prefers-reduced-motion: reduce) {
     .myvibehtml-admin-sidebar { transition: none; }
 }

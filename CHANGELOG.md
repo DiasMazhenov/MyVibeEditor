@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.90
+
+- UI/UX Pro Max pass для editor/admin: mobile action buttons и menu controls увеличены до 44px, mobile topbar получил устойчивую иерархию без переноса kicker, добавлены стабильные active/focus transitions.
+- Проверены desktop 1440×900 и mobile 390×844 screenshots; graphite/teal визуальный язык сохранён без внешних шрифтов и библиотек.
+
 ## 0.89
 
 - Единый CSS-инспектор теперь умеет находить и редактировать правила внешних `.css`-файлов без отдельного редакторского модуля.
