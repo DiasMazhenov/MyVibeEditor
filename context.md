@@ -1,5 +1,13 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.91
+
+- Исправлена причина слипания мобильных action-кнопок: ссылки имели `width:44px` в `content-box`, поэтому фактический размер с рамкой был `46px`, а shell-specific правило оставляло eye-кнопку на `right:42px`; при ширине 390px она перекрывала burger на 2px.
+- В theme и fallback добавлен единый mobile action geometry contract: `box-sizing:border-box`, `44×44px`, admin `right:104px`, eye `right:52px`, burger `right:0`. Это сохраняет 8px промежуток и для обычного editor, и для preview/mobile shell.
+- Использован `ui-ux-pro-max`: применены рекомендации о минимальном touch-target 44px и минимум 8px между соседними touch targets; существующая graphite/teal-схема и локальные SVG сохранены.
+- Live browser-проверка на 390×844 после авторизации: фактические action-boxes `44×44`, расположение без overlap, eye/burger gap `8px`; desktop smoke и меню проверяются тем же UI-contract.
+- Версия runtime и cache-busting повышена до `0.91`; пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+
 ## Текущее исправление v0.90
 
 - Применён `ui-ux-pro-max` для editor/admin UI: сохранены graphite/teal-токены проекта, добавлены устойчивый responsive rhythm, 44px mobile touch targets, единые active/focus transitions и защита от горизонтального overflow.

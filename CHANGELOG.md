@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.91
+
+- Исправлено перекрытие мобильных action-кнопок: ссылки теперь используют `box-sizing: border-box`, а editor, preview shell и mobile shell получают единые offsets `104px / 52px / 0` с фактическим gap 8px.
+- Добавлен regression-контракт на touch-target и геометрию всех трёх кнопок.
+- Live-проверка подтверждает: на 390px кнопки имеют 44×44px и не перекрываются.
+
 ## 0.90
 
 - UI/UX Pro Max pass для editor/admin: mobile action buttons и menu controls увеличены до 44px, mobile topbar получил устойчивую иерархию без переноса kicker, добавлены стабильные active/focus transitions.

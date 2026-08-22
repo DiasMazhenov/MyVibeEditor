@@ -44,10 +44,15 @@ test('mobile navigation exposes the burger and clear editor mode labels', () => 
 });
 
 test('UI/UX Pro Max responsive pass keeps mobile actions touchable and aligned', () => {
-    assert.match(theme, /v0\.90 UI\/UX Pro Max pass/);
+    assert.match(theme, /v0\.91 mobile action geometry/);
     assert.match(theme, /#e #myvibehtml-site-preview,#e #myvibehtml-admin-link,#e #myvibehtml-mobile-menu-toggle\{width:44px;height:44px\}/);
-    assert.match(fallback, /v0\.90 UI\/UX Pro Max pass/);
+    assert.match(theme, /#e #myvibehtml-site-preview,#e #myvibehtml-admin-link,#e #myvibehtml-mobile-menu-toggle,#d\[data-myvibehtml-preview-size="mobile"\]/);
+    assert.match(theme, /box-sizing:border-box;width:44px;height:44px/);
+    assert.match(theme, /#e #myvibehtml-site-preview,#d\[data-myvibehtml-preview-size="mobile"\] #e #myvibehtml-site-preview,#e\[data-myvibehtml-mobile-shell="true"\] #myvibehtml-site-preview\{right:52px\}/);
+    assert.match(fallback, /v0\.91 mobile action geometry/);
     assert.match(fallback, /#e #myvibehtml-site-preview,#e #myvibehtml-admin-link,#e #myvibehtml-mobile-menu-toggle\{width:44px;height:44px\}/);
+    assert.match(fallback, /box-sizing:border-box;width:44px;height:44px/);
+    assert.match(fallback, /#e #myvibehtml-mobile-menu-toggle,#d\[data-myvibehtml-preview-size="mobile"\] #e #myvibehtml-mobile-menu-toggle,#e\[data-myvibehtml-mobile-shell="true"\] #myvibehtml-mobile-menu-toggle\{right:0\}/);
     assert.match(adminCss, /\.myvibehtml-admin-kicker \{ overflow: hidden; font-size: 9px;.*white-space: nowrap; \}/);
     assert.match(adminCss, /\.myvibehtml-admin-menu, \.myvibehtml-admin-top-actions a:last-child \{ min-height: 44px; \}/);
 });
