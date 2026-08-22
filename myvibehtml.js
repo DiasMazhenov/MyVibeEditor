@@ -1,4 +1,4 @@
-/* MyVibeHTML v0.85 */
+/* MyVibeHTML v0.86 */
 (function() {
     var windowObject = window,
         documentObject = document,
@@ -1745,11 +1745,15 @@
                                 var visualEditorValue11 = documentObject[createElementMethod]('button');
                                 visualEditorValue11.type = 'button';
                                 visualEditorValue11[setAttributeMethod]('role', 'menuitem');
+                                visualEditorValue11[setAttributeMethod]('data-context-action', visualEditorValue8[visualEditorValue9][0]);
                                 visualEditorValue11.action = visualEditorValue8[visualEditorValue9][0];
                                 visualEditorValue11[textContentProperty] = visualEditorValue8[visualEditorValue9][1];
-                                visualEditorValue11[addEventListenerMethod](clickEvent, function() {
-                                    var createContextMenuValue1 = this.action == 'section' ? getSectionNode(contextTarget) : this.action == 'block' ? getBlockNode(contextTarget) : contextTarget;
-                                    selectContextNode(createContextMenuValue1, this.action);
+                                visualEditorValue11[addEventListenerMethod](clickEvent, function(event) {
+                                    event[preventDefaultMethod]();
+                                    event[stopPropagationMethod]();
+                                    var contextAction = event.currentTarget[getAttributeMethod]('data-context-action') || event.currentTarget.action,
+                                        createContextMenuValue1 = contextAction == 'section' ? getSectionNode(contextTarget) : contextAction == 'block' ? getBlockNode(contextTarget) : contextTarget;
+                                    selectContextNode(createContextMenuValue1, contextAction);
                                     hideContextMenu()
                                 });
                                 contextMenu[appendChildMethod](visualEditorValue11)
@@ -1763,32 +1767,41 @@
                                 visualEditorValue16.type = 'button';
                                 visualEditorValue16[setAttributeMethod]('role', 'menuitem');
                                 visualEditorValue16[classNameProperty] = 'myvibehtml-context-action';
+                                visualEditorValue16[setAttributeMethod]('data-context-action', visualEditorValue13[visualEditorValue14][0]);
                                 visualEditorValue16.action = visualEditorValue13[visualEditorValue14][0];
                                 if (visualEditorValue16.action == 'media') visualEditorValue16[setAttributeMethod]('data-myvibehtml-media-action', 'true');
                                 if (visualEditorValue16.action == 'add-child') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-child', 'true');
                                 if (visualEditorValue16.action == 'add-after') visualEditorValue16[setAttributeMethod]('data-myvibehtml-structural-after', 'true');
                                 visualEditorValue16.handler = visualEditorValue13[visualEditorValue14][2];
                                 visualEditorValue16[textContentProperty] = visualEditorValue13[visualEditorValue14][1];
-                                visualEditorValue16[addEventListenerMethod](clickEvent, function() {
-                                    if (this.action == 'save-block') {
+                                visualEditorValue16[addEventListenerMethod](clickEvent, function(event) {
+                                    event[preventDefaultMethod]();
+                                    event[stopPropagationMethod]();
+                                    var contextAction = event.currentTarget[getAttributeMethod]('data-context-action') || event.currentTarget.action,
+                                        contextActionHandler = event.currentTarget.handler;
+                                    if (contextAction == 'save-block') {
                                         saveBlockPreset(contextTarget);
                                         hideContextMenu();
                                         return
                                     }
-                                    if (this.action == 'style' || this.action == 'markup') {
+                                    if (contextAction == 'style' || contextAction == 'markup') {
                                         var visualEditorValue17 = contextTarget && contextTarget[tagNameProperty][toLowerCaseMethod]() == 'edit' ? contextTarget[parentNodeProperty] : contextTarget;
+                                        if (!visualEditorValue17 || visualEditorValue17 == runtimeValue127.body) {
+                                            hideContextMenu();
+                                            return
+                                        }
                                         selectContextNode(visualEditorValue17, 'element');
                                         renderStyleInspector(visualEditorValue17);
                                         hideContextMenu();
                                         return
                                     }
-                                    if (this.action == 'add-child' || this.action == 'add-after') {
+                                    if (contextAction == 'add-child' || contextAction == 'add-after') {
                                         selectContextNode(contextTarget, 'element');
-                                        insertStructuralNode(this.action == 'add-child' ? 'child' : 'after');
+                                        insertStructuralNode(contextAction == 'add-child' ? 'child' : 'after');
                                         hideContextMenu();
                                         return
                                     }
-                                    if (this.action == 'media') {
+                                    if (contextAction == 'media') {
                                         var visualEditorValue18 = getMediaTarget(contextTarget);
                                         if (!visualEditorValue18) return;
                                         selectContextNode(visualEditorValue18, 'element');
@@ -1797,7 +1810,7 @@
                                         return
                                     }
                                     selectContextNode(contextTarget, 'element');
-                                    if (this.handler) this.handler.call(this);
+                                    if (contextActionHandler) contextActionHandler.call(event.currentTarget);
                                     hideContextMenu()
                                 });
                                 contextMenu[appendChildMethod](visualEditorValue16)

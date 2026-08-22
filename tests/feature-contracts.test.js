@@ -95,6 +95,13 @@ test('CSS inspector keeps HTML fields focused and persists live CSS edits', () =
     assert.match(fs.readFileSync('myvibehtml-source-map.js', 'utf8'), /data-myvibehtml-preview/);
 });
 
+test('Context menu dispatches CSS actions from the clicked menu item', () => {
+    assert.match(editor, /setAttributeMethod\]\('data-context-action', visualEditorValue13\[visualEditorValue14\]\[0\]\)/);
+    assert.match(editor, /event\[stopPropagationMethod\]\(\);[\s\S]*?event\.currentTarget\[getAttributeMethod\]\('data-context-action'\)/);
+    assert.match(editor, /contextAction == 'style' \|\| contextAction == 'markup'/);
+    assert.match(editor, /renderStyleInspector\(visualEditorValue17\);[\s\S]*?hideContextMenu\(\);/);
+});
+
 test('brand scrollbars stay graphite and teal across theme and fallback layers', () => {
     for (const stylesheet of [theme, fallback, adminCss]) {
         assert.match(stylesheet, /scrollbar-color:\s*#0f766e\s+#(?:0c1117|151f29)/);

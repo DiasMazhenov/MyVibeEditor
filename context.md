@@ -1,5 +1,15 @@
 # MyVibeHTML plugin context
 
+## Текущее исправление v0.86
+
+- Исправлен маршрут контекстного меню: каждая кнопка получает явный `data-context-action`, обработчик читает действие через `event.currentTarget`, вызывает `preventDefault()`/`stopPropagation()` и только затем открывает CSS-инспектор выбранного узла. Это устраняет зависимость от пользовательского expando `button.action` и от document-level обработчика закрытия меню.
+- Для `Изменить CSS` сохранена общая цепочка `selectContextNode → renderStyleInspector`; меню закрывается только после вызова инспектора, а `body`/пустой target отбрасываются.
+- Добавлен feature-contract и regression-проверка на `data-context-action`, остановку всплытия и вызов `renderStyleInspector`.
+- Версия `0.86` синхронизирована в runtime, заголовках модулей, cache-busting, документации, тестах и UI snapshot. Пользовательские `test-page.html` и `.test-page.html.myvibehtml.lock` не входят в commit.
+- Проверки прошли: `node --check myvibehtml.js`, feature/source-map/UI/accessibility tests, `git diff --check` и полный `sh tests/regression.sh` против `http://127.0.0.1:8080` (`regression: PASS`). Live HTTP отдал `myvibehtml.js`, source-map и theme CSS версии `0.86` с `200`; editor без сессии ожидаемо вернул `403`. Свежая вкладка открыта на `http://127.0.0.1:8080/?q=myvibe/demo-about.html&rev=0.86`.
+- Полный ручной сценарий «правая кнопка → Изменить CSS → ввести значение → увидеть live-изменение» требует API встроенного браузера, которого в текущем Codex-сеансе нет: открыть URL удалось, программный click/fill/screenshot — нет. Поэтому этот acceptance-шаг не объявляется пройденным автоматически.
+- Следующий этап: v0.87 — каталог контента с фильтрами изображений, текста, ссылок и кнопок.
+
 ## Текущее исправление v0.85
 
 - Найдена причина неработающего «Изменить CSS» после инициализации visual editor: runtime добавлял в iframe служебные `<style>` и `<edit>`-узлы, но source map исключала только `<base>`. При повторной сборке карта становилась `ambiguous`, `openingRangeFor()` возвращал `null`, а CSS-инспектор молча прекращал применение.
